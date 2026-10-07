@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
+import { SocialWatchers, useDailyColorStore } from '/@/renderer/features/sour/components/social-watchers';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';
@@ -63,17 +64,18 @@ const LookSwitches = () => {
         }
     }, [look.density]);
 
+    const groupColor = useDailyColorStore((s) => s.color);
     useEffect(() => {
         if (!look.dailyTheme || look.albumAccent) return undefined;
         const apply = () =>
-            document.documentElement.style.setProperty('--theme-colors-primary', dailyColor());
+            document.documentElement.style.setProperty('--theme-colors-primary', groupColor || dailyColor());
         apply();
         const timer = setInterval(apply, 10 * 60000);
         return () => {
             clearInterval(timer);
             document.documentElement.style.removeProperty('--theme-colors-primary');
         };
-    }, [look.albumAccent, look.dailyTheme]);
+    }, [groupColor, look.albumAccent, look.dailyTheme]);
     return null;
 };
 
@@ -139,6 +141,9 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="loop">
             <LoopWatcher />
+        </SourSafe>
+        <SourSafe name="social">
+            <SocialWatchers />
         </SourSafe>
     </>
 );
