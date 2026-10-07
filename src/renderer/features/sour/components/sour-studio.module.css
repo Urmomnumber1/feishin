@@ -1,0 +1,115 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.skin,
+.viz,
+.icon {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    font: inherit;
+    color: var(--theme-colors-foreground);
+    text-align: left;
+    cursor: pointer;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border: 2px solid alpha(var(--theme-colors-foreground), 0.08);
+    border-radius: 12px;
+    transition: transform 0.12s ease-out, border-color 0.12s;
+}
+
+.skin:hover,
+.viz:hover,
+.icon:hover {
+    transform: translateY(-2px);
+}
+
+.active {
+    border-color: var(--theme-colors-primary);
+}
+
+.swatches {
+    display: flex;
+    gap: 4px;
+}
+
+.swatches i {
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgb(127 127 127 / 30%);
+    border-radius: 50%;
+}
+
+.skin-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.viz-canvas {
+    height: 70px;
+    overflow: hidden;
+    background: #141414;
+    border-radius: 8px;
+}
+
+.icon {
+    align-items: center;
+    text-align: center;
+}
+
+.icon img,
+.icon-blank {
+    width: 64px;
+    height: 64px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.now {
+    background: alpha(var(--theme-colors-primary), 0.15);
+}
+
+.emoji {
+    font-family: 'Sour Emoji', sans-serif;
+    font-size: 1.2rem;
+}
+
+.grow {
+    flex: 1;
+}
+
+.fonts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 8px;
+}
+
+.font-row {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border-radius: 8px;
+}
+
+.font-sample {
+    overflow: hidden;
+    font-size: 1.3rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

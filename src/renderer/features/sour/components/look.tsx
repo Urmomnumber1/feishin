@@ -10,6 +10,8 @@ import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-p
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { openPeople, openProfile } from '/@/renderer/features/sour/components/people';
 import { toggleMiniPlayer } from '/@/renderer/features/sour/components/mini-player';
+import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
+import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
 import { currentHoliday } from '/@/renderer/features/sour/skins/holidays';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -109,6 +111,8 @@ const SHORTCUTS: Array<[string, string]> = [
     ['Ctrl + Alt + G', 'Group Play panel'],
     ['Ctrl + Alt + P', 'People'],
     ['Ctrl + Alt + M', 'Mini player'],
+    ['Ctrl + Alt + L', 'Sour Studio (skins, holidays, visualizers)'],
+    ['Ctrl + Alt + V', 'Sour Stage (full screen now playing)'],
     ['?', 'This list'],
 ];
 
@@ -147,6 +151,8 @@ export const Shortcuts = ({ onRequest }: { onRequest: () => void }) => {
             else if (key === 'g') useGroupPlayStore.setState((s) => ({ panelOpen: !s.panelOpen }));
             else if (key === 'p') openPeople();
             else if (key === 'm') toggleMiniPlayer();
+            else if (key === 'l') openSourStudio();
+            else if (key === 'v') toggleStage();
             else return;
             e.preventDefault();
         };

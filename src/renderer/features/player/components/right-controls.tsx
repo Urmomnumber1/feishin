@@ -45,6 +45,9 @@ import {
 import { PeopleButton } from '/@/renderer/features/sour/components/people';
 import { ListenAlong, SocialWatcher } from '/@/renderer/features/sour/components/social';
 import { SourPresence } from '/@/renderer/features/sour/components/sour-presence';
+import { SourStudioButton } from '/@/renderer/features/sour/components/sour-studio';
+import { SourStageButton } from '/@/renderer/features/sour/stage/sour-stage';
+import { PlayerBarVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useHotkeys } from '/@/renderer/hooks/use-hotkeys';
 import {
@@ -144,10 +147,13 @@ export const RightControls = () => {
                 <PlayerConfig />
                 {show('mini') && <MiniPlayerButton />}
                 {show('video') && <MusicVideoButton />}
+                {show('stage') && <SourStageButton />}
+                {show('studio') && <SourStudioButton />}
                 {showRatings && roomy && <RatingButton />}
                 <AutoDJButton />
             </Group>
             <Group align="center" gap="xs" justify="flex-end" wrap="nowrap">
+                <PlayerBarVisualizer />
                 <FriendChips />
                 {show('people') && <PeopleButton />}
                 {show('request') && <RequestButton />}

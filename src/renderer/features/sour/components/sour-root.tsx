@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
+import { LoopWatcher } from '/@/renderer/features/sour/stage/loop';
+import { SourStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -128,6 +130,12 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="mini player">
             <MiniPlayer />
+        </SourSafe>
+        <SourSafe name="stage">
+            <SourStage />
+        </SourSafe>
+        <SourSafe name="loop">
+            <LoopWatcher />
         </SourSafe>
     </>
 );

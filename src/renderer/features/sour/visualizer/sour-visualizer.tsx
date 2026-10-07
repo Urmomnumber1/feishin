@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 
 import styles from './sour-visualizer.module.css';
 
-import { type VisualizerStyle } from '/@/renderer/features/sour/store/sour.store';
+import { useSourStore, type VisualizerStyle } from '/@/renderer/features/sour/store/sour.store';
 import {
     BINS,
     type Levels,
@@ -301,4 +301,16 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
     }, []);
 
     return <canvas aria-hidden className={clsx(styles.canvas, className)} ref={canvasRef} />;
+};
+
+// the little strip in the player bar (Sour Studio > Visualizer)
+export const PlayerBarVisualizer = () => {
+    const on = useSourStore((s) => s.look.barVisualizer);
+    const style = useSourStore((s) => s.look.visualizer);
+    if (!on) return null;
+    return (
+        <div className={styles.bar}>
+            <SourVisualizer style={style === 'river' ? 'river' : 'bars'} />
+        </div>
+    );
 };

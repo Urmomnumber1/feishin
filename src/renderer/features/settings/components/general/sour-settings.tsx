@@ -5,6 +5,7 @@ import {
     SettingsSection,
 } from '/@/renderer/features/settings/components/settings-section';
 import { openPeople } from '/@/renderer/features/sour/components/people';
+import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
 import { type SourLook, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { Button } from '/@/shared/components/button/button';
 import { Switch } from '/@/shared/components/switch/switch';
@@ -15,6 +16,8 @@ const BUTTONS: Array<[string, string]> = [
     ['mini', 'Mini player'],
     ['group', 'Group Play'],
     ['video', 'Music video'],
+    ['stage', 'Sour Stage'],
+    ['studio', 'Sour Studio'],
 ];
 
 // Settings > General > Sour Player: look and comfort switches, and which player bar buttons show.
@@ -45,6 +48,16 @@ export const SourSettings = memo(() => {
                 'Your profile, who is online, the group page, the leaderboard and your recaps.',
             title: 'Profile and friends',
         },
+        {
+            control: (
+                <Button onClick={openSourStudio} size="compact-sm" variant="default">
+                    Open Sour Studio
+                </Button>
+            ),
+            description:
+                'Skins, holiday decorations, visualizers, layout, fonts and the app icon (Ctrl+Alt+L).',
+            title: 'Sour Studio',
+        },
         toggle(
             'albumAccent',
             'Accent colour from the album',
@@ -58,7 +71,7 @@ export const SourSettings = memo(() => {
         toggle(
             'seasonal',
             'Seasonal themes',
-            'Switches to a Hermes theme that fits the time of year when Sour Player starts.',
+            'Switches to a Hermes theme that fits the time of year when Sour Player starts (holiday skins win while a holiday is on).',
         ),
         toggle('startupSound', 'Startup sound', 'A short jingle when Sour Player opens.'),
         toggle('reducedMotion', 'Reduce motion', 'Turns off animations and transitions.'),
@@ -89,7 +102,7 @@ export const SourSettings = memo(() => {
     options.push({
         control: <></>,
         description:
-            'The Determination font is by anonymous-1438277 on fontstruct.com, licensed CC BY 3.0 (licence included with the app).',
+            'The Determination font is by anonymous-1438277 on fontstruct.com, licensed CC BY 3.0. The other fonts are from Google Fonts (SIL Open Font License / Apache 2.0) and emoji are Twemoji (CC BY 4.0); licences are included with the app.',
         title: 'Font credits',
     });
 
