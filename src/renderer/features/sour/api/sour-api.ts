@@ -50,6 +50,8 @@ export interface PlaylistTheme {
 
 // everything about how a profile looks and what it shows, stored on Hermes Music as one JSON object
 export interface ProfileCustom {
+    albumOfWeek?: GroupSong & { note?: string };
+    bannerPan?: boolean;
     bannerPos?: { x: number; y: number; zoom: number };
     birthday?: string;
     dnd?: boolean;
@@ -62,6 +64,7 @@ export interface ProfileCustom {
     invisible?: boolean;
     joinSound?: string;
     jokes?: string;
+    moodRing?: boolean;
     nameEffect?: string;
     nameFont?: string;
     nickname?: string;
@@ -81,6 +84,7 @@ export interface ProfileCustom {
     stickers?: { emoji: string; x: number; y: number }[];
     theme?: { accent?: string; background?: string; card?: string };
     top5?: GroupSong[];
+    visits?: boolean;
 }
 
 export interface ProfileStats {
@@ -116,6 +120,7 @@ export interface SourProfile {
     resume?: null | { at: number; device: string; position: number; song: GroupSong };
     stats?: ProfileStats;
     status: string;
+    visits?: { at: number; from: string; fromName: string }[];
     wall: WallNote[];
 }
 

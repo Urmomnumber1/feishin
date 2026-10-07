@@ -7,6 +7,7 @@ import { type GroupSong } from '/@/renderer/features/group-play/store/group-play
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { getSongById } from '/@/renderer/features/player/utils';
 import { avatarUrl, type SourProfile, timeAgo } from '/@/renderer/features/sour/api/sour-api';
+import { fontFamily } from '/@/renderer/features/sour/fonts';
 import { useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData, usePlayerStoreBase } from '/@/renderer/store/player.store';
 import { toast } from '/@/shared/components/toast/toast';
@@ -16,14 +17,6 @@ import { Play } from '/@/shared/types/types';
 export const hue = (name: string) =>
     [...name].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) % 360, 7);
 
-export const NAME_FONTS: Record<string, string> = {
-    default: 'inherit',
-    determination: 'Determination, monospace',
-    mono: 'ui-monospace, Consolas, monospace',
-    rounded: '"Trebuchet MS", "Comic Sans MS", sans-serif',
-    script: '"Brush Script MT", "Segoe Script", cursive',
-    serif: 'Georgia, "Times New Roman", serif',
-};
 
 // a person's picture with an online dot (a ring when offline, a bar for "do not disturb", so it
 // doesn't rely on colour alone) and their profile frame
@@ -150,7 +143,7 @@ export const ProfileName = ({ profile, size = 22 }: { profile: SourProfile; size
         <span className={styles.nameLine}>
             <span
                 className={effect}
-                style={{ fontFamily: NAME_FONTS[c.nameFont || 'default'], fontSize: size }}
+                style={{ fontFamily: fontFamily(c.nameFont), fontSize: size }}
             >
                 {profile.name}
             </span>

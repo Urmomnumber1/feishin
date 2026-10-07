@@ -108,6 +108,20 @@
     z-index: 0;
 }
 
+.sour-banner-pan {
+    animation: sour-banner-pan 40s ease-in-out infinite alternate;
+}
+
+@keyframes sour-banner-pan {
+    from {
+        background-position: 0% 50%;
+    }
+
+    to {
+        background-position: 100% 50%;
+    }
+}
+
 @keyframes sour-fade-in {
     from {
         opacity: 0;

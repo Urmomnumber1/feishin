@@ -11,8 +11,11 @@ import {
     readPicture,
     sourApi,
     type SourProfile,
+    timeAgo,
 } from '/@/renderer/features/sour/api/sour-api';
 import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
+import { AlbumOfWeekPicker } from '/@/renderer/features/sour/components/album-picker';
+import { fontChoices } from '/@/renderer/features/sour/fonts';
 import { SongCover } from '/@/renderer/features/sour/components/profile-bits';
 import { ProfileView, SECTIONS } from '/@/renderer/features/sour/components/profile-view';
 import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -151,6 +154,19 @@ export const ProfileEditor = ({
 
     const looks = (
         <Stack gap="sm">
+            <Group gap="lg">
+                <Switch
+                    checked={!!c.bannerPan}
+                    label="Slowly pan my banner"
+                    onChange={(e) => setC({ bannerPan: e.currentTarget.checked })}
+                />
+                <Switch
+                    checked={c.moodRing !== false}
+                    description="A coloured ring from what you've been playing"
+                    label="Mood ring"
+                    onChange={(e) => setC({ moodRing: e.currentTarget.checked })}
+                />
+            </Group>
             <Text fw={700}>Pictures</Text>
             {pickButton('avatar', 'picture (GIFs work)', !!profile.avatar)}
             {!!mine?.avatarHistory?.length && (
@@ -275,16 +291,8 @@ export const ProfileEditor = ({
                     value={c.frame || ''}
                 />
                 <Select
-                    data={[
-                        { label: 'Default', value: 'default' },
-                        { label: 'Serif', value: 'serif' },
-                        { label: 'Mono', value: 'mono' },
-                        { label: 'Rounded', value: 'rounded' },
-                        { label: 'Script', value: 'script' },
-                        ...(mine?.perks?.includes('determination')
-                            ? [{ label: 'Determination (only yours)', value: 'determination' }]
-                            : []),
-                    ]}
+                    data={fontChoices(mine?.perks)}
+                    searchable
                     label="Name font"
                     onChange={(v) => setC({ nameFont: v || 'default' })}
                     value={c.nameFont || 'default'}
@@ -479,6 +487,10 @@ export const ProfileEditor = ({
 
     const music = (
         <Stack gap="sm">
+            <AlbumOfWeekPicker
+                onChange={(albumOfWeek) => setC({ albumOfWeek: albumOfWeek ?? undefined })}
+                value={c.albumOfWeek ?? null}
+            />
             {songPicker(
                 'Signature song',
                 c.signatureSong,
@@ -675,6 +687,26 @@ export const ProfileEditor = ({
                 label="Do not disturb"
                 onChange={(e) => setC({ dnd: e.currentTarget.checked })}
             />
+            <Switch
+                checked={!!c.visits}
+                description="Only you see the list. Turn it off and it stops recording."
+                label="Show me who looks at my profile"
+                onChange={(e) => setC({ visits: e.currentTarget.checked })}
+            />
+            {!!c.visits && (
+                <Stack gap={2}>
+                    {(mine?.visits ?? []).slice(0, 10).map((v) => (
+                        <Text key={`${v.from}-${v.at}`} size="xs">
+                            {v.fromName} - {timeAgo(v.at)}
+                        </Text>
+                    ))}
+                    {!mine?.visits?.length && (
+                        <Text isMuted size="xs">
+                            Nobody yet.
+                        </Text>
+                    )}
+                </Stack>
+            )}
             <Text fw={700}>Songs hidden from your activity</Text>
             <Text isMuted size="xs">
                 Right-click a song &gt; Hide from my activity. These never show as &quot;listening

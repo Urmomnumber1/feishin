@@ -1,11 +1,12 @@
 import { openModal } from '@mantine/modals';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import styles from './playlist-theme.module.css';
 
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { readPicture, sourApi } from '/@/renderer/features/sour/api/sour-api';
+import { fontChoices, fontFamily } from '/@/renderer/features/sour/fonts';
 import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { Button } from '/@/shared/components/button/button';
 import { ColorInput } from '/@/shared/components/color-input/color-input';
@@ -102,17 +103,13 @@ const PlaylistThemeEditor = ({ playlistId }: { playlistId: string }) => {
                     </Button>
                 )}
             </Group>
-            {perks.includes('determination') && (
-                <Select
-                    data={[
-                        { label: 'Normal', value: '' },
-                        { label: 'Determination (only yours)', value: 'determination' },
-                    ]}
-                    label="Title font"
-                    onChange={(font) => save({ font: font || null })}
-                    value={theme.data?.font || ''}
-                />
-            )}
+            <Select
+                data={fontChoices(perks).map((f) => (f.value === 'default' ? { ...f, value: '' } : f))}
+                label="Title font"
+                onChange={(font) => save({ font: font || null })}
+                searchable
+                value={theme.data?.font || ''}
+            />
             <Stack gap={4}>
                 <Switch
                     checked={crossfade !== undefined}
@@ -197,13 +194,14 @@ export const PlaylistThemed = ({
 
     return (
         <div
-            className={
-                theme.font === 'determination'
-                    ? `${styles.themed} sour-font-determination`
-                    : styles.themed
-            }
+            className={styles.themed}
             ref={root}
-            style={theme.color ? { background: theme.color } : undefined}
+            style={
+                {
+                    '--sour-title-font': theme.font ? fontFamily(theme.font) : undefined,
+                    background: theme.color || undefined,
+                } as CSSProperties
+            }
         >
             {image && (
                 <div

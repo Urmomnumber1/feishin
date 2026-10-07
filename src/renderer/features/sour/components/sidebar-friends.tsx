@@ -6,6 +6,7 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { type SourProfile, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile, ProfileAvatar, SongCover } from '/@/renderer/features/sour/components/people';
 import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-item';
+import { ProfileHover } from '/@/renderer/features/sour/components/profile-extras';
 import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
 import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -30,9 +31,9 @@ export const SidebarFriends = () => {
     const offline = others.filter((p) => !p.online);
 
     const row = (p: SourProfile) => (
+        <ProfileHover key={p.id} profile={p}>
         <button
             className={p.online ? styles.row : styles.rowOffline}
-            key={p.id}
             onClick={() => openProfile(p)}
             type="button"
         >
@@ -59,6 +60,7 @@ export const SidebarFriends = () => {
             </div>
             {p.online && p.listening && <SongCover size={34} song={p.listening} />}
         </button>
+        </ProfileHover>
     );
 
     return (

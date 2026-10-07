@@ -11,6 +11,7 @@ import {
     ProfileName,
     SongCover,
 } from '/@/renderer/features/sour/components/profile-bits';
+import { NowPlayingRing } from '/@/renderer/features/sour/components/profile-extras';
 import { ProfileEditor } from '/@/renderer/features/sour/components/profile-editor';
 import { ProfileView } from '/@/renderer/features/sour/components/profile-view';
 import {
@@ -64,7 +65,7 @@ const PeoplePanel = () => {
 
     const row = (p: SourProfile) => (
         <button className={styles.person} key={p.id} onClick={() => setViewing(p.id)} type="button">
-            <ProfileAvatar online={p.online} profile={p} />
+            <NowPlayingRing profile={p} size={40} />
             <Stack flex={1} gap={0} miw={0}>
                 <ProfileName profile={p} size={14} />
                 <Text isMuted size="xs" truncate>

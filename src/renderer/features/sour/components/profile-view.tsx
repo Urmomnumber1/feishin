@@ -20,10 +20,17 @@ import {
 } from '/@/renderer/features/sour/api/sour-api';
 import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import {
+    ArtistCollage,
+    DuoSection,
+    EraSection,
+    HeatmapSection,
+    NowPlayingRing,
+    useProfileVisit,
+} from '/@/renderer/features/sour/components/profile-extras';
+import {
     activity,
     hue,
     ItemCover,
-    ProfileAvatar,
     ProfileName,
     SongCover,
     usePlaySong,
@@ -43,6 +50,8 @@ export const SECTIONS: Array<[string, string]> = [
     ['now', 'Listening now'],
     ['signature', 'Signature song'],
     ['taste', 'Taste match'],
+    ['duo', 'You two'],
+    ['albumOfWeek', 'Album of the week'],
     ['spotlight', 'Song of the week'],
     ['top5', 'Top 5'],
     ['favoriteAlbums', 'Favourite albums'],
@@ -52,6 +61,9 @@ export const SECTIONS: Array<[string, string]> = [
     ['pinnedPlaylist', 'Pinned playlist'],
     ['recent', 'Recently played'],
     ['stats', 'Stats'],
+    ['heatmap', 'Listening heatmap'],
+    ['era', 'Their eras'],
+    ['collage', 'Top artists'],
     ['jokes', 'Inside jokes'],
     ['wall', 'Wall'],
 ];
@@ -93,6 +105,7 @@ export const ProfileView = ({
     const mine = profiles.find((p) => p.id === me?.id);
     const match = isMe ? null : tasteMatch(mine?.stats, profile.stats);
     const refresh = () => queryClient.invalidateQueries({ queryKey: ['sour-profiles', url] });
+    useProfileVisit(profile, !preview);
 
     const banner = bannerUrl(url, profile);
     const pos = c.bannerPos || { x: 50, y: 50, zoom: 100 };
@@ -166,7 +179,20 @@ export const ProfileView = ({
     );
 
     const favorites = profile.favorites || [];
+    const lastPlayed = !profile.online ? c.recentPlays?.[0] : undefined;
     const sections: Record<string, ReactNode> = {
+        albumOfWeek: c.albumOfWeek && (
+            <Section title="Album of the week">
+                <div className={styles.favorite}>
+                    {tiles([c.albumOfWeek])}
+                    {c.albumOfWeek.note && <Text className={styles.bio}>{c.albumOfWeek.note}</Text>}
+                </div>
+            </Section>
+        ),
+        collage: <ArtistCollage profile={profile} />,
+        duo: !isMe && !preview && <DuoSection other={profile} />,
+        era: <EraSection profile={profile} />,
+        heatmap: <HeatmapSection profile={profile} />,
         favoriteAlbums: favorites.some((f) => favoriteKind(f) === 'album') && (
             <Section title="Favourite albums">
                 {tiles(favorites.filter((f) => favoriteKind(f) === 'album'))}
@@ -201,7 +227,25 @@ export const ProfileView = ({
                 <Text className={styles.bio}>{c.jokes}</Text>
             </Section>
         ),
-        now: profile.online && profile.listening && (
+        now: lastPlayed ? (
+            <button
+                className={styles.nowCard}
+                onClick={() => playSong(lastPlayed)}
+                style={{ borderColor: accent, opacity: 0.85 }}
+                type="button"
+            >
+                <SongCover size={56} song={lastPlayed} />
+                <Stack gap={0} miw={0}>
+                    <Text className={styles.eyebrow}>Last played</Text>
+                    <Text fw={700} truncate>
+                        {lastPlayed.title}
+                    </Text>
+                    <Text isMuted size="sm" truncate>
+                        {lastPlayed.artist}
+                    </Text>
+                </Stack>
+            </button>
+        ) : profile.online && profile.listening && (
             <button
                 className={styles.nowCard}
                 onClick={() => profile.listening && playSong(profile.listening)}
@@ -417,7 +461,7 @@ export const ProfileView = ({
                     </Button>
                 )}
                 <div className={styles.profile} style={{ background: c.theme?.card || undefined }}>
-                    <div className={styles.banner} style={bannerStyle}>
+                    <div className={c.bannerPan ? `${styles.banner} sour-banner-pan` : styles.banner} style={bannerStyle}>
                         {c.header && <span className={styles.header}>{c.header}</span>}
                         {(c.stickers || []).map((s, i) => (
                             <span
@@ -431,7 +475,7 @@ export const ProfileView = ({
                     </div>
                     <div className={styles.profileHead}>
                         <span className={styles.bigAvatar} style={{ borderColor: accent }}>
-                            <ProfileAvatar online={profile.online} profile={profile} size={92} />
+                            <NowPlayingRing profile={profile} size={92} />
                         </span>
                         <Stack gap={2} miw={0}>
                             <ProfileName profile={profile} />

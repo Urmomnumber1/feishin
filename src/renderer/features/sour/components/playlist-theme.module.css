@@ -29,3 +29,7 @@
     flex-direction: column;
     min-height: 0;
 }
+
+.themed h1 {
+    font-family: var(--sour-title-font, inherit) !important;
+}
