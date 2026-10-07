@@ -98,6 +98,18 @@
     visibility: hidden;
 }
 
+/* Group Play blind round: listeners can't see what's playing */
+.sour-blind #player-bar [class*='left-grid-item'],
+.sour-blind [class*='mini-player-module-cover'],
+.sour-blind [class*='mini-player-module-titles'],
+.sour-blind [class*='mini-player-module-backdrop'],
+.sour-blind [class*='sour-stage-module-card'],
+.sour-blind [class*='sour-stage-module-titles'],
+.sour-blind [class*='sour-stage-module-blur'] {
+    pointer-events: none;
+    filter: blur(14px);
+}
+
 /* covers fade in instead of popping */
 .sour-fade-covers img {
     animation: sour-fade-in 0.35s ease-out;

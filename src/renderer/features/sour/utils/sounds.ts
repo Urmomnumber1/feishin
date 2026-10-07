@@ -26,6 +26,35 @@ const tone = (
     osc.stop(ctx.currentTime + start + length + 0.05);
 };
 
+// a burst of filtered noise (crowd, drum, scratch)
+const noise = (ctx: AudioContext, length: number, volume: number, cutoff: number, start = 0) => {
+    const frames = Math.floor(ctx.sampleRate * length);
+    const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = cutoff;
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
+    src.connect(filter).connect(gain).connect(ctx.destination);
+    src.start(ctx.currentTime + start);
+};
+
+// the Group Play soundboard: [sound, emoji on its button]
+export const SOUNDBOARD: Array<[string, string]> = [
+    ['airhorn', '\u{1F4EF}'],
+    ['rewind', '⏪'],
+    ['cheer', '\u{1F64C}'],
+    ['applause', '\u{1F44F}'],
+    ['drumroll', '\u{1F941}'],
+    ['laugh', '\u{1F602}'],
+    ['boo', '\u{1F44E}'],
+    ['scratch', '\u{1F4BF}'],
+];
+
 export const playSound = (name?: string) => {
     if (!name || name === 'none') return;
     try {
@@ -44,6 +73,27 @@ export const playSound = (name?: string) => {
             [523, 659, 784, 1046].forEach((f, i) =>
                 tone(ctx, 'square', f, f, i * 0.09, 0.15, 0.05),
             );
+        } else if (name === 'rewind') {
+            tone(ctx, 'sawtooth', 300, 1400, 0, 0.5, 0.06);
+            tone(ctx, 'sawtooth', 1400, 200, 0.5, 0.3, 0.06);
+        } else if (name === 'cheer') {
+            noise(ctx, 1.4, 0.18, 1400);
+            tone(ctx, 'triangle', 600, 900, 0.1, 0.8, 0.05);
+        } else if (name === 'applause') {
+            for (let i = 0; i < 30; i++) noise(ctx, 0.04, 0.1, 3500, i * 0.06 + Math.random() * 0.03);
+        } else if (name === 'drumroll') {
+            for (let i = 0; i < 24; i++) noise(ctx, 0.05, 0.12, 600, i * 0.045);
+            noise(ctx, 0.5, 0.25, 4000, 1.1);
+        } else if (name === 'boo') {
+            tone(ctx, 'sawtooth', 220, 150, 0, 1, 0.08);
+            tone(ctx, 'sawtooth', 165, 110, 0, 1, 0.06);
+        } else if (name === 'laugh') {
+            for (let i = 0; i < 5; i++)
+                tone(ctx, 'triangle', 420 - i * 20, 360 - i * 20, i * 0.16, 0.12, 0.12);
+        } else if (name === 'scratch') {
+            tone(ctx, 'sawtooth', 120, 700, 0, 0.12, 0.1);
+            tone(ctx, 'sawtooth', 700, 90, 0.12, 0.16, 0.1);
+            noise(ctx, 0.3, 0.08, 2000);
         }
     } catch {
         // no audio device: stay quiet

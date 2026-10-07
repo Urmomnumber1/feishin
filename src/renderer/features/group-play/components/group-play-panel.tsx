@@ -7,6 +7,15 @@ import styles from './group-play-panel.module.css';
 import { ItemImage } from '/@/renderer/components/item-image/item-image';
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import {
+    CoverFlow,
+    fitsTheme,
+    GroupStage,
+    PendingRequests,
+    RoomActions,
+    RoomSettings,
+    ThemeNightBanner,
+} from '/@/renderer/features/group-play/components/group-room';
+import {
     CatchUp,
     GroupChat,
     HostTools,
@@ -124,6 +133,7 @@ export const GroupPlayPanel = () => {
     const [joinCode, setJoinCode] = useState('');
     const [groupName, setGroupName] = useState('');
     const [busy, setBusy] = useState(false);
+    const [watchOnly, setWatchOnly] = useState(false);
     const openGroups = useQuery({
         enabled: !!url && !code,
         queryFn: () => groupApi.list(url),
@@ -188,7 +198,8 @@ export const GroupPlayPanel = () => {
             });
         const join = (groupCode: string) =>
             run(async () => {
-                const res = await groupApi.join(url, groupCode, name, sourMe?.id ?? null);
+                const res = await groupApi.join(url, groupCode, name, sourMe?.id ?? null, watchOnly);
+                useGroupPlayStore.setState({ spectate: watchOnly });
                 actions.setSession({ code: groupCode, member: res.member, role: 'member' });
                 actions.setState(res.state);
             });
@@ -287,6 +298,12 @@ export const GroupPlayPanel = () => {
                             placeholder="ABCDE"
                             value={joinCode}
                         />
+                        <Switch
+                            checked={watchOnly}
+                            description="See the room and chat without playing the music"
+                            label="Just watch"
+                            onChange={(e) => setWatchOnly(e.currentTarget.checked)}
+                        />
                         <Button
                             disabled={busy || joinCode.trim().length !== 5}
                             fullWidth
@@ -306,6 +323,19 @@ export const GroupPlayPanel = () => {
     const hostName = state?.host ?? 'Host';
     const me = isHost ? hostName : userName.trim() || 'Guest';
     const canControl = !isRadio && (isHost || !!state?.guestControl);
+    // blind round: listeners don't see what's playing until it's over
+    const hideNow = !!state?.blind && role === 'member';
+    const isOwnerOrDj =
+        isRadio &&
+        !!sourMe &&
+        (state?.station?.owner === sourMe.id || state?.show?.profile === sourMe.id);
+    const boost = (song: GroupSong) => {
+        if (!code) return;
+        groupApi
+            .boost(url, code, role === 'host' ? { hostKey } : { member }, song.id)
+            .then((r) => toast.success({ message: `${song.title} plays next (${r.tokens} tokens left)` }))
+            .catch((error: Error) => toast.error({ message: error.message }));
+    };
     const queue = state?.queue ?? [];
     const index = state?.index ?? 0;
     const nowPlaying = queue[index];
@@ -470,11 +500,21 @@ export const GroupPlayPanel = () => {
                 </Group>
             </div>
 
+            {state && <GroupStage isRadio={isRadio} state={state} />}
+
             <div className={styles.nowPlaying}>
-                <Cover className={styles.coverLarge} song={nowPlaying} />
+                {hideNow ? (
+                    <div className={styles.coverLarge} />
+                ) : (
+                    <Cover className={styles.coverLarge} song={nowPlaying} />
+                )}
                 <Stack flex={1} gap={4} miw={0}>
                     <Text className={styles.eyebrow}>{status}</Text>
-                    {nowPlaying ? (
+                    {nowPlaying && hideNow ? (
+                        <Text fw={700} size="lg">
+                            Blind round - what&apos;s playing?
+                        </Text>
+                    ) : nowPlaying ? (
                         <>
                             <Text fw={700} size="lg" truncate>
                                 {nowPlaying.title}
@@ -547,7 +587,11 @@ export const GroupPlayPanel = () => {
                 </Text>
             )}
             {isRadio && state && <VoteBar state={state} />}
+            {state && <ThemeNightBanner state={state} />}
+            {state && <CoverFlow hideNow={hideNow} state={state} />}
             <ReactionBar />
+            {state && <RoomActions state={state} />}
+            {isHost && state && <PendingRequests state={state} />}
             {state && <CatchUp state={state} />}
 
             <Stack gap={8}>
@@ -574,6 +618,11 @@ export const GroupPlayPanel = () => {
                                 name={song.by || hostName}
                                 src={pictureByName(song.by || hostName)}
                             />
+                            {fitsTheme(song, state?.themeNight) === false && (
+                                <Text c="orange" size="xs" title="Doesn't fit tonight's theme">
+                                    off theme
+                                </Text>
+                            )}
                             <button
                                 className={styles.upvote}
                                 onClick={() => upvote(song)}
@@ -582,6 +631,15 @@ export const GroupPlayPanel = () => {
                             >
                                 &#9650; {state?.upvotes?.[song.id] ?? 0}
                             </button>
+                            {!isHost && at > index + 1 && (
+                                <ActionIcon
+                                    icon="rocket"
+                                    onClick={() => boost(song)}
+                                    size="sm"
+                                    tooltip={{ label: 'Use a token: play this next' }}
+                                    variant="subtle"
+                                />
+                            )}
                             <span className={styles.rowActions}>
                                 {canControl && (
                                     <ActionIcon
@@ -625,11 +683,13 @@ export const GroupPlayPanel = () => {
             {isRadio && state && (
                 <div className={styles.settings}>
                     <StationTools state={state} />
+                    {isOwnerOrDj && <RoomSettings isRadio state={state} />}
                 </div>
             )}
             {isHost && (
                 <div className={styles.settings}>
                     {state && <HostTools state={state} />}
+                    {state && <RoomSettings isRadio={false} state={state} />}
                     {state && (
                         <Button
                             onClick={() => saveGroupSettings(state)}

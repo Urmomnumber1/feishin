@@ -1,0 +1,316 @@
+.stage {
+    position: relative;
+    padding: 34px 12px 12px;
+    overflow: hidden;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border-radius: 14px;
+}
+
+.theme-club {
+    background:
+        radial-gradient(circle at 20% 0%, rgb(255 0 170 / 35%), transparent 50%),
+        radial-gradient(circle at 80% 0%, rgb(0 200 255 / 30%), transparent 50%),
+        #120b1c;
+    animation: club 4s linear infinite alternate;
+}
+
+.theme-campfire {
+    background: radial-gradient(circle at 50% 120%, rgb(255 140 0 / 55%), transparent 60%), #1b120a;
+}
+
+.theme-retro {
+    background:
+        repeating-linear-gradient(0deg, rgb(255 255 255 / 4%) 0 2px, transparent 2px 4px),
+        linear-gradient(135deg, #2b1d4a, #0f3b4a);
+}
+
+.theme-beach {
+    background: linear-gradient(180deg, #4fc3f7 0%, #81d4fa 55%, #ffe0a3 56%, #ffd27a 100%);
+}
+
+.theme-space {
+    background:
+        radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+        radial-gradient(1px 1px at 70% 60%, #fff, transparent),
+        radial-gradient(2px 2px at 40% 80%, #fff, transparent),
+        radial-gradient(circle at 80% 20%, rgb(120 90 255 / 35%), transparent 50%),
+        #05060f;
+}
+
+.theme-rainy {
+    background:
+        repeating-linear-gradient(105deg, rgb(200 220 255 / 6%) 0 1px, transparent 1px 12px),
+        linear-gradient(180deg, #2c3440, #1a1f27);
+}
+
+.pill {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    background: rgb(0 0 0 / 45%);
+    border-radius: 999px;
+}
+
+.heat {
+    width: 40px;
+    height: 5px;
+    overflow: hidden;
+    background: rgb(255 255 255 / 20%);
+    border-radius: 3px;
+}
+
+.heat > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #f2c14e, #ff5e3a);
+}
+
+.people {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 10px;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.person {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    width: 64px;
+    animation: slide-in 0.5s ease-out;
+}
+
+.dj {
+    order: -1;
+    width: 90px;
+}
+
+.spectator {
+    opacity: 0.6;
+}
+
+.face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    font-weight: 800;
+    color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 35%);
+}
+
+.dj .face {
+    width: 64px;
+    height: 64px;
+    outline: 3px solid var(--theme-colors-primary);
+    outline-offset: 3px;
+}
+
+.face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.name {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.72rem;
+    color: #fff;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 70%);
+}
+
+.bubble {
+    position: absolute;
+    bottom: calc(100% - 6px);
+    z-index: 2;
+    max-width: 150px;
+    padding: 4px 8px;
+    overflow: hidden;
+    font-size: 0.72rem;
+    color: #151515;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: #fff;
+    border-radius: 10px 10px 10px 2px;
+    animation: pop 0.25s ease-out;
+}
+
+.flow {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    overflow: hidden;
+}
+
+.flow-item {
+    flex-shrink: 0;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.host-pick {
+    box-shadow: 0 0 0 2px rgb(255 209 102 / 90%);
+}
+
+.blind-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 92px;
+    height: 92px;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--theme-colors-primary);
+    background: alpha(var(--theme-colors-foreground), 0.08);
+    border-radius: 8px;
+}
+
+.soundboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.sound {
+    width: 34px;
+    height: 34px;
+    font-family: 'Sour Emoji', sans-serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    background: alpha(var(--theme-colors-foreground), 0.06);
+    border: 0;
+    border-radius: 8px;
+}
+
+.sound:hover {
+    background: alpha(var(--theme-colors-foreground), 0.14);
+    transform: scale(1.08);
+}
+
+.theme {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    background: alpha(var(--theme-colors-primary), 0.15);
+    border-radius: 8px;
+}
+
+.pending {
+    padding: 10px;
+    background: alpha(var(--theme-colors-primary), 0.08);
+    border-radius: 10px;
+}
+
+.countdown {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: rgb(0 0 0 / 35%);
+}
+
+.countdown span {
+    font-size: 12rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 10px 40px rgb(0 0 0 / 60%);
+    animation: count 0.9s ease-out;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border-radius: 12px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    align-items: center;
+    text-align: center;
+}
+
+@keyframes club {
+    from {
+        filter: hue-rotate(0deg);
+    }
+
+    to {
+        filter: hue-rotate(90deg);
+    }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes pop {
+    from {
+        transform: scale(0.6);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes count {
+    from {
+        opacity: 0;
+        transform: scale(1.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.marks {
+    position: absolute;
+    right: 0;
+    bottom: 60%;
+    left: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.mark {
+    position: absolute;
+    bottom: 0;
+    font-family: 'Sour Emoji', sans-serif;
+    font-size: 0.8rem;
+    pointer-events: auto;
+    transform: translateX(-50%);
+}

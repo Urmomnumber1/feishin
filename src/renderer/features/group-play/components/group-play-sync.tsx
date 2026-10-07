@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
-import { groupApi, toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
+import { groupApi, type SessionSummary, toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
+import { openSessionSummary } from '/@/renderer/features/group-play/components/group-room';
 import { useReactions } from '/@/renderer/features/group-play/components/group-reactions';
 import {
     type GroupState,
@@ -66,7 +67,14 @@ export const GroupPlaySync = () => {
         if (!url || !code) return undefined;
         const ping = () => {
             const { hostKey } = useGroupPlayStore.getState();
-            groupApi.ping(url, code, role === 'host' ? { hostKey } : { member }).catch(() => {});
+            groupApi
+                .ping(
+                    url,
+                    code,
+                    role === 'host' ? { hostKey } : { member },
+                    role === 'host' ? undefined : useTimestampStoreBase.getState().timestamp,
+                )
+                .catch(() => {});
         };
         const timer = setInterval(ping, 20000);
         return () => clearInterval(timer);
@@ -118,6 +126,22 @@ export const GroupPlaySync = () => {
             >(['sour-profiles', url]);
             playSound(profiles?.find((p) => p.id === j.profile)?.custom?.joinSound);
         });
+        events.addEventListener('sound', (event) => {
+            const r = JSON.parse((event as MessageEvent).data) as { by: string; name: string };
+            playSound(r.name);
+        });
+        events.addEventListener('countdown', (event) => {
+            const r = JSON.parse((event as MessageEvent).data) as { at: number; serverNow: number };
+            // the server's clock, moved onto this computer's clock
+            useGroupPlayStore.setState({ countdownAt: r.at - r.serverNow + Date.now() });
+        });
+        events.addEventListener('encore', (event) => {
+            const r = JSON.parse((event as MessageEvent).data) as { title: string };
+            toast.success({ message: `Encore! ${r.title} plays once more` });
+        });
+        events.addEventListener('summary', (event) => {
+            openSessionSummary(JSON.parse((event as MessageEvent).data) as SessionSummary);
+        });
         events.addEventListener('reveal', (event) => {
             const r = JSON.parse((event as MessageEvent).data) as {
                 by: string;
@@ -131,9 +155,10 @@ export const GroupPlaySync = () => {
         return () => events.close();
     }, [code, member, url]);
 
-    // member: play what the host plays, where the host is (local skips snap back)
+    // member: play what the host plays, where the host is (local skips snap back). Spectators only watch.
+    const spectate = useGroupPlayStore((state) => state.spectate);
     useEffect(() => {
-        if (role !== 'member' || !serverId) return;
+        if (role !== 'member' || !serverId || spectate) return;
         const follow = () => {
             const { clockOffset, state } = useGroupPlayStore.getState();
             const target = state?.queue[state.index];
@@ -167,7 +192,18 @@ export const GroupPlaySync = () => {
         };
         const timer = setInterval(follow, 1000);
         return () => clearInterval(timer);
-    }, [queryClient, role, serverId]);
+    }, [queryClient, role, serverId, spectate]);
+
+    // host: the countdown ends, playback starts for everyone
+    const countdownAt = useGroupPlayStore((state) => state.countdownAt);
+    useEffect(() => {
+        if (!countdownAt) return undefined;
+        const timer = setTimeout(() => {
+            useGroupPlayStore.setState({ countdownAt: null });
+            if (role === 'host') usePlayerStoreBase.getState().mediaPlay();
+        }, Math.max(0, countdownAt - Date.now()));
+        return () => clearTimeout(timer);
+    }, [countdownAt, role]);
 
     // host: report queue, song, position and play/pause when they change
     useEffect(() => {
@@ -318,6 +354,10 @@ export const GroupPlaySync = () => {
                 const item = player.getQueue().items[command.index];
                 const sameSong = !!item && item.id === command.songId;
                 switch (command.cmd) {
+                    case 'encore':
+                        // the room voted for the song again: it plays once more right after
+                        if (sameSong) addToQueueByData(Play.NEXT, [item]).catch(() => {});
+                        break;
                     case 'next':
                         player.mediaNext(false);
                         toast.info({ message: `${command.by} skipped` });

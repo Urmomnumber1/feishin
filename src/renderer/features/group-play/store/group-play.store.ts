@@ -19,6 +19,7 @@ export interface GroupCommand {
 }
 
 export type GroupControl =
+    | 'encore'
     | 'guess'
     | 'next'
     | 'pause'
@@ -44,7 +45,23 @@ export interface GroupMember {
     avatar: number;
     id: string;
     name: string;
+    position?: null | number;
+    positionAt?: null | number;
     profile?: null | string;
+    spectate?: boolean;
+}
+
+export interface GroupMark {
+    by: string;
+    emoji: string;
+    position: number;
+    songId: string;
+}
+
+export interface ThemeNight {
+    kind: 'artist' | 'colour' | 'decade' | 'free' | 'word';
+    label: null | string;
+    value: null | number | string;
 }
 
 export interface GroupRequest {
@@ -69,15 +86,20 @@ export interface GroupSong {
     id: string;
     imageId?: null | string;
     title: string;
+    year?: null | number;
 }
 
 export interface GroupState {
+    approval?: boolean;
     birthday?: null | string;
+    blind?: boolean;
     chat?: GroupChat[];
     code: string;
     commands: GroupCommand[];
     dj?: null | { id: string; name: string; profile: null | string };
     djRotation?: boolean;
+    encore?: number;
+    encoreNeeded?: number;
     ended: boolean;
     guess?: boolean;
     guessScores?: Record<string, number>;
@@ -87,14 +109,17 @@ export interface GroupState {
     hostProfile?: null | string;
     index: number;
     listed: boolean;
+    marks?: GroupMark[];
     members: GroupMember[];
     name: string;
     needSongs?: boolean;
+    pending?: GroupRequest[];
     playing: boolean;
     position: number;
     queue: GroupSong[];
     radio?: boolean;
     requests: GroupRequest[];
+    roomTheme?: string;
     schedule?: GroupShow[];
     serverNow: number;
     show?: GroupShow | null;
@@ -105,6 +130,8 @@ export interface GroupState {
         ownerName: null | string;
         sleep: boolean;
     };
+    themeNight?: null | ThemeNight;
+    tokens?: Record<string, number>;
     updatedAt: number;
     upvotes?: Record<string, number>;
     votes?: number;
@@ -135,7 +162,9 @@ interface GroupPlayStore {
     panelOpen: boolean;
     played: GroupSong[];
     role: 'host' | 'member' | null;
+    countdownAt: null | number;
     sleepAt: null | number;
+    spectate: boolean;
     state: GroupState | null;
     userName: string;
 }
@@ -160,7 +189,9 @@ export const useGroupPlayStore = createWithEqualityFn<GroupPlayStore>()(
             panelOpen: false,
             played: [],
             role: null,
+            countdownAt: null,
             sleepAt: null,
+            spectate: false,
             state: null,
             userName: '',
         }),

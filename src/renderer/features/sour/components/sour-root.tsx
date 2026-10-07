@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { BlindWatcher, CountdownOverlay } from '/@/renderer/features/group-play/components/group-room';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
 import { SocialWatchers, useDailyColorStore } from '/@/renderer/features/sour/components/social-watchers';
@@ -144,6 +145,12 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="social">
             <SocialWatchers />
+        </SourSafe>
+        <SourSafe name="group countdown">
+            <CountdownOverlay />
+        </SourSafe>
+        <SourSafe name="blind round">
+            <BlindWatcher />
         </SourSafe>
     </>
 );

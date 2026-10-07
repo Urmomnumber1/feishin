@@ -14,6 +14,7 @@ import {
 } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
+import { useTimestampStoreBase } from '/@/renderer/store/timestamp.store';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
@@ -105,7 +106,12 @@ export const ReactionBar = () => {
                 <button
                     className={styles.reactButton}
                     key={emoji}
-                    onClick={() => code && groupApi.react(url, code, who(), emoji).catch(() => {})}
+                    onClick={() =>
+                        code &&
+                        groupApi
+                            .react(url, code, who(), emoji, useTimestampStoreBase.getState().timestamp)
+                            .catch(() => {})
+                    }
                     type="button"
                 >
                     {emoji}
@@ -113,7 +119,12 @@ export const ReactionBar = () => {
             ))}
             <EmojiPicker
                 label="Another reaction"
-                onPick={(emoji) => code && groupApi.react(url, code, who(), emoji).catch(() => {})}
+                onPick={(emoji) =>
+                    code &&
+                    groupApi
+                        .react(url, code, who(), emoji, useTimestampStoreBase.getState().timestamp)
+                        .catch(() => {})
+                }
             />
         </Group>
     );
