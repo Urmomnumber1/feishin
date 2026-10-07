@@ -323,6 +323,7 @@ const Icons = () => {
 
 const Extras = () => (
     <Stack gap="md">
+        <LookSwitch description="Loading spinners become a spinning lemon." id="lemonLoader" label="Lemon loading spinner" />
         <LookSwitch
             description="A short lemon splash while Sour Player opens."
             id="splash"

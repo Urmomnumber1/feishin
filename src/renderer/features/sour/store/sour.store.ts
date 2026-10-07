@@ -44,6 +44,7 @@ export interface SourLook {
     holidays: boolean;
     hoverPreview: boolean;
     iconPack: string;
+    lemonLoader: boolean;
     lyricStyle: 'centered' | 'huge' | 'karaoke';
     pressFx: boolean;
     reducedMotion: boolean;
@@ -75,6 +76,7 @@ export const DEFAULT_LOOK: SourLook = {
     holidays: true,
     hoverPreview: false,
     iconPack: 'classic',
+    lemonLoader: true,
     lyricStyle: 'centered',
     pressFx: true,
     reducedMotion: false,

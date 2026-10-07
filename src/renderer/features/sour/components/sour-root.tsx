@@ -57,6 +57,7 @@ const LookSwitches = () => {
         root.classList.toggle('sour-glass', look.glass);
         root.classList.toggle('sour-sidebar-right', look.sidebarRight);
         root.classList.toggle('sour-fade-covers', look.fadeCovers && !look.reducedMotion);
+        root.classList.toggle('sour-lemon-loader', look.lemonLoader);
     }, [look]);
 
     useEffect(() => {

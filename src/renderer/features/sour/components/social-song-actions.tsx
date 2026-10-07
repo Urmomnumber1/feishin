@@ -7,7 +7,7 @@ import { type GroupSong } from '/@/renderer/features/group-play/store/group-play
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
-import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { useMyProfile, useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { Button } from '/@/shared/components/button/button';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import { Group } from '/@/shared/components/group/group';
@@ -182,6 +182,7 @@ const CapsuleForm = ({ song }: { song: GroupSong }) => {
 export const SocialSongMenu = ({ songs }: { songs: Song[] }) => {
     const url = useHermesUrl();
     const me = useSourStore((s) => s.me);
+    const myName = useMyProfile().data?.name ?? 'Sour Player';
     const song = songs[0];
     if (!url || !me || songs.length !== 1 || !song) return null;
     const g = toGroupSong(song);
@@ -208,6 +209,25 @@ export const SocialSongMenu = ({ songs }: { songs: Song[] }) => {
                 <ContextMenu.Item leftIcon="hourglass" onSelect={() => openModal({ children: <CapsuleForm song={g} />, title: `Time capsule: ${song.name}` })}>
                     Put it in a time capsule
                 </ContextMenu.Item>
+                {!!song.album && (
+                    <ContextMenu.Item
+                        leftIcon="download"
+                        onSelect={() =>
+                            fetch(`${url}/api/requests`, {
+                                body: JSON.stringify({ by: myName, profile: me.id, query: `${song.albumArtists?.[0]?.name || song.artistName} - ${song.album}`, type: 'album' }),
+                                headers: { 'content-type': 'application/json' },
+                                method: 'POST',
+                            })
+                                .then(async (res) => {
+                                    if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || `Hermes Music returned ${res.status}`);
+                                    toast.success({ message: `Asked Hermes Music for the rest of ${song.album}` });
+                                })
+                                .catch(fail)
+                        }
+                    >
+                        Get the whole album
+                    </ContextMenu.Item>
+                )}
             </ContextMenu.SubmenuContent>
         </ContextMenu.Submenu>
     );
