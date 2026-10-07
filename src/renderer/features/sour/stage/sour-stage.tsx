@@ -10,6 +10,7 @@ import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-p
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { avatarUrl } from '/@/renderer/features/sour/api/sour-api';
+import { socialApi } from '/@/renderer/features/sour/api/social-api';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import { hue, ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
 import {
@@ -183,6 +184,18 @@ const StageView = () => {
             song,
         ),
     );
+    const sourness = useQuery({
+        enabled: !!hermes && !!song?.id,
+        queryFn: () => socialApi.sourness(hermes, song?.id || ''),
+        queryKey: ['sour-sourness', hermes, song?.id],
+        retry: false,
+    }).data;
+    const notes = useQuery({
+        enabled: !!hermes && !!song?.id,
+        queryFn: () => socialApi.notes(hermes, song?.id || ''),
+        queryKey: ['sour-song-notes', hermes, song?.id],
+        retry: false,
+    }).data;
     const selected = data?.selected as null | undefined | { lyrics?: unknown };
     const { lines, synced } = useMemo(() => toLines(selected?.lyrics), [selected]);
     const offset = data?.selectedOffsetMs ?? 0;
@@ -389,7 +402,15 @@ const StageView = () => {
                                         </>
                                     )}
                                     <dt>Your plays</dt>
-                                    <dd>{song?.playCount ?? 0}</dd>
+                                    <dd>{song?.playCount ? song.playCount : 'New to you'}</dd>
+                                    {sourness && sourness.score !== null && (
+                                        <>
+                                            <dt>Sourness</dt>
+                                            <dd title="How often the group skips it on the radio">
+                                                {sourness.score}% {sourness.score < 15 ? '(loved)' : sourness.score > 50 ? '(often skipped)' : ''}
+                                            </dd>
+                                        </>
+                                    )}
                                     {addedBy && (
                                         <>
                                             <dt>Added by</dt>
@@ -401,6 +422,15 @@ const StageView = () => {
                                     <div className={styles.fans}>
                                         Friends who play it a lot:{' '}
                                         {fans.map((f) => `${f.p.name} (${f.plays})`).join(', ')}
+                                    </div>
+                                )}
+                                {!!notes?.length && (
+                                    <div className={styles.fans}>
+                                        {notes.slice(0, 3).map((n) => (
+                                            <div key={n.id}>
+                                                📌 <b>{n.fromName}:</b> {n.text}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                                 <div className={styles.muted}>Click to flip back</div>

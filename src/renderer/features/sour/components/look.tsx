@@ -20,6 +20,7 @@ import { useFastAverageColor } from '/@/renderer/hooks';
 import { AppRoute } from '/@/renderer/router/routes';
 import { usePlayerSong, useSettingsStoreActions } from '/@/renderer/store';
 import { usePlayerStoreBase } from '/@/renderer/store/player.store';
+import { usePlayerTimestamp } from '/@/renderer/store/timestamp.store';
 import { Accordion } from '/@/shared/components/accordion/accordion';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Kbd } from '/@/shared/components/kbd/kbd';
@@ -28,6 +29,7 @@ import { Text } from '/@/shared/components/text/text';
 import { toast } from '/@/shared/components/toast/toast';
 import { AppTheme } from '/@/shared/themes/app-theme-types';
 import { LibraryItem } from '/@/shared/types/domain-types';
+import { PlayerStyle } from '/@/shared/types/types';
 
 // Applies the Sour Player look settings: album-colour accent, animated background, reduced motion,
 // seasonal theme and the startup sound.
@@ -113,6 +115,9 @@ const SHORTCUTS: Array<[string, string]> = [
     ['Ctrl + Alt + M', 'Mini player'],
     ['Ctrl + Alt + L', 'Sour Studio (skins, holidays, visualizers)'],
     ['Ctrl + Alt + V', 'Sour Stage (full screen now playing)'],
+    ['Ctrl + Alt + H', 'Queue history'],
+    ['Ctrl + Alt + U', 'Sour Hub'],
+    ['Ctrl + K', 'Command palette (Sour commands too)'],
     ['?', 'This list'],
 ];
 
@@ -285,4 +290,28 @@ export const CrossfadeWatcher = () => {
         activeCrossfade = null;
     }, [song]);
     return null;
+};
+
+// ---------- player bar: what's next (last 15 seconds) and a "mixing" hint during crossfades ----------
+export const NextUpHint = () => {
+    const song = usePlayerSong();
+    const timestamp = usePlayerTimestamp();
+    const crossfade = usePlayerStoreBase((state) =>
+        state.player.transitionType === PlayerStyle.CROSSFADE ? state.player.crossfadeDuration : 0,
+    );
+    if (!song?.duration) return null;
+    const remaining = song.duration / 1000 - timestamp;
+    if (remaining <= 0 || remaining > 15) return null;
+    const player = usePlayerStoreBase.getState();
+    const items = player.getQueue().items;
+    const at = items.findIndex((x) => x._uniqueId === song._uniqueId);
+    const next = at >= 0 ? items[at + 1] : undefined;
+    if (!next) return null;
+    const mixing = crossfade > 0 && remaining <= crossfade;
+    return (
+        <span className={styles.nextUp} title={`Up next: ${next.name} - ${next.artistName}`}>
+            {mixing ? 'Mixing into ' : 'Next: '}
+            {next.name}
+        </span>
+    );
 };

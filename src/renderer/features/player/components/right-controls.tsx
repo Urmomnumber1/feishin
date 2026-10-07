@@ -39,6 +39,7 @@ import {
     FriendChips,
     LookEffects,
     MiniPlayerButton,
+    NextUpHint,
     Shortcuts,
     useQueuePeek,
 } from '/@/renderer/features/sour/components/look';
@@ -153,6 +154,7 @@ export const RightControls = () => {
                 <AutoDJButton />
             </Group>
             <Group align="center" gap="xs" justify="flex-end" wrap="nowrap">
+                <NextUpHint />
                 <PlayerBarVisualizer />
                 <FriendChips />
                 {show('people') && <PeopleButton />}

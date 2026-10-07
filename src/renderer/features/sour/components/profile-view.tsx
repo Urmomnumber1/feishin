@@ -35,9 +35,11 @@ import {
     NowPlayingRing,
     useProfileVisit,
 } from '/@/renderer/features/sour/components/profile-extras';
+import { notify } from '/@/renderer/features/sour/components/social';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
 import { AppRoute } from '/@/renderer/router/routes';
-import { usePlayerSong } from '/@/renderer/store';
+import { useCurrentServer, usePlayerSong } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Button } from '/@/shared/components/button/button';
 import { Group } from '/@/shared/components/group/group';
@@ -45,6 +47,7 @@ import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
 import { Text } from '/@/shared/components/text/text';
 import { toast } from '/@/shared/components/toast/toast';
+import { Play } from '/@/shared/types/types';
 
 export const SECTIONS: Array<[string, string]> = [
     ['now', 'Listening now'],
@@ -96,6 +99,7 @@ export const ProfileView = ({
     const queryClient = useQueryClient();
     const playSong = usePlaySong();
     const navigate = useNavigate();
+    const serverId = useCurrentServer()?.id;
     const current = usePlayerSong();
     const [note, setNote] = useState('');
     const [nick, setNick] = useState('');
@@ -418,9 +422,30 @@ export const ProfileView = ({
                                 <ActionIcon
                                     icon="x"
                                     onClick={() =>
-                                        act(() =>
-                                            sourApi.wall(url, me, profile.id, { remove: n.id }),
-                                        )
+                                        sourApi
+                                            .wall(url, me, profile.id, { remove: n.id })
+                                            .then(() => {
+                                                refresh();
+                                                if (n.from !== me.id) return;
+                                                // your own note can come back
+                                                notify(
+                                                    'Note deleted',
+                                                    <Button
+                                                        onClick={() =>
+                                                            sourApi
+                                                                .wall(url, me, profile.id, { song: n.song, text: n.text })
+                                                                .then(refresh)
+                                                                .catch(() => {})
+                                                        }
+                                                        size="compact-xs"
+                                                        variant="default"
+                                                    >
+                                                        Undo
+                                                    </Button>,
+                                                    6000,
+                                                );
+                                            })
+                                            .catch((error: Error) => toast.error({ message: error.message }))
                                     }
                                     size="xs"
                                     tooltip={{ label: 'Delete' }}
@@ -543,6 +568,24 @@ export const ProfileView = ({
                                     variant="default"
                                 >
                                     Dedicate this song
+                                </Button>
+                            )}
+                            {!isMe && !!(profile.stats?.topSongs.length || profile.favorites.length) && (
+                                <Button
+                                    onClick={() => {
+                                        const songs = [
+                                            ...(profile.stats?.topSongs ?? []),
+                                            ...profile.favorites.filter((f) => favoriteKind(f) === 'song'),
+                                        ].filter((x, i, list) => list.findIndex((y) => y.id === x.id) === i);
+                                        if (!serverId) return;
+                                        queueGroupSongs(shuffled(songs).slice(0, 50), Play.NOW, { queryClient, serverId }, `From ${profile.name}'s radio`)
+                                            .then((n) => toast.success({ message: n ? `Playing ${profile.name}'s radio` : "Their songs aren't on your music server" }))
+                                            .catch((error: Error) => toast.error({ message: error.message }));
+                                    }}
+                                    size="xs"
+                                    variant="default"
+                                >
+                                    Play their radio
                                 </Button>
                             )}
                             <Button

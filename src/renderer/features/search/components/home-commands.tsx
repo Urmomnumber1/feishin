@@ -5,6 +5,7 @@ import { createSearchParams, generatePath, useNavigate } from 'react-router';
 
 import { openCreatePlaylistModal } from '/@/renderer/features/playlists/components/create-playlist-form';
 import { Command, CommandPalettePages } from '/@/renderer/features/search/components/command';
+import { sourCommands } from '/@/renderer/features/sour/components/app-extras';
 import { AppRoute } from '/@/renderer/router/routes';
 import { useCurrentServer } from '/@/renderer/store';
 import { LibraryItem } from '/@/shared/types/domain-types';
@@ -71,6 +72,20 @@ export const HomeCommands = ({
                     {t('page.globalSearch.commands.serverCommands')}
                     ...
                 </Command.Item>
+            </Command.Group>
+            <Command.Group heading="Sour Player">
+                {sourCommands((to) => navigate(to)).map((c) => (
+                    <Command.Item
+                        key={c.label}
+                        onSelect={() => {
+                            handleClose();
+                            c.run();
+                        }}
+                        value={c.label}
+                    >
+                        {c.label}
+                    </Command.Item>
+                ))}
             </Command.Group>
         </>
     );
