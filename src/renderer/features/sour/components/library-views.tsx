@@ -386,37 +386,73 @@ export const SmartFolders = () => {
     const qc = useQueryClient();
     const serverId = useCurrentServer()?.id;
     const [now] = useState(() => Date.now());
-    const recent = albums.filter((a) => a.lastPlayedAt && now - Date.parse(a.lastPlayedAt) < 7 * DAY);
+    const recent = albums.filter(
+        (a) => a.lastPlayedAt && now - Date.parse(a.lastPlayedAt) < 7 * DAY,
+    );
     const fresh = albums.filter((a) => a.createdAt && now - Date.parse(a.createdAt) < 7 * DAY);
     const never = albums.filter((a) => !a.playCount);
     const friendFaves = profiles
         .filter((p) => p.id !== me?.id)
         .flatMap((p) => (p.favorites ?? []).filter((f) => !/^(album|artist):/.test(f.id)));
-    const friendTop = profiles.filter((p) => p.id !== me?.id).flatMap((p) => p.stats?.topSongs.slice(0, 5) ?? []);
+    const friendTop = profiles
+        .filter((p) => p.id !== me?.id)
+        .flatMap((p) => p.stats?.topSongs.slice(0, 5) ?? []);
     const play = (songs: typeof friendFaves, reason: string) => {
         if (!serverId || !songs.length) return;
-        queueGroupSongs(shuffled(songs).slice(0, 50), Play.NOW, { queryClient: qc, serverId }, reason)
-            .then((n) => toast.success({ message: n ? `Playing ${n} songs` : "Those songs aren't on your music server" }))
+        queueGroupSongs(
+            shuffled(songs).slice(0, 50),
+            Play.NOW,
+            { queryClient: qc, serverId },
+            reason,
+        )
+            .then((n) =>
+                toast.success({
+                    message: n ? `Playing ${n} songs` : "Those songs aren't on your music server",
+                }),
+            )
             .catch((error: Error) => toast.error({ message: error.message }));
     };
     return (
         <div className={styles.folders}>
             <Card icon={'\u{1F49B}'} title="From your friends">
                 <Text isMuted size="sm">
-                    {friendFaves.length} favourite songs and {friendTop.length} top songs from the group.
+                    {friendFaves.length} favourite songs and {friendTop.length} top songs from the
+                    group.
                 </Text>
                 <Group gap="xs">
-                    <Button disabled={!friendFaves.length || !url} onClick={() => play(friendFaves, "From friends' favourites")} size="xs" variant="default">
+                    <Button
+                        disabled={!friendFaves.length || !url}
+                        onClick={() => play(friendFaves, "From friends' favourites")}
+                        size="xs"
+                        variant="default"
+                    >
                         Play friends&apos; favourites
                     </Button>
-                    <Button disabled={!friendTop.length || !url} onClick={() => play(friendTop, "From friends' top songs")} size="xs" variant="default">
+                    <Button
+                        disabled={!friendTop.length || !url}
+                        onClick={() => play(friendTop, "From friends' top songs")}
+                        size="xs"
+                        variant="default"
+                    >
                         Play what friends play most
                     </Button>
                 </Group>
             </Card>
-            <FolderRow albums={fresh} empty="Nothing new this week - ask Hermes Music for something!" title="New this week" />
-            <FolderRow albums={recent} empty="Nothing played this week yet." title="Played this week" />
-            <FolderRow albums={never} empty="You've played everything at least once." title="Never played" />
+            <FolderRow
+                albums={fresh}
+                empty="Nothing new this week - ask Hermes Music for something!"
+                title="New this week"
+            />
+            <FolderRow
+                albums={recent}
+                empty="Nothing played this week yet."
+                title="Played this week"
+            />
+            <FolderRow
+                albums={never}
+                empty="You've played everything at least once."
+                title="Never played"
+            />
         </div>
     );
 };

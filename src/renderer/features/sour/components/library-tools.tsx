@@ -556,21 +556,28 @@ const ArchiveCard = () => {
     const albums = useAllAlbums().data ?? [];
     const archived = useQuery({
         enabled: !!url,
-        queryFn: () => hermes<{ at: number; by: null | string; file: string }[]>(`${url}/api/library/archive`),
+        queryFn: () =>
+            hermes<{ at: number; by: null | string; file: string }[]>(`${url}/api/library/archive`),
         queryKey: ['sour-archive', url],
     });
     const [sixMonths] = useState(() => Date.now() - 183 * 86400000);
-    const dusty = albums.filter((a) => !a.playCount && a.createdAt && Date.parse(a.createdAt) < sixMonths);
+    const dusty = albums.filter(
+        (a) => !a.playCount && a.createdAt && Date.parse(a.createdAt) < sixMonths,
+    );
     const [pick, setPick] = useState<null | string>(null);
     return (
         <Card icon={'\u{1F578}️'} title="Dusty corners">
             <Text isMuted size="sm">
-                {dusty.length} albums added over six months ago that you&apos;ve never played. Archiving moves them to a
-                hidden folder (Navidrome stops showing them); restore any time.
+                {dusty.length} albums added over six months ago that you&apos;ve never played.
+                Archiving moves them to a hidden folder (Navidrome stops showing them); restore any
+                time.
             </Text>
             <Group gap="xs">
                 <Select
-                    data={dusty.map((a) => ({ label: `${a.name} - ${a.albumArtistName}`, value: a.id }))}
+                    data={dusty.map((a) => ({
+                        label: `${a.name} - ${a.albumArtistName}`,
+                        value: a.id,
+                    }))}
                     onChange={setPick}
                     placeholder="Pick an album"
                     searchable

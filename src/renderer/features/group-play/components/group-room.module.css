@@ -128,9 +128,9 @@
 .name {
     max-width: 100%;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.72rem;
     color: #fff;
-    text-overflow: ellipsis;
     white-space: nowrap;
     text-shadow: 0 1px 4px rgb(0 0 0 / 70%);
 }
@@ -142,9 +142,9 @@
     max-width: 150px;
     padding: 4px 8px;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.72rem;
     color: #151515;
-    text-overflow: ellipsis;
     white-space: nowrap;
     background: #fff;
     border-radius: 10px 10px 10px 2px;

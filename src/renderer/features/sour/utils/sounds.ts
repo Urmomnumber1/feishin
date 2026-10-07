@@ -80,7 +80,8 @@ export const playSound = (name?: string) => {
             noise(ctx, 1.4, 0.18, 1400);
             tone(ctx, 'triangle', 600, 900, 0.1, 0.8, 0.05);
         } else if (name === 'applause') {
-            for (let i = 0; i < 30; i++) noise(ctx, 0.04, 0.1, 3500, i * 0.06 + Math.random() * 0.03);
+            for (let i = 0; i < 30; i++)
+                noise(ctx, 0.04, 0.1, 3500, i * 0.06 + Math.random() * 0.03);
         } else if (name === 'drumroll') {
             for (let i = 0; i < 24; i++) noise(ctx, 0.05, 0.12, 600, i * 0.045);
             noise(ctx, 0.5, 0.25, 4000, 1.1);

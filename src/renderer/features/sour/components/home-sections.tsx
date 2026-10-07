@@ -3,20 +3,6 @@ import { type ReactNode, useState } from 'react';
 
 import styles from './home-sections.module.css';
 
-import {
-    ActivityTicker,
-    DecadeDial,
-    FriendCards,
-    GenreBlobs,
-    HotSeatHome,
-    MoodTiles,
-    PlayedTimeline,
-    SongRoulette,
-    SourHero,
-    UnheardByYou,
-} from '/@/renderer/features/sour/components/home-plus';
-import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
-
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import {
     type GroupSong,
@@ -30,6 +16,18 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { getSongById } from '/@/renderer/features/player/utils';
 import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
 import { favoriteKind, sourApi } from '/@/renderer/features/sour/api/sour-api';
+import {
+    ActivityTicker,
+    DecadeDial,
+    FriendCards,
+    GenreBlobs,
+    HotSeatHome,
+    MoodTiles,
+    PlayedTimeline,
+    SongRoulette,
+    SourHero,
+    UnheardByYou,
+} from '/@/renderer/features/sour/components/home-plus';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import {
     activity,
@@ -38,6 +36,7 @@ import {
     usePlaySong,
 } from '/@/renderer/features/sour/components/profile-bits';
 import { LeaderboardList, useBlend } from '/@/renderer/features/sour/components/social';
+import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { HomeItem, useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData } from '/@/renderer/store/player.store';
@@ -53,24 +52,24 @@ import { Play } from '/@/shared/types/types';
 // Home sections that come from the friend group (Hermes Music) or this computer's plays.
 export const SOUR_HOME_ITEMS = new Set<string>([
     HomeItem.ACTIVITY_TICKER,
+    HomeItem.BLEND,
     HomeItem.DECADE_DIAL,
     HomeItem.FRIEND_CARDS,
+    HomeItem.FRIENDS_PLAYING,
     HomeItem.GENRE_BLOBS,
+    HomeItem.GROUP_TOP,
     HomeItem.HOT_SEAT,
+    HomeItem.JUMP_BACK_IN,
+    HomeItem.LEADERBOARD,
     HomeItem.MOODS,
     HomeItem.PLAYED_TODAY,
     HomeItem.ROULETTE,
-    HomeItem.SOUR_HERO,
-    HomeItem.UNHEARD,
-    HomeItem.BLEND,
-    HomeItem.FRIENDS_PLAYING,
-    HomeItem.GROUP_TOP,
-    HomeItem.JUMP_BACK_IN,
-    HomeItem.LEADERBOARD,
     HomeItem.SHARED_FAVORITES,
     HomeItem.SMART_PLAYLISTS,
     HomeItem.SONG_OF_THE_DAY,
+    HomeItem.SOUR_HERO,
     HomeItem.SOUR_RADIO,
+    HomeItem.UNHEARD,
     HomeItem.YOUR_REQUESTS,
 ]);
 
@@ -488,30 +487,20 @@ const SourHomeSectionInner = ({ id }: { id: string }) => {
     switch (id) {
         case HomeItem.ACTIVITY_TICKER:
             return <ActivityTicker />;
+        case HomeItem.BLEND:
+            return <Blend />;
         case HomeItem.DECADE_DIAL:
             return <DecadeDial />;
         case HomeItem.FRIEND_CARDS:
             return <FriendCards />;
-        case HomeItem.GENRE_BLOBS:
-            return <GenreBlobs />;
-        case HomeItem.HOT_SEAT:
-            return <HotSeatHome />;
-        case HomeItem.MOODS:
-            return <MoodTiles />;
-        case HomeItem.PLAYED_TODAY:
-            return <PlayedTimeline />;
-        case HomeItem.ROULETTE:
-            return <SongRoulette />;
-        case HomeItem.SOUR_HERO:
-            return <SourHero />;
-        case HomeItem.UNHEARD:
-            return <UnheardByYou />;
-        case HomeItem.BLEND:
-            return <Blend />;
         case HomeItem.FRIENDS_PLAYING:
             return <FriendsPlaying />;
+        case HomeItem.GENRE_BLOBS:
+            return <GenreBlobs />;
         case HomeItem.GROUP_TOP:
             return <GroupTop />;
+        case HomeItem.HOT_SEAT:
+            return <HotSeatHome />;
         case HomeItem.JUMP_BACK_IN:
             return <JumpBackIn />;
         case HomeItem.LEADERBOARD:
@@ -520,14 +509,24 @@ const SourHomeSectionInner = ({ id }: { id: string }) => {
                     <LeaderboardList limit={5} />
                 </Box>
             );
+        case HomeItem.MOODS:
+            return <MoodTiles />;
+        case HomeItem.PLAYED_TODAY:
+            return <PlayedTimeline />;
+        case HomeItem.ROULETTE:
+            return <SongRoulette />;
         case HomeItem.SHARED_FAVORITES:
             return <SharedFavorites />;
         case HomeItem.SMART_PLAYLISTS:
             return <SmartPlaylists />;
         case HomeItem.SONG_OF_THE_DAY:
             return <SongOfTheDay />;
+        case HomeItem.SOUR_HERO:
+            return <SourHero />;
         case HomeItem.SOUR_RADIO:
             return <RadioCard />;
+        case HomeItem.UNHEARD:
+            return <UnheardByYou />;
         case HomeItem.YOUR_REQUESTS:
             return <YourRequests />;
         default:

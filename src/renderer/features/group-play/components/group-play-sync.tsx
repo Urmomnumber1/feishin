@@ -1,9 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
-import { groupApi, type SessionSummary, toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
-import { openSessionSummary } from '/@/renderer/features/group-play/components/group-room';
+import {
+    groupApi,
+    type SessionSummary,
+    toGroupSong,
+} from '/@/renderer/features/group-play/api/group-play-api';
 import { useReactions } from '/@/renderer/features/group-play/components/group-reactions';
+import { openSessionSummary } from '/@/renderer/features/group-play/components/group-room';
 import {
     type GroupState,
     useGroupPlayStore,
@@ -198,10 +202,13 @@ export const GroupPlaySync = () => {
     const countdownAt = useGroupPlayStore((state) => state.countdownAt);
     useEffect(() => {
         if (!countdownAt) return undefined;
-        const timer = setTimeout(() => {
-            useGroupPlayStore.setState({ countdownAt: null });
-            if (role === 'host') usePlayerStoreBase.getState().mediaPlay();
-        }, Math.max(0, countdownAt - Date.now()));
+        const timer = setTimeout(
+            () => {
+                useGroupPlayStore.setState({ countdownAt: null });
+                if (role === 'host') usePlayerStoreBase.getState().mediaPlay();
+            },
+            Math.max(0, countdownAt - Date.now()),
+        );
         return () => clearTimeout(timer);
     }, [countdownAt, role]);
 

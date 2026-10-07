@@ -7,19 +7,6 @@ import {
 } from '/@/renderer/features/group-play/store/group-play.store';
 import { type Song } from '/@/shared/types/domain-types';
 
-interface Created {
-    code: string;
-    hostKey: string;
-    state: GroupState;
-}
-
-interface Joined {
-    member: string;
-    state: GroupState;
-}
-
-type Who = { hostKey?: null | string; member?: null | string };
-
 export interface SessionSummary {
     end: number;
     host: string;
@@ -34,6 +21,19 @@ export interface SessionSummary {
     topAdder: null | { name: string; songs: number };
     topSong: GroupSong | null;
 }
+
+interface Created {
+    code: string;
+    hostKey: string;
+    state: GroupState;
+}
+
+interface Joined {
+    member: string;
+    state: GroupState;
+}
+
+type Who = { hostKey?: null | string; member?: null | string };
 
 const post = async <T>(url: string, body: unknown): Promise<T> => {
     const res = await fetch(url, {
@@ -59,6 +59,12 @@ export const toGroupSong = (song: Song): GroupSong => ({
 export const groupApi = {
     add: (base: string, code: string, user: string, songs: GroupSong[], member?: null | string) =>
         post<{ added: number }>(`${base}/api/group/${code}/add`, { member, songs, user }),
+    // the request line: the host lets a guest's pick in (or not)
+    approve: (base: string, code: string, hostKey: string, rid: string, accept: boolean) =>
+        post<{ ok: boolean }>(`${base}/api/group/${code}/approve`, { accept, hostKey, rid }),
+    // spend a token: your pick jumps to next
+    boost: (base: string, code: string, who: Who, songId: string) =>
+        post<{ tokens: number }>(`${base}/api/group/${code}/boost`, { songId, ...who }),
     chat: (base: string, code: string, who: Who, text: string) =>
         post<{ ok: boolean }>(`${base}/api/group/${code}/chat`, { text, ...who }),
     // a guest using the group's controls (the host's Feishin carries it out)
@@ -69,8 +75,15 @@ export const groupApi = {
         cmd: GroupControl,
         target: { index?: number; position?: number; songId?: string } = {},
     ) => post<{ ok: boolean }>(`${base}/api/group/${code}/control`, { cmd, member, ...target }),
+    countdown: (base: string, code: string, hostKey: string) =>
+        post<{ at: number; serverNow: number }>(`${base}/api/group/${code}/countdown`, { hostKey }),
     create: (base: string, name: string, user: string, profile: null | string) =>
         post<Created>(`${base}/api/group/create`, { name, profile, user }),
+    encore: (base: string, code: string, who: Who) =>
+        post<{ happening: boolean; needed: number; votes: number }>(
+            `${base}/api/group/${code}/encore`,
+            who,
+        ),
     end: (base: string, code: string, hostKey: string) =>
         post<{ ok: boolean }>(`${base}/api/group/${code}/end`, { hostKey }),
     // Sour Radio: random songs from this computer's library when it runs low
@@ -127,6 +140,12 @@ export const groupApi = {
             start?: number;
         },
     ) => post<{ ok: boolean }>(`${base}/api/group/${code}/schedule`, body),
+    scrapbook: async (base: string) => {
+        const res = await fetch(`${base}/api/group/scrapbook`);
+        if (!res.ok) throw new Error(`Hermes Music returned ${res.status}`);
+        const list = await res.json().catch(() => null);
+        return (Array.isArray(list) ? list : []) as SessionSummary[];
+    },
     settings: (
         base: string,
         code: string,
@@ -142,6 +161,8 @@ export const groupApi = {
             watchVideo?: boolean;
         },
     ) => post<{ ok: boolean }>(`${base}/api/group/${code}/settings`, { hostKey, ...changes }),
+    sound: (base: string, code: string, who: Who, name: string) =>
+        post<{ ok: boolean }>(`${base}/api/group/${code}/sound`, { name, ...who }),
     stats: async (base: string, code: string) => {
         const res = await fetch(`${base}/api/group/${code}/stats`);
         if (!res.ok) throw new Error(`Hermes Music returned ${res.status}`);
@@ -151,27 +172,13 @@ export const groupApi = {
             songs: { artist: string; id: string; plays: number; title: string }[];
         };
     },
-    // the request line: the host lets a guest's pick in (or not)
-    approve: (base: string, code: string, hostKey: string, rid: string, accept: boolean) =>
-        post<{ ok: boolean }>(`${base}/api/group/${code}/approve`, { accept, hostKey, rid }),
-    // spend a token: your pick jumps to next
-    boost: (base: string, code: string, who: Who, songId: string) =>
-        post<{ tokens: number }>(`${base}/api/group/${code}/boost`, { songId, ...who }),
-    countdown: (base: string, code: string, hostKey: string) =>
-        post<{ at: number; serverNow: number }>(`${base}/api/group/${code}/countdown`, { hostKey }),
-    encore: (base: string, code: string, who: Who) =>
-        post<{ happening: boolean; needed: number; votes: number }>(`${base}/api/group/${code}/encore`, who),
-    scrapbook: async (base: string) => {
-        const res = await fetch(`${base}/api/group/scrapbook`);
-        if (!res.ok) throw new Error(`Hermes Music returned ${res.status}`);
-        const list = await res.json().catch(() => null);
-        return (Array.isArray(list) ? list : []) as SessionSummary[];
-    },
-    sound: (base: string, code: string, who: Who, name: string) =>
-        post<{ ok: boolean }>(`${base}/api/group/${code}/sound`, { name, ...who }),
-    // a room's owner or DJ: blind round, theme night, room look
-    vibe: (base: string, code: string, member: string, changes: { blind?: boolean; roomTheme?: string; themeNight?: null | ThemeNight }) =>
-        post<{ ok: boolean }>(`${base}/api/group/${code}/vibe`, { member, ...changes }),
     upvote: (base: string, code: string, who: Who, songId: string) =>
         post<{ votes: number }>(`${base}/api/group/${code}/upvote`, { songId, ...who }),
+    // a room's owner or DJ: blind round, theme night, room look
+    vibe: (
+        base: string,
+        code: string,
+        member: string,
+        changes: { blind?: boolean; roomTheme?: string; themeNight?: null | ThemeNight },
+    ) => post<{ ok: boolean }>(`${base}/api/group/${code}/vibe`, { member, ...changes }),
 };

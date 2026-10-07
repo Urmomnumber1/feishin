@@ -61,9 +61,9 @@
 
 .banner-title {
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 1.5rem;
     font-weight: 800;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
@@ -264,11 +264,11 @@
 .blob {
     padding: 6px;
     overflow: hidden;
+    text-overflow: ellipsis;
     font: inherit;
     font-size: 0.8rem;
     font-weight: 800;
     color: #fff;
-    text-overflow: ellipsis;
     cursor: pointer;
     border: 0;
     border-radius: 50%;

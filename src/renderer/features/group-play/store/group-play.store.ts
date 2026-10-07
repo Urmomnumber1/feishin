@@ -41,6 +41,13 @@ export interface GroupListing {
     station?: null | { kind: string; ownerName: null | string };
 }
 
+export interface GroupMark {
+    by: string;
+    emoji: string;
+    position: number;
+    songId: string;
+}
+
 export interface GroupMember {
     avatar: number;
     id: string;
@@ -49,19 +56,6 @@ export interface GroupMember {
     positionAt?: null | number;
     profile?: null | string;
     spectate?: boolean;
-}
-
-export interface GroupMark {
-    by: string;
-    emoji: string;
-    position: number;
-    songId: string;
-}
-
-export interface ThemeNight {
-    kind: 'artist' | 'colour' | 'decade' | 'free' | 'word';
-    label: null | string;
-    value: null | number | string;
 }
 
 export interface GroupRequest {
@@ -139,6 +133,12 @@ export interface GroupState {
     watchVideo?: boolean;
 }
 
+export interface ThemeNight {
+    kind: 'artist' | 'colour' | 'decade' | 'free' | 'word';
+    label: null | string;
+    value: null | number | string;
+}
+
 // Group Play session (like a Spotify Jam). Hermes Music runs the group; the host's player is the
 // source of truth and members follow it. Your name and picture are remembered between restarts.
 interface GroupPlayStore {
@@ -157,12 +157,12 @@ interface GroupPlayStore {
     avatar: null | string;
     clockOffset: number;
     code: null | string;
+    countdownAt: null | number;
     hostKey: null | string;
     member: null | string;
     panelOpen: boolean;
     played: GroupSong[];
     role: 'host' | 'member' | null;
-    countdownAt: null | number;
     sleepAt: null | number;
     spectate: boolean;
     state: GroupState | null;
@@ -184,12 +184,12 @@ export const useGroupPlayStore = createWithEqualityFn<GroupPlayStore>()(
             avatar: null,
             clockOffset: 0,
             code: null,
+            countdownAt: null,
             hostKey: null,
             member: null,
             panelOpen: false,
             played: [],
             role: null,
-            countdownAt: null,
             sleepAt: null,
             spectate: false,
             state: null,

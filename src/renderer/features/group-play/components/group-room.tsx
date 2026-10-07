@@ -43,7 +43,8 @@ export const ROOM_THEMES: Array<{ label: string; value: string }> = [
     { label: 'Rainy day', value: 'rainy' },
 ];
 
-const COLOUR_WORDS = /\b(red|blue|green|yellow|black|white|purple|pink|orange|gold|silver|grey|gray|violet|scarlet|indigo|crimson|brown|cherry|lemon|lime)\b/i;
+const COLOUR_WORDS =
+    /\b(red|blue|green|yellow|black|white|purple|pink|orange|gold|silver|grey|gray|violet|scarlet|indigo|crimson|brown|cherry|lemon|lime)\b/i;
 
 // does a song fit tonight's theme? (null when there's no rule the app can check)
 export const fitsTheme = (song: GroupSong, t?: null | ThemeNight) => {
@@ -52,8 +53,10 @@ export const fitsTheme = (song: GroupSong, t?: null | ThemeNight) => {
         if (!song.year) return null;
         return song.year >= t.value && song.year < t.value + 10;
     }
-    if (t.kind === 'word' && typeof t.value === 'string') return song.title.toLowerCase().includes(t.value.toLowerCase());
-    if (t.kind === 'artist' && typeof t.value === 'string') return song.artist.toLowerCase().includes(t.value.toLowerCase());
+    if (t.kind === 'word' && typeof t.value === 'string')
+        return song.title.toLowerCase().includes(t.value.toLowerCase());
+    if (t.kind === 'artist' && typeof t.value === 'string')
+        return song.artist.toLowerCase().includes(t.value.toLowerCase());
     if (t.kind === 'colour') return COLOUR_WORDS.test(song.title);
     return null;
 };
@@ -80,14 +83,36 @@ export const GroupStage = ({ isRadio, state }: { isRadio: boolean; state: GroupS
         return () => clearInterval(timer);
     }, []);
     const people = [
-        ...(isRadio ? [] : [{ id: 'host', name: state.host, profile: state.hostProfile ?? null, spectate: false }]),
-        ...state.members.map((m) => ({ id: m.id, name: m.name, profile: m.profile ?? null, spectate: !!m.spectate })),
-    ].filter((p, i, list) => list.findIndex((x) => (x.profile || x.name) === (p.profile || p.name)) === i);
+        ...(isRadio
+            ? []
+            : [
+                  {
+                      id: 'host',
+                      name: state.host,
+                      profile: state.hostProfile ?? null,
+                      spectate: false,
+                  },
+              ]),
+        ...state.members.map((m) => ({
+            id: m.id,
+            name: m.name,
+            profile: m.profile ?? null,
+            spectate: !!m.spectate,
+        })),
+    ].filter(
+        (p, i, list) =>
+            list.findIndex((x) => (x.profile || x.name) === (p.profile || p.name)) === i,
+    );
     const djName = state.dj?.name ?? state.show?.name ?? (isRadio ? null : state.host);
     const bubbles = new Map<string, string>();
     for (const c of state.chat ?? []) if (now - c.at < 7000) bubbles.set(c.by, c.text);
     const recentReactions = (state.marks ?? []).length;
-    const heat = Math.min(1, (people.length - 1) * 0.15 + recentReactions * 0.03 + (state.queue.length - state.index) * 0.02);
+    const heat = Math.min(
+        1,
+        (people.length - 1) * 0.15 +
+            recentReactions * 0.03 +
+            (state.queue.length - state.index) * 0.02,
+    );
     const pic = (p: { name: string; profile: null | string }) => {
         const prof = profiles.find((x) => x.id === p.profile);
         return prof ? avatarUrl(url, prof) : null;
@@ -105,9 +130,20 @@ export const GroupStage = ({ isRadio, state }: { isRadio: boolean; state: GroupS
                     const src = pic(p);
                     const isDj = p.name === djName;
                     return (
-                        <div className={clsx(styles.person, { [styles.dj]: isDj, [styles.spectator]: p.spectate })} key={p.id}>
-                            {bubbles.has(p.name) && <span className={styles.bubble}>{bubbles.get(p.name)}</span>}
-                            <span className={styles.face} style={{ background: `hsl(${hue(p.name)} 60% 45%)` }}>
+                        <div
+                            className={clsx(styles.person, {
+                                [styles.dj]: isDj,
+                                [styles.spectator]: p.spectate,
+                            })}
+                            key={p.id}
+                        >
+                            {bubbles.has(p.name) && (
+                                <span className={styles.bubble}>{bubbles.get(p.name)}</span>
+                            )}
+                            <span
+                                className={styles.face}
+                                style={{ background: `hsl(${hue(p.name)} 60% 45%)` }}
+                            >
                                 {src ? <img alt="" src={src} /> : (p.name[0] || '?').toUpperCase()}
                             </span>
                             <span className={styles.name}>
@@ -130,12 +166,22 @@ export const CoverFlow = ({ hideNow, state }: { hideNow: boolean; state: GroupSt
         <div className={styles.flow}>
             {list.map((song, i) => (
                 <div
-                    className={clsx(styles.flowItem, { [styles.hostPick]: i > 0 && (song.by || state.host) === state.host && !state.radio })}
+                    className={clsx(styles.flowItem, {
+                        [styles.hostPick]:
+                            i > 0 && (song.by || state.host) === state.host && !state.radio,
+                    })}
                     key={`${song.id}-${i}`}
-                    style={{ opacity: i === 0 ? 1 : Math.max(0.25, 1 - i * 0.14), transform: `scale(${i === 0 ? 1 : 0.82})` }}
+                    style={{
+                        opacity: i === 0 ? 1 : Math.max(0.25, 1 - i * 0.14),
+                        transform: `scale(${i === 0 ? 1 : 0.82})`,
+                    }}
                     title={i === 0 && hideNow ? 'Blind round' : `${song.title} - ${song.artist}`}
                 >
-                    {i === 0 && hideNow ? <span className={styles.blindCover}>?</span> : <SongCover size={i === 0 ? 92 : 64} song={song} />}
+                    {i === 0 && hideNow ? (
+                        <span className={styles.blindCover}>?</span>
+                    ) : (
+                        <SongCover size={i === 0 ? 92 : 64} song={song} />
+                    )}
                 </div>
             ))}
         </div>
@@ -160,7 +206,13 @@ export const RoomActions = ({ state }: { state: GroupState }) => {
                     onClick={() =>
                         groupApi
                             .encore(url, code, who())
-                            .then((r) => !r.happening && toast.info({ message: `Encore vote: ${r.votes} of ${r.needed}` }))
+                            .then(
+                                (r) =>
+                                    !r.happening &&
+                                    toast.info({
+                                        message: `Encore vote: ${r.votes} of ${r.needed}`,
+                                    }),
+                            )
                             .catch(fail)
                     }
                     size="xs"
@@ -169,7 +221,9 @@ export const RoomActions = ({ state }: { state: GroupState }) => {
                     Encore! {state.encore ? `(${state.encore}/${state.encoreNeeded})` : ''}
                 </Button>
                 <Text isMuted size="xs">
-                    {role !== 'host' ? `${tokens} skip-the-line token${tokens === 1 ? '' : 's'} left` : ''}
+                    {role !== 'host'
+                        ? `${tokens} skip-the-line token${tokens === 1 ? '' : 's'} left`
+                        : ''}
                 </Text>
             </Group>
             <div className={styles.soundboard}>
@@ -211,10 +265,21 @@ export const PendingRequests = ({ state }: { state: GroupState }) => {
                     <Text flex={1} size="sm" truncate>
                         {r.song.title} - {r.by}
                     </Text>
-                    <Button onClick={() => groupApi.approve(url, code, hostKey, r.rid, true).catch(fail)} size="compact-xs">
+                    <Button
+                        onClick={() =>
+                            groupApi.approve(url, code, hostKey, r.rid, true).catch(fail)
+                        }
+                        size="compact-xs"
+                    >
                         Let it in
                     </Button>
-                    <Button onClick={() => groupApi.approve(url, code, hostKey, r.rid, false).catch(fail)} size="compact-xs" variant="subtle">
+                    <Button
+                        onClick={() =>
+                            groupApi.approve(url, code, hostKey, r.rid, false).catch(fail)
+                        }
+                        size="compact-xs"
+                        variant="subtle"
+                    >
                         No
                     </Button>
                 </Group>
@@ -228,9 +293,16 @@ export const RoomSettings = ({ isRadio, state }: { isRadio: boolean; state: Grou
     const url = useHermesUrl();
     const { code, hostKey, member } = useGroupPlayStore();
     const [kind, setKind] = useState<string>(state.themeNight?.kind ?? 'decade');
-    const [value, setValue] = useState<string>(state.themeNight?.value ? String(state.themeNight.value) : '1990');
+    const [value, setValue] = useState<string>(
+        state.themeNight?.value ? String(state.themeNight.value) : '1990',
+    );
     if (!code) return null;
-    const save = (changes: { approval?: boolean; blind?: boolean; roomTheme?: string; themeNight?: null | ThemeNight }) =>
+    const save = (changes: {
+        approval?: boolean;
+        blind?: boolean;
+        roomTheme?: string;
+        themeNight?: null | ThemeNight;
+    }) =>
         (isRadio
             ? member
                 ? groupApi.vibe(url, code, member, changes)
@@ -242,17 +314,31 @@ export const RoomSettings = ({ isRadio, state }: { isRadio: boolean; state: Grou
     const night = (): null | ThemeNight => {
         if (kind === 'decade') {
             const year = Math.floor(Number(value) / 10) * 10;
-            return Number.isFinite(year) && year >= 1900 ? { kind: 'decade', label: null, value: year } : null;
+            return Number.isFinite(year) && year >= 1900
+                ? { kind: 'decade', label: null, value: year }
+                : null;
         }
         if (kind === 'colour') return { kind: 'colour', label: null, value: null };
-        return value.trim() ? { kind: kind as ThemeNight['kind'], label: kind === 'free' ? value.trim() : null, value: value.trim() } : null;
+        return value.trim()
+            ? {
+                  kind: kind as ThemeNight['kind'],
+                  label: kind === 'free' ? value.trim() : null,
+                  value: value.trim(),
+              }
+            : null;
     };
     return (
         <Stack gap="xs">
             <Text fw={700} size="sm">
                 The room
             </Text>
-            <Select data={ROOM_THEMES} label="Room look" onChange={(v) => v && save({ roomTheme: v })} size="xs" value={state.roomTheme ?? 'none'} />
+            <Select
+                data={ROOM_THEMES}
+                label="Room look"
+                onChange={(v) => v && save({ roomTheme: v })}
+                size="xs"
+                value={state.roomTheme ?? 'none'}
+            />
             <Switch
                 checked={!!state.blind}
                 description="Covers and titles stay hidden until a song is over - guess what's playing."
@@ -283,7 +369,15 @@ export const RoomSettings = ({ isRadio, state }: { isRadio: boolean; state: Grou
                     w={170}
                 />
                 {kind !== 'colour' && (
-                    <TextInput onChange={(e) => setValue(e.currentTarget.value)} placeholder={kind === 'decade' ? '1990' : kind === 'free' ? 'Sad songs only' : 'love'} size="xs" value={value} w={140} />
+                    <TextInput
+                        onChange={(e) => setValue(e.currentTarget.value)}
+                        placeholder={
+                            kind === 'decade' ? '1990' : kind === 'free' ? 'Sad songs only' : 'love'
+                        }
+                        size="xs"
+                        value={value}
+                        w={140}
+                    />
                 )}
                 <Button onClick={() => save({ themeNight: night() })} size="xs" variant="default">
                     Set
@@ -295,7 +389,12 @@ export const RoomSettings = ({ isRadio, state }: { isRadio: boolean; state: Grou
                 )}
             </Group>
             {!isRadio && hostKey && (
-                <Button onClick={() => groupApi.countdown(url, code, hostKey).catch(fail)} size="xs" variant="default" w="fit-content">
+                <Button
+                    onClick={() => groupApi.countdown(url, code, hostKey).catch(fail)}
+                    size="xs"
+                    variant="default"
+                    w="fit-content"
+                >
                     Start with a 3-2-1 countdown
                 </Button>
             )}
@@ -327,7 +426,9 @@ export const CountdownOverlay = () => {
 
 // ---------- blind round: hide what's playing for listeners ----------
 export const BlindWatcher = () => {
-    const blind = useGroupPlayStore((s) => !!s.state?.blind && !s.state.ended && s.role === 'member');
+    const blind = useGroupPlayStore(
+        (s) => !!s.state?.blind && !s.state.ended && s.role === 'member',
+    );
     useEffect(() => {
         document.documentElement.classList.toggle('sour-blind', blind);
         return () => document.documentElement.classList.remove('sour-blind');
@@ -355,7 +456,9 @@ const SummaryCard = ({ s }: { s: SessionSummary }) => (
                 <Text fw={800} size="xl">
                     {s.topAdder ? s.topAdder.songs : 0}
                 </Text>
-                <Text size="xs">{s.topAdder ? `${s.topAdder.name} added the most` : 'songs added'}</Text>
+                <Text size="xs">
+                    {s.topAdder ? `${s.topAdder.name} added the most` : 'songs added'}
+                </Text>
             </div>
             <div>
                 <Text fw={800} size="xl">
@@ -381,7 +484,11 @@ export const openSessionSummary = (s: SessionSummary) =>
 
 const Scrapbook = () => {
     const url = useHermesUrl();
-    const book = useQuery({ enabled: !!url, queryFn: () => groupApi.scrapbook(url), queryKey: ['group-scrapbook', url] });
+    const book = useQuery({
+        enabled: !!url,
+        queryFn: () => groupApi.scrapbook(url),
+        queryKey: ['group-scrapbook', url],
+    });
     return (
         <Stack gap="md">
             {(book.data ?? []).map((s) => (
@@ -392,7 +499,8 @@ const Scrapbook = () => {
     );
 };
 
-export const openScrapbook = () => openModal({ children: <Scrapbook />, size: 'lg', title: 'Group Play scrapbook' });
+export const openScrapbook = () =>
+    openModal({ children: <Scrapbook />, size: 'lg', title: 'Group Play scrapbook' });
 
 // reactions pinned to moments in the song, as little emoji above the player bar's seek bar
 export const GroupSeekMarks = ({ duration, songId }: { duration: number; songId?: string }) => {

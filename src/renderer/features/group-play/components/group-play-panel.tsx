@@ -7,15 +7,6 @@ import styles from './group-play-panel.module.css';
 import { ItemImage } from '/@/renderer/components/item-image/item-image';
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import {
-    CoverFlow,
-    fitsTheme,
-    GroupStage,
-    PendingRequests,
-    RoomActions,
-    RoomSettings,
-    ThemeNightBanner,
-} from '/@/renderer/features/group-play/components/group-room';
-import {
     CatchUp,
     GroupChat,
     HostTools,
@@ -25,6 +16,15 @@ import {
     StationTools,
     VoteBar,
 } from '/@/renderer/features/group-play/components/group-extras';
+import {
+    CoverFlow,
+    fitsTheme,
+    GroupStage,
+    PendingRequests,
+    RoomActions,
+    RoomSettings,
+    ThemeNightBanner,
+} from '/@/renderer/features/group-play/components/group-room';
 import {
     type GroupControl,
     type GroupListing,
@@ -198,7 +198,13 @@ export const GroupPlayPanel = () => {
             });
         const join = (groupCode: string) =>
             run(async () => {
-                const res = await groupApi.join(url, groupCode, name, sourMe?.id ?? null, watchOnly);
+                const res = await groupApi.join(
+                    url,
+                    groupCode,
+                    name,
+                    sourMe?.id ?? null,
+                    watchOnly,
+                );
                 useGroupPlayStore.setState({ spectate: watchOnly });
                 actions.setSession({ code: groupCode, member: res.member, role: 'member' });
                 actions.setState(res.state);
@@ -333,7 +339,9 @@ export const GroupPlayPanel = () => {
         if (!code) return;
         groupApi
             .boost(url, code, role === 'host' ? { hostKey } : { member }, song.id)
-            .then((r) => toast.success({ message: `${song.title} plays next (${r.tokens} tokens left)` }))
+            .then((r) =>
+                toast.success({ message: `${song.title} plays next (${r.tokens} tokens left)` }),
+            )
             .catch((error: Error) => toast.error({ message: error.message }));
     };
     const queue = state?.queue ?? [];

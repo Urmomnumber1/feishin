@@ -4,19 +4,28 @@ import { useEffect, useMemo, useState } from 'react';
 
 import styles from './home-plus.module.css';
 
-import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { genresQueries } from '/@/renderer/features/genres/api/genres-api';
+import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
-import { sourApi, timeAgo } from '/@/renderer/features/sour/api/sour-api';
+import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
+import { sourApi, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { HotSeatCard } from '/@/renderer/features/sour/components/hub-panels';
 import { openProfile } from '/@/renderer/features/sour/components/people';
-import { activity, ProfileAvatar, SongCover, usePlaySong } from '/@/renderer/features/sour/components/profile-bits';
+import {
+    activity,
+    ProfileAvatar,
+    SongCover,
+    usePlaySong,
+} from '/@/renderer/features/sour/components/profile-bits';
 import { currentHoliday } from '/@/renderer/features/sour/skins/holidays';
-import { useMyProfile, useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import {
+    useMyProfile,
+    useSourProfiles,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
 import { setReason } from '/@/renderer/features/sour/utils/reasons';
-import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
 import { useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData } from '/@/renderer/store/player.store';
 import { Button } from '/@/shared/components/button/button';
@@ -32,11 +41,17 @@ const fail = (error: Error) => toast.error({ message: error.message });
 const usePlayRandom = () => {
     const qc = useQueryClient();
     const serverId = useCurrentServer()?.id;
-    return async (query: { genre?: string; maxYear?: number; minYear?: number }, reason: string) => {
+    return async (
+        query: { genre?: string; maxYear?: number; minYear?: number },
+        reason: string,
+    ) => {
         if (!serverId) return;
         try {
             const res = await qc.fetchQuery({
-                ...songsQueries.random({ query: { limit: 40, played: Played.All, ...query }, serverId }),
+                ...songsQueries.random({
+                    query: { limit: 40, played: Played.All, ...query },
+                    serverId,
+                }),
                 queryKey: ['sour-random-mix', Date.now(), query],
             });
             let items: Song[] = res.items;
@@ -44,7 +59,10 @@ const usePlayRandom = () => {
                 // nothing with that genre: fall back to anything
                 items = (
                     await qc.fetchQuery({
-                        ...songsQueries.random({ query: { limit: 40, played: Played.All }, serverId }),
+                        ...songsQueries.random({
+                            query: { limit: 40, played: Played.All },
+                            serverId,
+                        }),
                         queryKey: ['sour-random-mix', Date.now()],
                     })
                 ).items;
@@ -53,7 +71,10 @@ const usePlayRandom = () => {
                 toast.info({ message: 'No songs found' });
                 return;
             }
-            setReason(items.map((s) => s.id), reason);
+            setReason(
+                items.map((s) => s.id),
+                reason,
+            );
             await addToQueueByData(Play.NOW, items);
         } catch (error) {
             fail(error as Error);
@@ -71,7 +92,14 @@ interface Slide {
     title: string;
 }
 
-const greeting = (hour: number) => (hour < 5 ? 'Up late' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+const greeting = (hour: number) =>
+    hour < 5
+        ? 'Up late'
+        : hour < 12
+          ? 'Good morning'
+          : hour < 18
+            ? 'Good afternoon'
+            : 'Good evening';
 
 export const SourHero = () => {
     const url = useHermesUrl();
@@ -79,20 +107,54 @@ export const SourHero = () => {
     const play = usePlaySong();
     const [slide, setSlide] = useState(0);
     const [hour] = useState(() => new Date().getHours());
-    const sotd = useQuery({ enabled: !!url, queryFn: () => sourApi.songOfTheDay(url), queryKey: ['sour-sotd', url], staleTime: 10 * 60000 });
-    const feed = useQuery({ enabled: !!url, queryFn: () => socialApi.activity(url), queryKey: ['sour-activity', url], refetchInterval: 60000 });
+    const sotd = useQuery({
+        enabled: !!url,
+        queryFn: () => sourApi.songOfTheDay(url),
+        queryKey: ['sour-sotd', url],
+        staleTime: 10 * 60000,
+    });
+    const feed = useQuery({
+        enabled: !!url,
+        queryFn: () => socialApi.activity(url),
+        queryKey: ['sour-activity', url],
+        refetchInterval: 60000,
+    });
     const holiday = useSourStore((s) => (s.look.holidays ? currentHoliday() : null));
     const slides: Slide[] = [];
     if (sotd.data) {
         const song = sotd.data;
-        slides.push({ action: () => play(song), actionLabel: 'Play', eyebrow: 'Song of the day', song, text: `${song.plays} plays in the group`, title: song.title });
+        slides.push({
+            action: () => play(song),
+            actionLabel: 'Play',
+            eyebrow: 'Song of the day',
+            song,
+            text: `${song.plays} plays in the group`,
+            title: song.title,
+        });
     }
-    if (holiday) slides.push({ eyebrow: holiday.name, text: 'The holiday skin is on - change it in the Sour Studio.', title: `${holiday.emoji} ${holiday.greeting}` });
+    if (holiday)
+        slides.push({
+            eyebrow: holiday.name,
+            text: 'The holiday skin is on - change it in the Sour Studio.',
+            title: `${holiday.emoji} ${holiday.greeting}`,
+        });
     for (const a of (feed.data ?? []).filter((x) => x.song).slice(0, 3)) {
         const song = a.song;
-        slides.push({ action: song ? () => play(song) : undefined, actionLabel: song ? 'Play' : undefined, eyebrow: timeAgo(a.at), song, text: `${a.byName ?? 'Someone'} ${a.text}`, title: song?.title ?? '' });
+        slides.push({
+            action: song ? () => play(song) : undefined,
+            actionLabel: song ? 'Play' : undefined,
+            eyebrow: timeAgo(a.at),
+            song,
+            text: `${a.byName ?? 'Someone'} ${a.text}`,
+            title: song?.title ?? '',
+        });
     }
-    if (!slides.length) slides.push({ eyebrow: 'Sour Player', text: 'Play something, send a friend a song, or start a Group Play.', title: 'Welcome back' });
+    if (!slides.length)
+        slides.push({
+            eyebrow: 'Sour Player',
+            text: 'Play something, send a friend a song, or start a Group Play.',
+            title: 'Welcome back',
+        });
     useEffect(() => {
         if (slides.length < 2) return undefined;
         const timer = setInterval(() => setSlide((n) => (n + 1) % slides.length), 7000);
@@ -123,7 +185,9 @@ export const SourHero = () => {
                     {slides.map((s, i) => (
                         <button
                             aria-label={`Show ${s.eyebrow}`}
-                            className={clsx(styles.dot, { [styles.dotOn]: i === slide % slides.length })}
+                            className={clsx(styles.dot, {
+                                [styles.dotOn]: i === slide % slides.length,
+                            })}
                             key={`${s.eyebrow}-${i}`}
                             onClick={() => setSlide(i)}
                             type="button"
@@ -139,7 +203,11 @@ export const SourHero = () => {
 const MOODS: Array<{ color: string; genres: string[]; label: string }> = [
     { color: '#1d3b4a', genres: ['Chill', 'Lo-Fi', 'Ambient', 'Jazz', 'Acoustic'], label: 'Chill' },
     { color: '#5a1f2a', genres: ['Hip-Hop', 'Rap', 'Electronic', 'Dance', 'EDM'], label: 'Hype' },
-    { color: '#2a2850', genres: ['Indie', 'Alternative', 'Singer-Songwriter', 'Soul'], label: 'In my feels' },
+    {
+        color: '#2a2850',
+        genres: ['Indie', 'Alternative', 'Singer-Songwriter', 'Soul'],
+        label: 'In my feels',
+    },
     { color: '#24421f', genres: ['Classical', 'Ambient', 'Instrumental', 'Piano'], label: 'Focus' },
     { color: '#5a3d10', genres: ['Pop', 'Dance', 'Disco', 'Funk'], label: 'Party' },
     { color: '#3b2a1a', genres: ['Rock', 'Metal', 'Punk'], label: 'Loud' },
@@ -155,7 +223,12 @@ export const MoodTiles = () => {
                     <button
                         className={styles.mood}
                         key={m.label}
-                        onClick={() => playRandom({ genre: m.genres[Math.floor(Math.random() * m.genres.length)] }, `Mood: ${m.label}`)}
+                        onClick={() =>
+                            playRandom(
+                                { genre: m.genres[Math.floor(Math.random() * m.genres.length)] },
+                                `Mood: ${m.label}`,
+                            )
+                        }
                         style={{ background: m.color }}
                         type="button"
                     >
@@ -179,9 +252,18 @@ export const FriendCards = () => {
                 {profiles.map((p) => {
                     const song = p.online ? p.listening : (p.custom?.recentPlays?.[0] ?? null);
                     return (
-                        <button className={clsx(styles.friend, { [styles.away]: !p.online })} key={p.id} onClick={() => openProfile(p)} type="button">
+                        <button
+                            className={clsx(styles.friend, { [styles.away]: !p.online })}
+                            key={p.id}
+                            onClick={() => openProfile(p)}
+                            type="button"
+                        >
                             <div className={styles.friendCover}>
-                                {song ? <SongCover size={140} song={song} /> : <span className={styles.blank} />}
+                                {song ? (
+                                    <SongCover size={140} song={song} />
+                                ) : (
+                                    <span className={styles.blank} />
+                                )}
                                 <span className={styles.friendFace}>
                                     <ProfileAvatar online={p.online} profile={p} size={34} />
                                 </span>
@@ -203,7 +285,12 @@ export const FriendCards = () => {
 // ---------- activity ticker ----------
 export const ActivityTicker = () => {
     const url = useHermesUrl();
-    const feed = useQuery({ enabled: !!url, queryFn: () => socialApi.activity(url), queryKey: ['sour-activity', url], refetchInterval: 60000 });
+    const feed = useQuery({
+        enabled: !!url,
+        queryFn: () => socialApi.activity(url),
+        queryKey: ['sour-activity', url],
+        refetchInterval: 60000,
+    });
     const items = (feed.data ?? []).slice(0, 12);
     if (!items.length) return null;
     const line = items.map((a) => `${a.byName ?? 'Someone'} ${a.text}`).join('   ·   ');
@@ -232,7 +319,10 @@ export const UnheardByYou = () => {
         const pool = new Map<string, GroupSong & { from: string }>();
         for (const p of profiles) {
             if (p.id === me?.id) continue;
-            for (const s of [...(p.stats?.topSongs.slice(0, 10) ?? []), ...(p.favorites ?? []).filter((f) => !/^(album|artist):/.test(f.id))]) {
+            for (const s of [
+                ...(p.stats?.topSongs.slice(0, 10) ?? []),
+                ...(p.favorites ?? []).filter((f) => !/^(album|artist):/.test(f.id)),
+            ]) {
                 if (!heard.has(s.id) && !pool.has(s.id)) pool.set(s.id, { ...s, from: p.name });
             }
         }
@@ -246,7 +336,12 @@ export const UnheardByYou = () => {
                 <Button
                     onClick={() =>
                         serverId &&
-                        queueGroupSongs(shuffled(songs), Play.NOW, { queryClient: qc, serverId }, 'A friend loves this - you never played it').catch(fail)
+                        queueGroupSongs(
+                            shuffled(songs),
+                            Play.NOW,
+                            { queryClient: qc, serverId },
+                            'A friend loves this - you never played it',
+                        ).catch(fail)
                     }
                     size="compact-xs"
                     variant="subtle"
@@ -256,7 +351,13 @@ export const UnheardByYou = () => {
             </div>
             <div className={styles.shelf}>
                 {songs.map((s) => (
-                    <button className={styles.shelfItem} key={s.id} onClick={() => play(s)} title={`${s.title} - ${s.artist} (${s.from} loves it)`} type="button">
+                    <button
+                        className={styles.shelfItem}
+                        key={s.id}
+                        onClick={() => play(s)}
+                        title={`${s.title} - ${s.artist} (${s.from} loves it)`}
+                        type="button"
+                    >
                         <SongCover size={110} song={s} />
                         <Text size="xs" truncate>
                             {s.title}
@@ -297,7 +398,9 @@ export const SongRoulette = () => {
         const slice = 360 / songs.length;
         setSpinning(true);
         // land the middle of the picked slice under the pointer at the top
-        setTurn((t) => t + 360 * 5 + ((((-(t % 360) - (pick * slice + slice / 2)) % 360) + 360) % 360));
+        setTurn(
+            (t) => t + 360 * 5 + ((((-(t % 360) - (pick * slice + slice / 2)) % 360) + 360) % 360),
+        );
         window.setTimeout(() => {
             setSpinning(false);
             const song = songs[pick];
@@ -321,7 +424,13 @@ export const SongRoulette = () => {
                         }}
                     >
                         {songs.map((s, i) => (
-                            <span className={styles.wheelLabel} key={s.id} style={{ transform: `rotate(${i * slice + slice / 2}deg) translateY(-62px)` }}>
+                            <span
+                                className={styles.wheelLabel}
+                                key={s.id}
+                                style={{
+                                    transform: `rotate(${i * slice + slice / 2}deg) translateY(-62px)`,
+                                }}
+                            >
                                 {s.name.slice(0, 12)}
                             </span>
                         ))}
@@ -334,7 +443,12 @@ export const SongRoulette = () => {
                     <Button disabled={spinning || !songs.length} onClick={spin}>
                         {spinning ? 'Spinning...' : 'Spin'}
                     </Button>
-                    <Button disabled={spinning} onClick={() => load().catch(() => {})} size="xs" variant="subtle">
+                    <Button
+                        disabled={spinning}
+                        onClick={() => load().catch(() => {})}
+                        size="xs"
+                        variant="subtle"
+                    >
                         New songs
                     </Button>
                 </div>
@@ -350,7 +464,12 @@ export const GenreBlobs = () => {
     const genres = useQuery(
         genresQueries.list({
             options: { enabled: !!serverId },
-            query: { limit: 40, sortBy: GenreListSort.SONG_COUNT, sortOrder: SortOrder.DESC, startIndex: 0 },
+            query: {
+                limit: 40,
+                sortBy: GenreListSort.SONG_COUNT,
+                sortOrder: SortOrder.DESC,
+                startIndex: 0,
+            },
             serverId: serverId || '',
         }),
     );
@@ -368,7 +487,11 @@ export const GenreBlobs = () => {
                             className={styles.blob}
                             key={g.id}
                             onClick={() => playRandom({ genre: g.name }, `Shuffling ${g.name}`)}
-                            style={{ background: `hsl(${[...g.name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 55% 42%)`, height: size, width: size }}
+                            style={{
+                                background: `hsl(${[...g.name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 55% 42%)`,
+                                height: size,
+                                width: size,
+                            }}
                             title={`${g.songCount ?? 0} songs - click to shuffle`}
                             type="button"
                         >
@@ -392,7 +515,10 @@ export const DecadeDial = () => {
                 <Text className={styles.decade}>{decade}s</Text>
                 <Slider
                     label={(v) => `${v}s`}
-                    marks={[1960, 1970, 1980, 1990, 2000, 2010, 2020].map((v) => ({ label: `'${String(v).slice(2)}`, value: v }))}
+                    marks={[1960, 1970, 1980, 1990, 2000, 2010, 2020].map((v) => ({
+                        label: `'${String(v).slice(2)}`,
+                        value: v,
+                    }))}
                     max={2020}
                     min={1960}
                     onChange={setDecade}
@@ -400,7 +526,13 @@ export const DecadeDial = () => {
                     style={{ flex: 1 }}
                     value={decade}
                 />
-                <Button onClick={() => playRandom({ maxYear: decade + 9, minYear: decade }, `The ${decade}s`)}>Play the {decade}s</Button>
+                <Button
+                    onClick={() =>
+                        playRandom({ maxYear: decade + 9, minYear: decade }, `The ${decade}s`)
+                    }
+                >
+                    Play the {decade}s
+                </Button>
             </div>
         </section>
     );
@@ -418,9 +550,20 @@ export const PlayedTimeline = () => {
             <Text className={styles.label}>Today so far</Text>
             <div className={styles.timeline}>
                 {today.map((h, i) => (
-                    <button className={styles.timeItem} key={`${h.song.id}-${h.at}-${i}`} onClick={() => play(h.song)} title={`${h.song.title} - ${h.song.artist}`} type="button">
+                    <button
+                        className={styles.timeItem}
+                        key={`${h.song.id}-${h.at}-${i}`}
+                        onClick={() => play(h.song)}
+                        title={`${h.song.title} - ${h.song.artist}`}
+                        type="button"
+                    >
                         <SongCover size={58} song={h.song} />
-                        <span className={styles.muted}>{new Date(h.at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
+                        <span className={styles.muted}>
+                            {new Date(h.at).toLocaleTimeString(undefined, {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                            })}
+                        </span>
                     </button>
                 ))}
             </div>

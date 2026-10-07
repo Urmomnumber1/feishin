@@ -5,7 +5,6 @@ import { PlayerbarSeekSlider } from './playerbar-seek-slider';
 import styles from './playerbar-slider.module.css';
 
 import { GroupSeekMarks } from '/@/renderer/features/group-play/components/group-room';
-
 import { ScrobbleStatus } from '/@/renderer/features/player/components/scrobble-status';
 import {
     useAppStore,
