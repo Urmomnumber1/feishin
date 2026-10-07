@@ -28,7 +28,7 @@ jobs:
 
             - name: Set the version (Sour Lemon 0.x; each build is newer, so installed copies update themselves)
               shell: bash
-              run: npm pkg set version=0.3.$(( ${{ github.run_number }} - 25 ))
+              run: npm pkg set version=0.4.$(( ${{ github.run_number }} - 27 ))
 
             - name: Build for Windows
               run: pnpm run package:win:pr
@@ -58,7 +58,7 @@ jobs:
 
             - name: Set the version (Sour Lemon 0.x; each build is newer, so installed copies update themselves)
               shell: bash
-              run: npm pkg set version=0.3.$(( ${{ github.run_number }} - 25 ))
+              run: npm pkg set version=0.4.$(( ${{ github.run_number }} - 27 ))
 
             - name: Build for Linux
               run: pnpm run package:linux:pr
@@ -91,7 +91,7 @@ jobs:
 
             - name: Set the version
               shell: bash
-              run: npm pkg set version=0.3.$(( ${{ github.run_number }} - 25 ))
+              run: npm pkg set version=0.4.$(( ${{ github.run_number }} - 27 ))
 
             - name: Build for macOS
               run: pnpm run package:mac:pr
@@ -141,7 +141,7 @@ jobs:
 
             - name: Work out the version
               id: version
-              run: echo "v=0.3.$(( ${{ github.run_number }} - 25 ))" >> "$GITHUB_OUTPUT"
+              run: echo "v=0.4.$(( ${{ github.run_number }} - 27 ))" >> "$GITHUB_OUTPUT"
 
             - name: Publish release
               uses: softprops/action-gh-release@v2
@@ -151,6 +151,17 @@ jobs:
                   make_latest: true
                   body: |
                       Sour Player: the music player for Hermes Music (built on Feishin).
+
+                      **New in 0.4:** your Sour profile is your Navidrome account (same profile on every
+                      computer, duplicates merge by themselves); 27 skins and holiday decorations; the Sour Studio
+                      (skins, visualizers, layout, fonts, app icon); the Sour Stage (full screen now playing with
+                      synced lyrics, karaoke, vinyl, scenes, A-B loop, slowed and nightcore); seven visualizers; a
+                      rebuilt mini player and a tidier player bar; the Sour Hub (feed, hot seat, duels and the Hall
+                      of Fame, gifts, time capsules, taste map, request tracker); the Sour Library (cover wall,
+                      record shelf, timeline, smart folders, tag and cover fixing, timed lyrics, mood bundles);
+                      bigger Group Play rooms (encore, soundboard, tokens, request line, blind rounds, theme
+                      nights, countdown, spectators, session scrapbook); new Home sections; profile heatmaps,
+                      eras and duo stats; 30 new fonts; colour emoji everywhere. Needs Hermes Music 3.1.
 
                       **Already have Sour Player?** It downloads this version in the background and shows an
                       **Update** button in the player bar - click it to restart into the new version.
