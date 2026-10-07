@@ -74,8 +74,8 @@ const loadImage = (src: string) => {
 export const SourVisualizer = ({ className, colors, coverUrl, people, style }: Props) => {
     useLevelSource();
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const props = useRef({ colors, coverUrl, people, style });
-    props.current = { colors, coverUrl, people, style };
+    const latest = useRef({ colors, coverUrl, people, style });
+    latest.current = { colors, coverUrl, people, style };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -102,7 +102,7 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
         const draw = (now: number) => {
             frame = requestAnimationFrame(draw);
             if (document.hidden) return;
-            const { colors: cols, coverUrl: src, people: who, style: look } = props.current;
+            const { colors: cols, coverUrl: src, people: who, style: look } = latest.current;
             readLevels(levels, now);
             const W = canvas.width;
             const H = canvas.height;
@@ -141,7 +141,10 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     ctx.lineCap = 'round';
                     ctx.beginPath();
                     ctx.moveTo(cx + Math.cos(a) * (R + 6 * dpr), cy + Math.sin(a) * (R + 6 * dpr));
-                    ctx.lineTo(cx + Math.cos(a) * (R + 6 * dpr + l), cy + Math.sin(a) * (R + 6 * dpr + l));
+                    ctx.lineTo(
+                        cx + Math.cos(a) * (R + 6 * dpr + l),
+                        cy + Math.sin(a) * (R + 6 * dpr + l),
+                    );
                     ctx.stroke();
                 }
                 ctx.save();
@@ -166,7 +169,14 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     for (let i = 0; i < 36; i++) {
                         const a = Math.random() * Math.PI * 2;
                         const sp = (2 + Math.random() * 5) * dpr;
-                        sparks.push({ h: 45 + Math.random() * 50, l: 1, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, x: W / 2, y: H / 2 });
+                        sparks.push({
+                            h: 45 + Math.random() * 50,
+                            l: 1,
+                            vx: Math.cos(a) * sp,
+                            vy: Math.sin(a) * sp,
+                            x: W / 2,
+                            y: H / 2,
+                        });
                     }
                 }
                 sparks = sparks.filter((p) => (p.l -= 0.018) > 0).slice(-400);
@@ -197,7 +207,13 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     ctx.beginPath();
                     for (let x = 0; x <= W; x += 4 * dpr) {
                         const i = Math.min(BINS - 1, Math.floor((x / W) * (BINS - 1)));
-                        const y = H / 2 + Math.sin((x / W) * 9 + (now / 1000) * (2 + j) + j) * bins[i] * H * 0.4 * m;
+                        const y =
+                            H / 2 +
+                            Math.sin((x / W) * 9 + (now / 1000) * (2 + j) + j) *
+                                bins[i] *
+                                H *
+                                0.4 *
+                                m;
                         if (x === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
                     }
@@ -274,14 +290,22 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                 ctx.fillStyle = `rgb(255, ${Math.round(flash * 90)}, ${Math.round(flash * 90)})`;
                 HEART.forEach((row, y) => {
                     for (let x = 0; x < row.length; x++) {
-                        if (row[x] === '1') ctx.fillRect(ox + x * scale, oy + y * scale, scale, scale);
+                        if (row[x] === '1')
+                            ctx.fillRect(ox + x * scale, oy + y * scale, scale, scale);
                     }
                 });
                 // little star-like sparks on the beat
                 if (levels.beat) {
                     for (let i = 0; i < 10; i++) {
                         const a = Math.random() * Math.PI * 2;
-                        sparks.push({ h: 0, l: 1, vx: Math.cos(a) * 3 * dpr, vy: Math.sin(a) * 3 * dpr, x: W / 2, y: H / 2 });
+                        sparks.push({
+                            h: 0,
+                            l: 1,
+                            vx: Math.cos(a) * 3 * dpr,
+                            vy: Math.sin(a) * 3 * dpr,
+                            x: W / 2,
+                            y: H / 2,
+                        });
                     }
                 }
                 sparks = sparks.filter((p) => (p.l -= 0.025) > 0).slice(-120);

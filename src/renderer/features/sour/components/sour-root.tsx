@@ -23,9 +23,7 @@ const DAILY_COLORS = [
     '#39c0ed',
 ];
 export const dailyColor = (d = new Date()) => {
-    const days = Math.floor(
-        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000,
-    );
+    const days = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
     return DAILY_COLORS[days % DAILY_COLORS.length];
 };
 
@@ -57,7 +55,11 @@ const LookSwitches = () => {
         const root = document.documentElement;
         for (const [name, rem] of SPACING) {
             if (look.density === 1) root.style.removeProperty(`--mantine-spacing-${name}`);
-            else root.style.setProperty(`--mantine-spacing-${name}`, `${(rem * look.density).toFixed(3)}rem`);
+            else
+                root.style.setProperty(
+                    `--mantine-spacing-${name}`,
+                    `${(rem * look.density).toFixed(3)}rem`,
+                );
         }
     }, [look.density]);
 
@@ -92,7 +94,8 @@ const HolidaySkin = () => {
                         holidayRestore: {
                             holiday: holiday.id,
                             theme:
-                                holidayRestore && holidayById(holidayRestore.holiday)?.theme === theme
+                                holidayRestore &&
+                                holidayById(holidayRestore.holiday)?.theme === theme
                                     ? holidayRestore.theme
                                     : theme,
                         },

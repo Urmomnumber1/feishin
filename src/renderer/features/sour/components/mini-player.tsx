@@ -63,7 +63,9 @@ const MiniPlayerView = () => {
 
     return (
         <div className={styles.mini}>
-            {cover && <div className={styles.backdrop} style={{ backgroundImage: `url("${cover}")` }} />}
+            {cover && (
+                <div className={styles.backdrop} style={{ backgroundImage: `url("${cover}")` }} />
+            )}
             <div className={styles.cover}>
                 {cover ? <img alt="" src={cover} /> : <Icon icon="itemSong" size="xl" />}
             </div>
@@ -122,7 +124,8 @@ const MiniPlayerView = () => {
                     className={styles.seek}
                     onClick={(e) => {
                         const r = e.currentTarget.getBoundingClientRect();
-                        if (duration) mediaSeekToTimestamp(((e.clientX - r.left) / r.width) * duration);
+                        if (duration)
+                            mediaSeekToTimestamp(((e.clientX - r.left) / r.width) * duration);
                     }}
                     role="slider"
                     tabIndex={0}

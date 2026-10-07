@@ -48,12 +48,27 @@ const spawn = (kind: Particles, w: number, h: number, anywhere: boolean): Bit =>
         a: Math.random() * Math.PI * 2,
         glyph: glyphs[Math.floor(Math.random() * glyphs.length)],
         hue: Math.floor(Math.random() * 360),
-        size: kind === 'snow' ? 1.5 + Math.random() * 3 : kind === 'confetti' ? 6 + Math.random() * 6 : 16 + Math.random() * 14,
+        size:
+            kind === 'snow'
+                ? 1.5 + Math.random() * 3
+                : kind === 'confetti'
+                  ? 6 + Math.random() * 6
+                  : 16 + Math.random() * 14,
         spin: (Math.random() - 0.5) * 0.05,
         vx: kind === 'bats' ? 0.6 + Math.random() * 1.2 : (Math.random() - 0.5) * 0.4,
-        vy: up ? -(0.25 + Math.random() * 0.35) : kind === 'bats' ? (Math.random() - 0.5) * 0.3 : 0.35 + Math.random() * (kind === 'confetti' ? 1.4 : 0.7),
+        vy: up
+            ? -(0.25 + Math.random() * 0.35)
+            : kind === 'bats'
+              ? (Math.random() - 0.5) * 0.3
+              : 0.35 + Math.random() * (kind === 'confetti' ? 1.4 : 0.7),
         x: kind === 'bats' && !anywhere ? -40 : Math.random() * w,
-        y: anywhere ? Math.random() * h : up ? h + 30 : kind === 'bats' ? Math.random() * h * 0.6 : -30,
+        y: anywhere
+            ? Math.random() * h
+            : up
+              ? h + 30
+              : kind === 'bats'
+                ? Math.random() * h * 0.6
+                : -30,
     };
 };
 
@@ -74,7 +89,8 @@ const ParticleCanvas = ({ kind }: { kind: Particles }) => {
         fit();
         window.addEventListener('resize', fit);
         let bits = Array.from({ length: COUNT[kind] }, () => spawn(kind, w, h, true));
-        let sparks: { life: number; vx: number; vy: number; x: number; y: number; hue: number }[] = [];
+        let sparks: { hue: number; life: number; vx: number; vy: number; x: number; y: number }[] =
+            [];
         let nextBurst = 0;
         let frame = 0;
         let last = performance.now();
@@ -93,7 +109,14 @@ const ParticleCanvas = ({ kind }: { kind: Particles }) => {
                     for (let i = 0; i < 60; i++) {
                         const a = (i / 60) * Math.PI * 2;
                         const sp = 1.5 + Math.random() * 2.5;
-                        sparks.push({ hue: hue + Math.random() * 40, life: 1, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, x, y });
+                        sparks.push({
+                            hue: hue + Math.random() * 40,
+                            life: 1,
+                            vx: Math.cos(a) * sp,
+                            vy: Math.sin(a) * sp,
+                            x,
+                            y,
+                        });
                     }
                 }
                 sparks = sparks.filter((s) => (s.life -= 0.012 * dt) > 0);
