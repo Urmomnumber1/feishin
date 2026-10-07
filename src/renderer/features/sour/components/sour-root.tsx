@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 
-import { BlindWatcher, CountdownOverlay } from '/@/renderer/features/group-play/components/group-room';
+import {
+    BlindWatcher,
+    CountdownOverlay,
+} from '/@/renderer/features/group-play/components/group-room';
 import { ExtraShortcuts, Splash } from '/@/renderer/features/sour/components/app-extras';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
-import { SocialWatchers, useDailyColorStore } from '/@/renderer/features/sour/components/social-watchers';
+import {
+    SocialWatchers,
+    useDailyColorStore,
+} from '/@/renderer/features/sour/components/social-watchers';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';

@@ -229,8 +229,9 @@ export const GroupPlayPanel = () => {
                             <Stack gap={0}>
                                 <Text fw={700}>{myProfile.name}</Text>
                                 <Text isMuted size="xs">
-                                    Your Sour profile{sourMe?.account ? ` (Navidrome: ${sourMe.account})` : ''} - change
-                                    your name in People &gt; My profile
+                                    Your Sour profile
+                                    {sourMe?.account ? ` (Navidrome: ${sourMe.account})` : ''} -
+                                    change your name in People &gt; My profile
                                 </Text>
                             </Stack>
                         ) : (

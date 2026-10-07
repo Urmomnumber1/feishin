@@ -39,7 +39,12 @@ const History = () => {
                 <div key={label}>
                     <Text className={styles.day}>{label}</Text>
                     {list.map((h, i) => (
-                        <button className={styles.historyRow} key={`${h.at}-${i}`} onClick={() => play(h.song)} type="button">
+                        <button
+                            className={styles.historyRow}
+                            key={`${h.at}-${i}`}
+                            onClick={() => play(h.song)}
+                            type="button"
+                        >
                             <SongCover size={34} song={h.song} />
                             <span className={styles.grow}>
                                 <Text size="sm" truncate>
@@ -49,7 +54,12 @@ const History = () => {
                                     {h.song.artist}
                                 </Text>
                             </span>
-                            <span className={styles.time}>{new Date(h.at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
+                            <span className={styles.time}>
+                                {new Date(h.at).toLocaleTimeString(undefined, {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                })}
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -58,7 +68,8 @@ const History = () => {
     );
 };
 
-export const openQueueHistory = () => openModal({ children: <History />, size: 'lg', title: 'Played on this computer' });
+export const openQueueHistory = () =>
+    openModal({ children: <History />, size: 'lg', title: 'Played on this computer' });
 
 // ---------- Sour commands for the command palette (Ctrl+K) ----------
 export const sourCommands = (navigate: (to: string) => void) => [

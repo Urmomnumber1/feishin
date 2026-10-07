@@ -5,9 +5,13 @@ import { useState } from 'react';
 import { toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
-import { timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
-import { useMyProfile, useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { timeAgo } from '/@/renderer/features/sour/api/sour-api';
+import {
+    useMyProfile,
+    useSourProfiles,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { Button } from '/@/shared/components/button/button';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import { Group } from '/@/shared/components/group/group';
@@ -22,7 +26,9 @@ const fail = (error: Error) => toast.error({ message: error.message });
 
 const useFriendChoices = () => {
     const me = useSourStore((s) => s.me);
-    return (useSourProfiles().data ?? []).filter((p) => p.id !== me?.id).map((p) => ({ label: p.name, value: p.id }));
+    return (useSourProfiles().data ?? [])
+        .filter((p) => p.id !== me?.id)
+        .map((p) => ({ label: p.name, value: p.id }));
 };
 
 const SendForm = ({ mode, song }: { mode: 'ask' | 'gift'; song: GroupSong }) => {
@@ -40,7 +46,12 @@ const SendForm = ({ mode, song }: { mode: 'ask' | 'gift'; song: GroupSong }) => 
             </Text>
             <Select data={friends} onChange={setTo} placeholder="Who's it for?" value={to} />
             {mode === 'gift' && (
-                <TextInput maxLength={200} onChange={(e) => setNote(e.currentTarget.value)} placeholder="A note (optional)" value={note} />
+                <TextInput
+                    maxLength={200}
+                    onChange={(e) => setNote(e.currentTarget.value)}
+                    placeholder="A note (optional)"
+                    value={note}
+                />
             )}
             <Group justify="flex-end">
                 <Button
@@ -48,7 +59,10 @@ const SendForm = ({ mode, song }: { mode: 'ask' | 'gift'; song: GroupSong }) => 
                     onClick={() =>
                         me &&
                         to &&
-                        (mode === 'gift' ? socialApi.gift(url, me, to, song, note) : socialApi.ask(url, me, to, song))
+                        (mode === 'gift'
+                            ? socialApi.gift(url, me, to, song, note)
+                            : socialApi.ask(url, me, to, song)
+                        )
                             .then(() => {
                                 toast.success({ message: mode === 'gift' ? 'Gift sent' : 'Asked' });
                                 closeAllModals();
@@ -70,7 +84,11 @@ const StickyNotes = ({ song }: { song: GroupSong }) => {
     const me = useSourStore((s) => s.me);
     const qc = useQueryClient();
     const [text, setText] = useState('');
-    const notes = useQuery({ enabled: !!url, queryFn: () => socialApi.notes(url, song.id), queryKey: ['sour-song-notes', url, song.id] });
+    const notes = useQuery({
+        enabled: !!url,
+        queryFn: () => socialApi.notes(url, song.id),
+        queryKey: ['sour-song-notes', url, song.id],
+    });
     const change = (c: { remove?: string; text?: string }) =>
         me &&
         socialApi
@@ -88,17 +106,28 @@ const StickyNotes = ({ song }: { song: GroupSong }) => {
             {(notes.data ?? []).map((n) => (
                 <Group gap="xs" key={n.id} wrap="nowrap">
                     <Text flex={1} size="sm">
-                        <b>{n.fromName}:</b> {n.text} <span style={{ opacity: 0.6 }}>({timeAgo(n.at)})</span>
+                        <b>{n.fromName}:</b> {n.text}{' '}
+                        <span style={{ opacity: 0.6 }}>({timeAgo(n.at)})</span>
                     </Text>
                     {n.from === me?.id && (
-                        <Button onClick={() => change({ remove: n.id })} size="compact-xs" variant="subtle">
+                        <Button
+                            onClick={() => change({ remove: n.id })}
+                            size="compact-xs"
+                            variant="subtle"
+                        >
                             Remove
                         </Button>
                     )}
                 </Group>
             ))}
             <Group gap="xs">
-                <TextInput flex={1} maxLength={200} onChange={(e) => setText(e.currentTarget.value)} placeholder="this bridge!!" value={text} />
+                <TextInput
+                    flex={1}
+                    maxLength={200}
+                    onChange={(e) => setText(e.currentTarget.value)}
+                    placeholder="this bridge!!"
+                    value={text}
+                />
                 <Button disabled={!text.trim() || !me} onClick={() => change({ text })}>
                     Stick it
                 </Button>
@@ -115,9 +144,17 @@ const DuelForm = ({ song }: { song: GroupSong }) => {
     return (
         <Stack gap="sm">
             <Text isMuted size="sm">
-                Someone answers with their song, the group votes for a day, and the winner joins the Hall of Fame.
+                Someone answers with their song, the group votes for a day, and the winner joins the
+                Hall of Fame.
             </Text>
-            <Select data={[{ label: 'Anyone can answer', value: '' }, ...friends.map((f) => ({ ...f, label: `Challenge ${f.label}` }))]} onChange={(v) => setOpponent(v ?? '')} value={opponent} />
+            <Select
+                data={[
+                    { label: 'Anyone can answer', value: '' },
+                    ...friends.map((f) => ({ ...f, label: `Challenge ${f.label}` })),
+                ]}
+                onChange={(v) => setOpponent(v ?? '')}
+                value={opponent}
+            />
             <Group justify="flex-end">
                 <Button
                     disabled={!me}
@@ -152,9 +189,22 @@ const CapsuleForm = ({ song }: { song: GroupSong }) => {
             <Text isMuted size="sm">
                 Sealed until the date you pick.
             </Text>
-            <Select data={[{ label: 'The whole group', value: 'group' }, ...friends]} onChange={setTo} value={to} />
-            <TextInput maxLength={500} onChange={(e) => setNote(e.currentTarget.value)} placeholder="A note for later" value={note} />
-            <TextInput onChange={(e) => setWhen(e.currentTarget.value)} type="datetime-local" value={when} />
+            <Select
+                data={[{ label: 'The whole group', value: 'group' }, ...friends]}
+                onChange={setTo}
+                value={to}
+            />
+            <TextInput
+                maxLength={500}
+                onChange={(e) => setNote(e.currentTarget.value)}
+                placeholder="A note for later"
+                value={note}
+            />
+            <TextInput
+                onChange={(e) => setWhen(e.currentTarget.value)}
+                type="datetime-local"
+                value={when}
+            />
             <Group justify="flex-end">
                 <Button
                     disabled={!me || !to || !when}
@@ -162,7 +212,12 @@ const CapsuleForm = ({ song }: { song: GroupSong }) => {
                         me &&
                         to &&
                         socialApi
-                            .capsule(url, me, { note, song, to, unlockAt: new Date(when).getTime() })
+                            .capsule(url, me, {
+                                note,
+                                song,
+                                to,
+                                unlockAt: new Date(when).getTime(),
+                            })
                             .then(() => {
                                 toast.success({ message: 'Capsule sealed' });
                                 closeAllModals();
@@ -194,19 +249,59 @@ export const SocialSongMenu = ({ songs }: { songs: Song[] }) => {
                 </ContextMenu.Item>
             </ContextMenu.SubmenuTarget>
             <ContextMenu.SubmenuContent>
-                <ContextMenu.Item leftIcon="gift" onSelect={() => openModal({ children: <SendForm mode="gift" song={g} />, title: `Gift ${song.name}` })}>
+                <ContextMenu.Item
+                    leftIcon="gift"
+                    onSelect={() =>
+                        openModal({
+                            children: <SendForm mode="gift" song={g} />,
+                            title: `Gift ${song.name}`,
+                        })
+                    }
+                >
                     Gift it to a friend
                 </ContextMenu.Item>
-                <ContextMenu.Item leftIcon="mediaPlayNext" onSelect={() => openModal({ children: <SendForm mode="ask" song={g} />, title: `Ask a friend to play ${song.name}` })}>
+                <ContextMenu.Item
+                    leftIcon="mediaPlayNext"
+                    onSelect={() =>
+                        openModal({
+                            children: <SendForm mode="ask" song={g} />,
+                            title: `Ask a friend to play ${song.name}`,
+                        })
+                    }
+                >
                     Ask a friend to play it next
                 </ContextMenu.Item>
-                <ContextMenu.Item leftIcon="stickyNote" onSelect={() => openModal({ children: <StickyNotes song={g} />, title: `Sticky notes: ${song.name}` })}>
+                <ContextMenu.Item
+                    leftIcon="stickyNote"
+                    onSelect={() =>
+                        openModal({
+                            children: <StickyNotes song={g} />,
+                            title: `Sticky notes: ${song.name}`,
+                        })
+                    }
+                >
                     Sticky notes
                 </ContextMenu.Item>
-                <ContextMenu.Item leftIcon="swords" onSelect={() => openModal({ children: <DuelForm song={g} />, title: `Duel with ${song.name}` })}>
+                <ContextMenu.Item
+                    leftIcon="swords"
+                    onSelect={() =>
+                        openModal({
+                            children: <DuelForm song={g} />,
+                            title: `Duel with ${song.name}`,
+                        })
+                    }
+                >
                     Start a song duel
                 </ContextMenu.Item>
-                <ContextMenu.Item leftIcon="hourglass" onSelect={() => openModal({ children: <CapsuleForm song={g} />, title: `Time capsule: ${song.name}` })}>
+                <ContextMenu.Item
+                    leftIcon="hourglass"
+                    onSelect={() =>
+                        openModal({
+                            children: <CapsuleForm song={g} />,
+                            title: `Time capsule: ${song.name}`,
+                        })
+                    }
+                >
                     Put it in a time capsule
                 </ContextMenu.Item>
                 {!!song.album && (
@@ -214,13 +309,24 @@ export const SocialSongMenu = ({ songs }: { songs: Song[] }) => {
                         leftIcon="download"
                         onSelect={() =>
                             fetch(`${url}/api/requests`, {
-                                body: JSON.stringify({ by: myName, profile: me.id, query: `${song.albumArtists?.[0]?.name || song.artistName} - ${song.album}`, type: 'album' }),
+                                body: JSON.stringify({
+                                    by: myName,
+                                    profile: me.id,
+                                    query: `${song.albumArtists?.[0]?.name || song.artistName} - ${song.album}`,
+                                    type: 'album',
+                                }),
                                 headers: { 'content-type': 'application/json' },
                                 method: 'POST',
                             })
                                 .then(async (res) => {
-                                    if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || `Hermes Music returned ${res.status}`);
-                                    toast.success({ message: `Asked Hermes Music for the rest of ${song.album}` });
+                                    if (!res.ok)
+                                        throw new Error(
+                                            (await res.json().catch(() => null))?.error ||
+                                                `Hermes Music returned ${res.status}`,
+                                        );
+                                    toast.success({
+                                        message: `Asked Hermes Music for the rest of ${song.album}`,
+                                    });
                                 })
                                 .catch(fail)
                         }

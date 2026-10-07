@@ -13,6 +13,7 @@ import { ShareAction } from '/@/renderer/features/context-menu/actions/share-act
 import { ShowInFileExplorerAction } from '/@/renderer/features/context-menu/actions/show-in-file-explorer-action';
 import { ContextMenuPreview } from '/@/renderer/features/context-menu/components/context-menu-preview';
 import { AddToGroupAction } from '/@/renderer/features/group-play/components/add-to-group-action';
+import { SocialSongMenu } from '/@/renderer/features/sour/components/social-song-actions';
 import {
     AddToProfileAction,
     BlockArtistAction,
@@ -21,7 +22,6 @@ import {
     SongNoteAction,
     WhoElseLikesAction,
 } from '/@/renderer/features/sour/components/song-actions';
-import { SocialSongMenu } from '/@/renderer/features/sour/components/social-song-actions';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import { LibraryItem, Song } from '/@/shared/types/domain-types';
 

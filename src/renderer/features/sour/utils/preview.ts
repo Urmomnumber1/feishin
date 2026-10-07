@@ -30,7 +30,10 @@ const stopPreview = () => {
 
 const startPreview = async (serverId: string, song: GroupSong) => {
     stopPreview();
-    const url = await api.controller.getStreamUrl({ apiClientProps: { serverId }, query: { id: song.id } });
+    const url = await api.controller.getStreamUrl({
+        apiClientProps: { serverId },
+        query: { id: song.id },
+    });
     const player = usePlayerStoreBase.getState();
     if (player.player.status === PlayerStatus.PLAYING) {
         resume = true;
@@ -39,7 +42,8 @@ const startPreview = async (serverId: string, song: GroupSong) => {
     audio = new Audio(url);
     audio.volume = 0.8;
     audio.addEventListener('loadedmetadata', () => {
-        if (audio && Number.isFinite(audio.duration) && audio.duration > 40) audio.currentTime = audio.duration * 0.35;
+        if (audio && Number.isFinite(audio.duration) && audio.duration > 40)
+            audio.currentTime = audio.duration * 0.35;
     });
     await audio.play().catch(() => stopPreview());
     stopTimer = setTimeout(stopPreview, 10000);

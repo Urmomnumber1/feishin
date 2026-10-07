@@ -433,7 +433,10 @@ export const ProfileView = ({
                                                     <Button
                                                         onClick={() =>
                                                             sourApi
-                                                                .wall(url, me, profile.id, { song: n.song, text: n.text })
+                                                                .wall(url, me, profile.id, {
+                                                                    song: n.song,
+                                                                    text: n.text,
+                                                                })
                                                                 .then(refresh)
                                                                 .catch(() => {})
                                                         }
@@ -445,7 +448,9 @@ export const ProfileView = ({
                                                     6000,
                                                 );
                                             })
-                                            .catch((error: Error) => toast.error({ message: error.message }))
+                                            .catch((error: Error) =>
+                                                toast.error({ message: error.message }),
+                                            )
                                     }
                                     size="xs"
                                     tooltip={{ label: 'Delete' }}
@@ -570,24 +575,43 @@ export const ProfileView = ({
                                     Dedicate this song
                                 </Button>
                             )}
-                            {!isMe && !!(profile.stats?.topSongs.length || profile.favorites.length) && (
-                                <Button
-                                    onClick={() => {
-                                        const songs = [
-                                            ...(profile.stats?.topSongs ?? []),
-                                            ...profile.favorites.filter((f) => favoriteKind(f) === 'song'),
-                                        ].filter((x, i, list) => list.findIndex((y) => y.id === x.id) === i);
-                                        if (!serverId) return;
-                                        queueGroupSongs(shuffled(songs).slice(0, 50), Play.NOW, { queryClient, serverId }, `From ${profile.name}'s radio`)
-                                            .then((n) => toast.success({ message: n ? `Playing ${profile.name}'s radio` : "Their songs aren't on your music server" }))
-                                            .catch((error: Error) => toast.error({ message: error.message }));
-                                    }}
-                                    size="xs"
-                                    variant="default"
-                                >
-                                    Play their radio
-                                </Button>
-                            )}
+                            {!isMe &&
+                                !!(profile.stats?.topSongs.length || profile.favorites.length) && (
+                                    <Button
+                                        onClick={() => {
+                                            const songs = [
+                                                ...(profile.stats?.topSongs ?? []),
+                                                ...profile.favorites.filter(
+                                                    (f) => favoriteKind(f) === 'song',
+                                                ),
+                                            ].filter(
+                                                (x, i, list) =>
+                                                    list.findIndex((y) => y.id === x.id) === i,
+                                            );
+                                            if (!serverId) return;
+                                            queueGroupSongs(
+                                                shuffled(songs).slice(0, 50),
+                                                Play.NOW,
+                                                { queryClient, serverId },
+                                                `From ${profile.name}'s radio`,
+                                            )
+                                                .then((n) =>
+                                                    toast.success({
+                                                        message: n
+                                                            ? `Playing ${profile.name}'s radio`
+                                                            : "Their songs aren't on your music server",
+                                                    }),
+                                                )
+                                                .catch((error: Error) =>
+                                                    toast.error({ message: error.message }),
+                                                );
+                                        }}
+                                        size="xs"
+                                        variant="default"
+                                    >
+                                        Play their radio
+                                    </Button>
+                                )}
                             <Button
                                 onClick={() =>
                                     setStore({

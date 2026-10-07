@@ -9,8 +9,8 @@ import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
-import { avatarUrl } from '/@/renderer/features/sour/api/sour-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
+import { avatarUrl } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import { hue, ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
 import {
@@ -407,7 +407,12 @@ const StageView = () => {
                                         <>
                                             <dt>Sourness</dt>
                                             <dd title="How often the group skips it on the radio">
-                                                {sourness.score}% {sourness.score < 15 ? '(loved)' : sourness.score > 50 ? '(often skipped)' : ''}
+                                                {sourness.score}%{' '}
+                                                {sourness.score < 15
+                                                    ? '(loved)'
+                                                    : sourness.score > 50
+                                                      ? '(often skipped)'
+                                                      : ''}
                                             </dd>
                                         </>
                                     )}

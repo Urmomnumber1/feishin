@@ -46,9 +46,9 @@
 .next-up {
     max-width: 180px;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.72rem;
     color: var(--theme-colors-foreground-muted);
-    text-overflow: ellipsis;
     white-space: nowrap;
     animation: next-in 0.4s ease-out;
 }

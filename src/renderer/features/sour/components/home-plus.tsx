@@ -24,8 +24,8 @@ import {
     useSourProfiles,
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
-import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
 import { useHoverPreview } from '/@/renderer/features/sour/utils/preview';
+import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
 import { setReason } from '/@/renderer/features/sour/utils/reasons';
 import { useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData } from '/@/renderer/store/player.store';
@@ -306,10 +306,24 @@ export const ActivityTicker = () => {
 };
 
 // a cover on a shelf (with a hover preview when that's turned on)
-const ShelfItem = ({ note, onPlay, song }: { note: string; onPlay: () => void; song: GroupSong }) => {
+const ShelfItem = ({
+    note,
+    onPlay,
+    song,
+}: {
+    note: string;
+    onPlay: () => void;
+    song: GroupSong;
+}) => {
     const preview = useHoverPreview(song);
     return (
-        <button className={styles.shelfItem} onClick={onPlay} title={`${song.title} - ${song.artist} (${note})`} type="button" {...preview}>
+        <button
+            className={styles.shelfItem}
+            onClick={onPlay}
+            title={`${song.title} - ${song.artist} (${note})`}
+            type="button"
+            {...preview}
+        >
             <SongCover size={110} song={song} />
             <Text size="xs" truncate>
                 {song.title}
@@ -368,7 +382,12 @@ export const UnheardByYou = () => {
             </div>
             <div className={styles.shelf}>
                 {songs.map((s) => (
-                    <ShelfItem key={s.id} note={`${s.from} loves it`} onPlay={() => play(s)} song={s} />
+                    <ShelfItem
+                        key={s.id}
+                        note={`${s.from} loves it`}
+                        onPlay={() => play(s)}
+                        song={s}
+                    />
                 ))}
             </div>
         </section>
