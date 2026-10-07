@@ -69,7 +69,10 @@ const LookSwitches = () => {
     useEffect(() => {
         if (!look.dailyTheme || look.albumAccent) return undefined;
         const apply = () =>
-            document.documentElement.style.setProperty('--theme-colors-primary', groupColor || dailyColor());
+            document.documentElement.style.setProperty(
+                '--theme-colors-primary',
+                groupColor || dailyColor(),
+            );
         apply();
         const timer = setInterval(apply, 10 * 60000);
         return () => {

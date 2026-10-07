@@ -17,7 +17,6 @@ import { Play } from '/@/shared/types/types';
 export const hue = (name: string) =>
     [...name].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) % 360, 7);
 
-
 // a person's picture with an online dot (a ring when offline, a bar for "do not disturb", so it
 // doesn't rely on colour alone) and their profile frame
 export const ProfileAvatar = ({
@@ -141,10 +140,7 @@ export const ProfileName = ({ profile, size = 22 }: { profile: SourProfile; size
                 : undefined;
     return (
         <span className={styles.nameLine}>
-            <span
-                className={effect}
-                style={{ fontFamily: fontFamily(c.nameFont), fontSize: size }}
-            >
+            <span className={effect} style={{ fontFamily: fontFamily(c.nameFont), fontSize: size }}>
                 {profile.name}
             </span>
             {c.emoji && <span style={{ fontSize: size * 0.8 }}>{c.emoji}</span>}

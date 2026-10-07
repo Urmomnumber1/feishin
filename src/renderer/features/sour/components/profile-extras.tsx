@@ -6,9 +6,16 @@ import styles from './profile-extras.module.css';
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { searchQueries } from '/@/renderer/features/search/api/search-api';
-import { type SourProfile, tasteMatch } from '/@/renderer/features/sour/api/sour-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
-import { activity, hue, ItemCover, ProfileAvatar, SongCover, usePlaySong } from '/@/renderer/features/sour/components/profile-bits';
+import { type SourProfile, tasteMatch } from '/@/renderer/features/sour/api/sour-api';
+import {
+    activity,
+    hue,
+    ItemCover,
+    ProfileAvatar,
+    SongCover,
+    usePlaySong,
+} from '/@/renderer/features/sour/components/profile-bits';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer } from '/@/renderer/store';
 import { HoverCard } from '/@/shared/components/hover-card/hover-card';
@@ -24,7 +31,8 @@ export const NowPlayingRing = ({ profile, size }: { profile: SourProfile; size: 
         return () => clearInterval(timer);
     }, [profile.playing, song]);
     const seconds = (song?.duration ?? 0) / 1000;
-    const position = profile.position + (profile.playing ? Math.max(0, now - profile.positionAt) / 1000 : 0);
+    const position =
+        profile.position + (profile.playing ? Math.max(0, now - profile.positionAt) / 1000 : 0);
     const progress = seconds ? Math.min(1, position / seconds) : 0;
     const ring = size + 10;
     const r = ring / 2 - 3;
@@ -33,7 +41,15 @@ export const NowPlayingRing = ({ profile, size }: { profile: SourProfile; size: 
     return (
         <span className={styles.ringWrap} style={{ height: ring, width: ring }}>
             <svg className={styles.ring} height={ring} viewBox={`0 0 ${ring} ${ring}`} width={ring}>
-                <circle cx={ring / 2} cy={ring / 2} fill="none" r={r} stroke={mood ?? 'rgb(127 127 127 / 25%)'} strokeOpacity={mood ? 0.45 : 1} strokeWidth={3} />
+                <circle
+                    cx={ring / 2}
+                    cy={ring / 2}
+                    fill="none"
+                    r={r}
+                    stroke={mood ?? 'rgb(127 127 127 / 25%)'}
+                    strokeOpacity={mood ? 0.45 : 1}
+                    strokeWidth={3}
+                />
                 {song && (
                     <circle
                         cx={ring / 2}
@@ -62,20 +78,36 @@ export const moodColor = (p: Pick<SourProfile, 'custom' | 'stats'>) => {
 };
 
 // ---------- hover card: a mini profile when you hover a name ----------
-export const ProfileHover = ({ children, profile }: { children: ReactNode; profile: SourProfile }) => {
+export const ProfileHover = ({
+    children,
+    profile,
+}: {
+    children: ReactNode;
+    profile: SourProfile;
+}) => {
     const me = useSourStore((s) => s.me);
     const profiles = useSourProfiles().data ?? [];
     const mine = profiles.find((p) => p.id === me?.id);
     const match = profile.id !== me?.id ? tasteMatch(mine?.stats, profile.stats) : null;
     const top = profile.stats?.topSongs.slice(0, 3) ?? [];
     return (
-        <HoverCard closeDelay={80} openDelay={350} position="right" shadow="md" width={250} withinPortal>
+        <HoverCard
+            closeDelay={80}
+            openDelay={350}
+            position="right"
+            shadow="md"
+            width={250}
+            withinPortal
+        >
             <HoverCard.Target>
                 <span className={styles.hoverTarget}>{children}</span>
             </HoverCard.Target>
             <HoverCard.Dropdown p={0}>
                 <div className={styles.card}>
-                    <div className={styles.cardBanner} style={{ background: profile.color || `hsl(${hue(profile.name)} 50% 35%)` }} />
+                    <div
+                        className={styles.cardBanner}
+                        style={{ background: profile.color || `hsl(${hue(profile.name)} 50% 35%)` }}
+                    />
                     <div className={styles.cardBody}>
                         <div className={styles.cardAvatar}>
                             <NowPlayingRing profile={profile} size={44} />
@@ -131,35 +163,40 @@ export const DuoSection = ({ other }: { other: SourProfile }) => {
     const d = duo.data;
     return (
         <Titled title="You two">
-        <div className={styles.duo}>
-            <div className={styles.duoStats}>
-                <div>
-                    <b>{d.togetherHours} h</b>
-                    <span>together in groups</span>
+            <div className={styles.duo}>
+                <div className={styles.duoStats}>
+                    <div>
+                        <b>{d.togetherHours} h</b>
+                        <span>together in groups</span>
+                    </div>
+                    <div>
+                        <b>{d.streak}</b>
+                        <span>day streak (both listening)</span>
+                    </div>
+                    <div>
+                        <b>{d.shared.length}</b>
+                        <span>shared top songs</span>
+                    </div>
                 </div>
-                <div>
-                    <b>{d.streak}</b>
-                    <span>day streak (both listening)</span>
-                </div>
-                <div>
-                    <b>{d.shared.length}</b>
-                    <span>shared top songs</span>
-                </div>
+                {d.shared.slice(0, 4).map((s) => (
+                    <button
+                        className={styles.songRow}
+                        key={s.id}
+                        onClick={() => play(s)}
+                        type="button"
+                    >
+                        <SongCover size={32} song={s} />
+                        <span className={styles.grow}>
+                            <Text size="sm" truncate>
+                                {s.title}
+                            </Text>
+                            <Text isMuted size="xs" truncate>
+                                {s.artist}
+                            </Text>
+                        </span>
+                    </button>
+                ))}
             </div>
-            {d.shared.slice(0, 4).map((s) => (
-                <button className={styles.songRow} key={s.id} onClick={() => play(s)} type="button">
-                    <SongCover size={32} song={s} />
-                    <span className={styles.grow}>
-                        <Text size="sm" truncate>
-                            {s.title}
-                        </Text>
-                        <Text isMuted size="xs" truncate>
-                            {s.artist}
-                        </Text>
-                    </span>
-                </button>
-            ))}
-        </div>
         </Titled>
     );
 };
@@ -175,7 +212,7 @@ export const HeatmapSection = ({ profile }: { profile: SourProfile }) => {
     });
     if (!heat.data) return null;
     const days: Array<{ day: string; minutes: number }> = [];
-    const end = new Date();
+    const end = new Date(heat.dataUpdatedAt || 0);
     for (let i = 7 * 26 - 1; i >= 0; i--) {
         const d = new Date(end.getTime() - i * 86400000).toISOString().slice(0, 10);
         days.push({ day: d, minutes: heat.data[d] ?? 0 });
@@ -186,7 +223,11 @@ export const HeatmapSection = ({ profile }: { profile: SourProfile }) => {
         <Titled title="Listening">
             <div className={styles.heat}>
                 {days.map((d) => (
-                    <i className={styles[`heat${level(d.minutes)}`]} key={d.day} title={`${d.day}: ${d.minutes} min`} />
+                    <i
+                        className={styles[`heat${level(d.minutes)}`]}
+                        key={d.day}
+                        title={`${d.day}: ${d.minutes} min`}
+                    />
                 ))}
             </div>
             <Text isMuted size="xs">
@@ -196,7 +237,8 @@ export const HeatmapSection = ({ profile }: { profile: SourProfile }) => {
     );
 };
 
-const monthName = (m: string) => new Date(`${m}-15T12:00:00Z`).toLocaleString(undefined, { month: 'short' });
+const monthName = (m: string) =>
+    new Date(`${m}-15T12:00:00Z`).toLocaleString(undefined, { month: 'short' });
 
 export const EraSection = ({ profile }: { profile: SourProfile }) => {
     const url = useHermesUrl();
@@ -212,14 +254,20 @@ export const EraSection = ({ profile }: { profile: SourProfile }) => {
     if (!months.length) return null;
     return (
         <Titled title="Their eras (top song each month)">
-        <div className={styles.era}>
-            {months.map((m) => (
-                <button className={styles.eraMonth} key={m.month} onClick={() => play(m.songs[0])} title={`${m.songs[0].title} - ${m.songs[0].plays} plays`} type="button">
-                    <SongCover size={58} song={m.songs[0]} />
-                    <span>{monthName(m.month)}</span>
-                </button>
-            ))}
-        </div>
+            <div className={styles.era}>
+                {months.map((m) => (
+                    <button
+                        className={styles.eraMonth}
+                        key={m.month}
+                        onClick={() => play(m.songs[0])}
+                        title={`${m.songs[0].title} - ${m.songs[0].plays} plays`}
+                        type="button"
+                    >
+                        <SongCover size={58} song={m.songs[0]} />
+                        <span>{monthName(m.month)}</span>
+                    </button>
+                ))}
+            </div>
         </Titled>
     );
 };
@@ -235,7 +283,14 @@ const ArtistTile = ({ name }: { name: string }) => {
         }),
     );
     const artist = found.data?.albumArtists?.[0];
-    const entry: GroupSong = { album: '', artist: name, duration: 0, id: `artist:${artist?.id ?? name}`, imageId: artist?.imageId ?? null, title: name };
+    const entry: GroupSong = {
+        album: '',
+        artist: name,
+        duration: 0,
+        id: `artist:${artist?.id ?? name}`,
+        imageId: artist?.imageId ?? null,
+        title: name,
+    };
     return (
         <div className={styles.collageTile} title={name}>
             <ItemCover entry={entry} round />

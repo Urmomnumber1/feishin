@@ -104,7 +104,9 @@ const PlaylistThemeEditor = ({ playlistId }: { playlistId: string }) => {
                 )}
             </Group>
             <Select
-                data={fontChoices(perks).map((f) => (f.value === 'default' ? { ...f, value: '' } : f))}
+                data={fontChoices(perks).map((f) =>
+                    f.value === 'default' ? { ...f, value: '' } : f,
+                )}
                 label="Title font"
                 onChange={(font) => save({ font: font || null })}
                 searchable

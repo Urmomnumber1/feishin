@@ -3,16 +3,16 @@ import { useState } from 'react';
 import styles from './sidebar-friends.module.css';
 
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
+import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-item';
 import { type SourProfile, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile, ProfileAvatar, SongCover } from '/@/renderer/features/sour/components/people';
-import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-item';
 import { ProfileHover } from '/@/renderer/features/sour/components/profile-extras';
 import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
 import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { AppRoute } from '/@/renderer/router/routes';
-import { Group } from '/@/shared/components/group/group';
 import { Accordion } from '/@/shared/components/accordion/accordion';
+import { Group } from '/@/shared/components/group/group';
 import { Icon } from '/@/shared/components/icon/icon';
 import { Text } from '/@/shared/components/text/text';
 
@@ -32,34 +32,34 @@ export const SidebarFriends = () => {
 
     const row = (p: SourProfile) => (
         <ProfileHover key={p.id} profile={p}>
-        <button
-            className={p.online ? styles.row : styles.rowOffline}
-            onClick={() => openProfile(p)}
-            type="button"
-        >
-            <ProfileAvatar online={p.online} profile={p} size={32} />
-            <div className={styles.text}>
-                <Text fw={600} size="sm" truncate>
-                    {p.name}
-                </Text>
-                {p.online && p.listening ? (
-                    <>
-                        <Text isMuted size="xs" truncate>
-                            {p.playing ? '' : 'Paused - '}
-                            {p.listening.title}
-                        </Text>
-                        <Text isMuted size="xs" truncate>
-                            {p.listening.artist}
-                        </Text>
-                    </>
-                ) : (
-                    <Text isMuted size="xs" truncate>
-                        {p.online ? p.status || 'Online' : timeAgo(p.lastSeen)}
+            <button
+                className={p.online ? styles.row : styles.rowOffline}
+                onClick={() => openProfile(p)}
+                type="button"
+            >
+                <ProfileAvatar online={p.online} profile={p} size={32} />
+                <div className={styles.text}>
+                    <Text fw={600} size="sm" truncate>
+                        {p.name}
                     </Text>
-                )}
-            </div>
-            {p.online && p.listening && <SongCover size={34} song={p.listening} />}
-        </button>
+                    {p.online && p.listening ? (
+                        <>
+                            <Text isMuted size="xs" truncate>
+                                {p.playing ? '' : 'Paused - '}
+                                {p.listening.title}
+                            </Text>
+                            <Text isMuted size="xs" truncate>
+                                {p.listening.artist}
+                            </Text>
+                        </>
+                    ) : (
+                        <Text isMuted size="xs" truncate>
+                            {p.online ? p.status || 'Online' : timeAgo(p.lastSeen)}
+                        </Text>
+                    )}
+                </div>
+                {p.online && p.listening && <SongCover size={34} song={p.listening} />}
+            </button>
         </ProfileHover>
     );
 

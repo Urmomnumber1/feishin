@@ -1,6 +1,5 @@
 .mini {
     position: fixed;
-    line-height: 1.35;
     inset: 0;
     z-index: 10000;
     display: grid;
@@ -9,6 +8,7 @@
     gap: 10px;
     padding: 10px;
     overflow: hidden;
+    line-height: 1.35;
     color: var(--theme-colors-foreground);
     user-select: none;
     background: var(--theme-colors-background);

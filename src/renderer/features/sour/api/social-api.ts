@@ -122,11 +122,16 @@ const request = async <T>(url: string, body?: unknown): Promise<T> => {
         url,
         body === undefined
             ? undefined
-            : { body: JSON.stringify(body), headers: { 'content-type': 'application/json' }, method: 'POST' },
+            : {
+                  body: JSON.stringify(body),
+                  headers: { 'content-type': 'application/json' },
+                  method: 'POST',
+              },
     );
     const json = await res.json().catch(() => null);
     if (!res.ok) throw new Error(json?.error || `Hermes Music returned ${res.status}`);
-    if (json === null || typeof json !== 'object') throw new Error("That address doesn't answer like Hermes Music");
+    if (json === null || typeof json !== 'object')
+        throw new Error("That address doesn't answer like Hermes Music");
     return json as T;
 };
 
@@ -165,7 +170,10 @@ export const socialApi = {
     gifts: (base: string, me: Me) =>
         request<{ received: Gift[]; sent: Gift[] }>(`${base}/api/gifts/mine`, who(me)),
     guessHotSeat: (base: string, me: Me, songId: string) =>
-        request<{ answer: string; right: boolean }>(`${base}/api/hotseat/guess`, { ...who(me), songId }),
+        request<{ answer: string; right: boolean }>(`${base}/api/hotseat/guess`, {
+            ...who(me),
+            songId,
+        }),
     hall: (base: string) => list<HallEntry>(`${base}/api/hall`),
     heatmap: (base: string, id: string) =>
         request<Record<string, number>>(`${base}/api/profiles/${id}/heatmap`),
@@ -176,12 +184,21 @@ export const socialApi = {
         return (await res.json()) as HotSeat;
     },
     note: (base: string, me: Me, songId: string, change: { remove?: string; text?: string }) =>
-        request<SongNote[]>(`${base}/api/song-notes/${encodeURIComponent(songId)}`, { ...who(me), ...change }),
+        request<SongNote[]>(`${base}/api/song-notes/${encodeURIComponent(songId)}`, {
+            ...who(me),
+            ...change,
+        }),
     notes: (base: string, songId: string) =>
         list<SongNote>(`${base}/api/song-notes/${encodeURIComponent(songId)}`),
-    openGift: (base: string, me: Me, id: string) => request<Gift>(`${base}/api/gifts/${id}/open`, who(me)),
+    openGift: (base: string, me: Me, id: string) =>
+        request<Gift>(`${base}/api/gifts/${id}/open`, who(me)),
     repeat: (base: string, me: Me, song: GroupSong, count: number) =>
-        request<{ ok: boolean }>(`${base}/api/activity`, { ...who(me), count, song, type: 'repeat' }),
+        request<{ ok: boolean }>(`${base}/api/activity`, {
+            ...who(me),
+            count,
+            song,
+            type: 'repeat',
+        }),
     requestLeaders: (base: string) => list<RequestLeader>(`${base}/api/requests/leaderboard`),
     sourness: (base: string, songId: string) =>
         request<{ plays: number; score: null | number; skips: number }>(
@@ -190,12 +207,18 @@ export const socialApi = {
     startDuel: (base: string, me: Me, song: GroupSong, opponent: null | string) =>
         request<Duel>(`${base}/api/duels`, { ...who(me), opponent, song }),
     visit: (base: string, me: Me, profileId: string) =>
-        request<{ ok: boolean }>(`${base}/api/profiles/${profileId}/visit`, { from: me.id, key: me.key }),
+        request<{ ok: boolean }>(`${base}/api/profiles/${profileId}/visit`, {
+            from: me.id,
+            key: me.key,
+        }),
     voteColor: (base: string, me: Me, color: string) =>
         request<{ ok: boolean }>(`${base}/api/daily-color`, { ...who(me), color }),
     voteDuel: (base: string, me: Me, id: string, side: 'a' | 'b') =>
         request<Duel>(`${base}/api/duels/${id}/vote`, { ...who(me), side }),
     wrapped: (base: string) => request<WrappedNight>(`${base}/api/wrapped-night`),
     wrappedNight: (base: string, me: Me, at: null | number) =>
-        request<WrappedNight>(`${base}/api/wrapped-night`, at === null ? { ...who(me), cancel: true } : { ...who(me), at }),
+        request<WrappedNight>(
+            `${base}/api/wrapped-night`,
+            at === null ? { ...who(me), cancel: true } : { ...who(me), at },
+        ),
 };

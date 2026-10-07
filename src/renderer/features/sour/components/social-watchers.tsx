@@ -85,7 +85,12 @@ export const SocialWatchers = () => {
                         <Button
                             onClick={() =>
                                 serverId &&
-                                queueGroupSongs([a.song], Play.NEXT, { queryClient: qc, serverId }, `${a.fromName} asked for this`)
+                                queueGroupSongs(
+                                    [a.song],
+                                    Play.NEXT,
+                                    { queryClient: qc, serverId },
+                                    `${a.fromName} asked for this`,
+                                )
                                     .then(() => socialApi.answerAsk(url, me, a.id, true))
                                     .catch(() => {})
                             }
@@ -93,7 +98,13 @@ export const SocialWatchers = () => {
                         >
                             Play next
                         </Button>
-                        <Button onClick={() => socialApi.answerAsk(url, me, a.id, false).catch(() => {})} size="compact-xs" variant="subtle">
+                        <Button
+                            onClick={() =>
+                                socialApi.answerAsk(url, me, a.id, false).catch(() => {})
+                            }
+                            size="compact-xs"
+                            variant="subtle"
+                        >
                             No thanks
                         </Button>
                     </Group>,
@@ -133,9 +144,18 @@ export const SocialWatchers = () => {
                 .catch(() => {});
         }
         const day = today();
-        const plays = nextHistory.filter((h) => h.song.id === song.id && new Date(h.at).toISOString().slice(0, 10) === day).length;
+        const plays = nextHistory.filter(
+            (h) => h.song.id === song.id && new Date(h.at).toISOString().slice(0, 10) === day,
+        ).length;
         if (me && plays >= 10 && repeatNotified[song.id] !== day) {
-            set({ repeatNotified: { ...Object.fromEntries(Object.entries(repeatNotified).filter(([, d]) => d === day)), [song.id]: day } });
+            set({
+                repeatNotified: {
+                    ...Object.fromEntries(
+                        Object.entries(repeatNotified).filter(([, d]) => d === day),
+                    ),
+                    [song.id]: day,
+                },
+            });
             socialApi.repeat(url, me, entry, plays).catch(() => {});
         }
     }, [me, song, toasts, url]);
@@ -156,7 +176,11 @@ export const SocialWatchers = () => {
     // recap night
     useEffect(() => {
         if (!url) return undefined;
-        const check = () => socialApi.wrapped(url).then(setNight).catch(() => {});
+        const check = () =>
+            socialApi
+                .wrapped(url)
+                .then(setNight)
+                .catch(() => {});
         check();
         const poll = setInterval(check, 120000);
         const tick = setInterval(() => setNow(Date.now()), 1000);
@@ -166,7 +190,12 @@ export const SocialWatchers = () => {
         };
     }, [url]);
     useEffect(() => {
-        if (night.at && now >= night.at && now - night.at < 5000 && !told.has(`wrapped:${night.at}`)) {
+        if (
+            night.at &&
+            now >= night.at &&
+            now - night.at < 5000 &&
+            !told.has(`wrapped:${night.at}`)
+        ) {
             told.add(`wrapped:${night.at}`);
             notify('Recap night!', "It's time - everyone's opening their recap now.", 15000);
             openRecap();

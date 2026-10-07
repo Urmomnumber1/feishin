@@ -7,10 +7,15 @@ import styles from './hub.module.css';
 import { saveAsPlaylist } from '/@/renderer/features/group-play/components/group-extras';
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
-import { avatarUrl, tasteMatch, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { type Duel, socialApi } from '/@/renderer/features/sour/api/social-api';
+import { avatarUrl, tasteMatch, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile } from '/@/renderer/features/sour/components/people';
-import { hue, ProfileAvatar, SongCover, usePlaySong } from '/@/renderer/features/sour/components/profile-bits';
+import {
+    hue,
+    ProfileAvatar,
+    SongCover,
+    usePlaySong,
+} from '/@/renderer/features/sour/components/profile-bits';
 import { openRecap } from '/@/renderer/features/sour/components/social';
 import { SongPicker } from '/@/renderer/features/sour/components/song-picker';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -31,7 +36,15 @@ const ACTIVITY_EMOJI: Record<string, string> = {
     wrapped: '\u{1F389}',
 };
 
-export const Card = ({ children, icon, title }: { children: ReactNode; icon?: string; title: string }) => (
+export const Card = ({
+    children,
+    icon,
+    title,
+}: {
+    children: ReactNode;
+    icon?: string;
+    title: string;
+}) => (
     <section className={styles.card}>
         <div className={styles.cardTitle}>
             {icon && <span className={styles.emoji}>{icon}</span>}
@@ -85,7 +98,9 @@ export const FeedPanel = () => {
             <div className={styles.list}>
                 {(feed.data ?? []).map((a) => (
                     <div className={styles.row} key={a.id}>
-                        <span className={styles.emoji}>{ACTIVITY_EMOJI[a.type] ?? '\u{1F34B}'}</span>
+                        <span className={styles.emoji}>
+                            {ACTIVITY_EMOJI[a.type] ?? '\u{1F34B}'}
+                        </span>
                         <div className={styles.grow}>
                             <Text size="sm">
                                 <b>{a.byName ?? 'Someone'}</b> {a.text}
@@ -93,7 +108,12 @@ export const FeedPanel = () => {
                             <span className={styles.muted}>{timeAgo(a.at)}</span>
                         </div>
                         {a.song && (
-                            <button className={styles.option} onClick={() => a.song && play(a.song)} title={`Play ${a.song.title}`} type="button">
+                            <button
+                                className={styles.option}
+                                onClick={() => a.song && play(a.song)}
+                                title={`Play ${a.song.title}`}
+                                type="button"
+                            >
                                 <SongCover size={28} song={a.song} />
                             </button>
                         )}
@@ -101,7 +121,8 @@ export const FeedPanel = () => {
                 ))}
                 {feed.isFetched && !feed.data?.length && (
                     <Text isMuted size="sm">
-                        Nothing yet. Send someone a song, start a duel or guess today&apos;s hot seat.
+                        Nothing yet. Send someone a song, start a duel or guess today&apos;s hot
+                        seat.
                     </Text>
                 )}
                 {feed.isError && (
@@ -128,7 +149,10 @@ export const ColorOfTheDay = () => {
     return (
         <Card icon={'\u{1F3A8}'} title="Colour of the day">
             <Group gap="sm">
-                <span className={styles.swatch} style={{ background: data.today, cursor: 'default' }} />
+                <span
+                    className={styles.swatch}
+                    style={{ background: data.today, cursor: 'default' }}
+                />
                 <Text size="sm">Today&apos;s colour. Vote for tomorrow&apos;s:</Text>
             </Group>
             <div className={styles.swatches}>
@@ -141,17 +165,23 @@ export const ColorOfTheDay = () => {
                             me &&
                             socialApi
                                 .voteColor(url, me, c)
-                                .then(() => qc.invalidateQueries({ queryKey: ['sour-daily-color'] }))
+                                .then(() =>
+                                    qc.invalidateQueries({ queryKey: ['sour-daily-color'] }),
+                                )
                                 .catch(fail)
                         }
                         style={{ background: c }}
                         type="button"
                     >
-                        {!!data.votes[c] && <span className={styles.swatchCount}>{data.votes[c]}</span>}
+                        {!!data.votes[c] && (
+                            <span className={styles.swatchCount}>{data.votes[c]}</span>
+                        )}
                     </button>
                 ))}
             </div>
-            <span className={styles.muted}>Turn on Sour Studio &gt; Extras &gt; Colour of the day to wear it.</span>
+            <span className={styles.muted}>
+                Turn on Sour Studio &gt; Extras &gt; Colour of the day to wear it.
+            </span>
         </Card>
     );
 };
@@ -174,14 +204,27 @@ export const WrappedNightCard = () => {
                 <>
                     <Text size="sm">
                         {night.byName} planned a recap night: everyone opens their recap together on{' '}
-                        <b>{new Date(night.at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</b>.
+                        <b>
+                            {new Date(night.at).toLocaleString(undefined, {
+                                dateStyle: 'medium',
+                                timeStyle: 'short',
+                            })}
+                        </b>
+                        .
                     </Text>
                     <Group gap="xs">
                         <Button onClick={openRecap} size="xs" variant="default">
                             Open my recap
                         </Button>
                         {me && night.by === me.id && (
-                            <Button onClick={() => me && socialApi.wrappedNight(url, me, null).then(refresh).catch(fail)} size="xs" variant="subtle">
+                            <Button
+                                onClick={() =>
+                                    me &&
+                                    socialApi.wrappedNight(url, me, null).then(refresh).catch(fail)
+                                }
+                                size="xs"
+                                variant="subtle"
+                            >
                                 Cancel it
                             </Button>
                         )}
@@ -189,12 +232,25 @@ export const WrappedNightCard = () => {
                 </>
             ) : (
                 <>
-                    <Text size="sm">Pick a time and everyone gets a countdown, then opens their recap together.</Text>
+                    <Text size="sm">
+                        Pick a time and everyone gets a countdown, then opens their recap together.
+                    </Text>
                     <Group gap="xs">
-                        <TextInput onChange={(e) => setWhen(e.currentTarget.value)} size="xs" type="datetime-local" value={when} />
+                        <TextInput
+                            onChange={(e) => setWhen(e.currentTarget.value)}
+                            size="xs"
+                            type="datetime-local"
+                            value={when}
+                        />
                         <Button
                             disabled={!when || !me}
-                            onClick={() => me && socialApi.wrappedNight(url, me, new Date(when).getTime()).then(refresh).catch(fail)}
+                            onClick={() =>
+                                me &&
+                                socialApi
+                                    .wrappedNight(url, me, new Date(when).getTime())
+                                    .then(refresh)
+                                    .catch(fail)
+                            }
                             size="xs"
                             variant="default"
                         >
@@ -223,8 +279,8 @@ export const HotSeatCard = () => {
         return (
             <Card icon={'\u{1F525}'} title="Hot seat">
                 <Text isMuted size="sm">
-                    Not enough listening yet. Tomorrow someone is in the hot seat and everyone guesses their most
-                    played song.
+                    Not enough listening yet. Tomorrow someone is in the hot seat and everyone
+                    guesses their most played song.
                 </Text>
             </Card>
         );
@@ -244,7 +300,8 @@ export const HotSeatCard = () => {
                     <button
                         className={clsx(styles.option, {
                             [styles.right]: !!data.answer && o.id === data.answer,
-                            [styles.wrong]: !!data.guessed && o.id === data.guessed && o.id !== data.answer,
+                            [styles.wrong]:
+                                !!data.guessed && o.id === data.guessed && o.id !== data.answer,
                         })}
                         disabled={mine || !!data.guessed || !me}
                         key={o.id}
@@ -254,7 +311,9 @@ export const HotSeatCard = () => {
                                 .guessHotSeat(url, me, o.id)
                                 .then((r) => {
                                     toast[r.right ? 'success' : 'info']({
-                                        message: r.right ? 'You got it!' : `Not that one - see the answer`,
+                                        message: r.right
+                                            ? 'You got it!'
+                                            : `Not that one - see the answer`,
                                     });
                                     qc.invalidateQueries({ queryKey: ['sour-hotseat'] });
                                 })
@@ -296,7 +355,8 @@ const DuelCard = ({ duel }: { duel: Duel }) => {
     const [answer, setAnswer] = useState<GroupSong | null>(null);
     const refresh = () => qc.invalidateQueries({ queryKey: ['sour-duels'] });
     const total = duel.votes.a + duel.votes.b || 1;
-    const canAnswer = !!me && !duel.b && duel.a.by !== me.id && (!duel.opponent || duel.opponent === me.id);
+    const canAnswer =
+        !!me && !duel.b && duel.a.by !== me.id && (!duel.opponent || duel.opponent === me.id);
     const canVote = !!me && !!duel.b && !duel.winner && me.id !== duel.a.by && me.id !== duel.b.by;
     const side = (key: 'a' | 'b') => {
         const s = duel[key];
@@ -304,14 +364,23 @@ const DuelCard = ({ duel }: { duel: Duel }) => {
             return (
                 <div className={styles.side}>
                     <Text isMuted size="sm">
-                        {duel.opponentName ? `Waiting for ${duel.opponentName}` : 'Waiting for anyone to answer'}
+                        {duel.opponentName
+                            ? `Waiting for ${duel.opponentName}`
+                            : 'Waiting for anyone to answer'}
                     </Text>
                     {canAnswer && (
                         <>
                             <SongPicker onPick={setAnswer} picked={answer} />
                             <Button
                                 disabled={!answer}
-                                onClick={() => me && answer && socialApi.answerDuel(url, me, duel.id, answer).then(refresh).catch(fail)}
+                                onClick={() =>
+                                    me &&
+                                    answer &&
+                                    socialApi
+                                        .answerDuel(url, me, duel.id, answer)
+                                        .then(refresh)
+                                        .catch(fail)
+                                }
                                 size="xs"
                             >
                                 Answer with this song
@@ -338,7 +407,10 @@ const DuelCard = ({ duel }: { duel: Duel }) => {
                 {duel.b && <span className={styles.muted}>{duel.votes[key]} votes</span>}
                 {canVote && (
                     <Button
-                        onClick={() => me && socialApi.voteDuel(url, me, duel.id, key).then(refresh).catch(fail)}
+                        onClick={() =>
+                            me &&
+                            socialApi.voteDuel(url, me, duel.id, key).then(refresh).catch(fail)
+                        }
                         size="compact-xs"
                         variant={duel.myVote === key ? 'filled' : 'default'}
                     >
@@ -380,19 +452,29 @@ export const DuelsPanel = () => {
         queryKey: ['sour-duels', url, me?.id],
         refetchInterval: 30000,
     });
-    const hall = useQuery({ enabled: !!url, queryFn: () => socialApi.hall(url), queryKey: ['sour-hall', url] });
+    const hall = useQuery({
+        enabled: !!url,
+        queryFn: () => socialApi.hall(url),
+        queryKey: ['sour-hall', url],
+    });
     return (
         <div className={styles.columns}>
             <div className={styles.list}>
                 <Card icon={'⚔️'} title="Start a song duel">
                     <Text isMuted size="sm">
-                        You pick a song, someone answers with theirs, the group votes for a day. The winner goes into
-                        the Hall of Fame.
+                        You pick a song, someone answers with theirs, the group votes for a day. The
+                        winner goes into the Hall of Fame.
                     </Text>
                     <SongPicker onPick={setSong} picked={song} />
                     <Group gap="xs">
                         <Select
-                            data={[{ label: 'Anyone can answer', value: '' }, ...friends.map((f) => ({ label: `Challenge ${f.name}`, value: f.id }))]}
+                            data={[
+                                { label: 'Anyone can answer', value: '' },
+                                ...friends.map((f) => ({
+                                    label: `Challenge ${f.name}`,
+                                    value: f.id,
+                                })),
+                            ]}
                             onChange={(v) => setOpponent(v || null)}
                             size="xs"
                             value={opponent ?? ''}
@@ -422,7 +504,11 @@ export const DuelsPanel = () => {
             </div>
             <Card icon={'\u{1F3C6}'} title="Hall of Fame">
                 {(hall.data ?? []).map((h, i) => (
-                    <SongRow extra={<span className={styles.muted}>{h.byName}</span>} key={`${h.song.id}-${i}`} song={h.song} />
+                    <SongRow
+                        extra={<span className={styles.muted}>{h.byName}</span>}
+                        key={`${h.song.id}-${i}`}
+                        song={h.song}
+                    />
                 ))}
                 {!hall.data?.length && (
                     <Text isMuted size="sm">
@@ -432,8 +518,16 @@ export const DuelsPanel = () => {
                 {!!hall.data?.length && serverId && (
                     <Button
                         onClick={() =>
-                            saveAsPlaylist(serverId, 'Sour Hall of Fame', (hall.data ?? []).map((h) => h.song))
-                                .then(() => toast.success({ message: 'Saved as the playlist "Sour Hall of Fame"' }))
+                            saveAsPlaylist(
+                                serverId,
+                                'Sour Hall of Fame',
+                                (hall.data ?? []).map((h) => h.song),
+                            )
+                                .then(() =>
+                                    toast.success({
+                                        message: 'Saved as the playlist "Sour Hall of Fame"',
+                                    }),
+                                )
                                 .catch(fail)
                         }
                         size="xs"
@@ -460,7 +554,8 @@ export const GiftsPanel = () => {
     const [mode, setMode] = useState<'ask' | 'gift'>('gift');
     const gifts = useQuery({
         enabled: !!url && !!me,
-        queryFn: () => (me ? socialApi.gifts(url, me) : Promise.resolve({ received: [], sent: [] })),
+        queryFn: () =>
+            me ? socialApi.gifts(url, me) : Promise.resolve({ received: [], sent: [] }),
         queryKey: ['sour-gifts', url, me?.id],
         refetchInterval: 30000,
     });
@@ -478,17 +573,30 @@ export const GiftsPanel = () => {
             qc.invalidateQueries({ queryKey: [mode === 'gift' ? 'sour-gifts' : 'sour-asks'] });
             toast.success({ message: mode === 'gift' ? 'Gift sent' : 'Asked' });
         };
-        (mode === 'gift' ? socialApi.gift(url, me, to, song, note) : socialApi.ask(url, me, to, song)).then(done).catch(fail);
+        (mode === 'gift'
+            ? socialApi.gift(url, me, to, song, note)
+            : socialApi.ask(url, me, to, song)
+        )
+            .then(done)
+            .catch(fail);
     };
     return (
         <div className={styles.columns}>
             <div className={styles.list}>
                 <Card icon={'\u{1F381}'} title="Send a friend a song">
                     <Group gap="xs">
-                        <Button onClick={() => setMode('gift')} size="compact-xs" variant={mode === 'gift' ? 'filled' : 'default'}>
+                        <Button
+                            onClick={() => setMode('gift')}
+                            size="compact-xs"
+                            variant={mode === 'gift' ? 'filled' : 'default'}
+                        >
                             Gift it (they unwrap it)
                         </Button>
-                        <Button onClick={() => setMode('ask')} size="compact-xs" variant={mode === 'ask' ? 'filled' : 'default'}>
+                        <Button
+                            onClick={() => setMode('ask')}
+                            size="compact-xs"
+                            variant={mode === 'ask' ? 'filled' : 'default'}
+                        >
                             Ask them to play it next
                         </Button>
                     </Group>
@@ -501,7 +609,13 @@ export const GiftsPanel = () => {
                     />
                     <SongPicker onPick={setSong} picked={song} />
                     {mode === 'gift' && (
-                        <TextInput maxLength={200} onChange={(e) => setNote(e.currentTarget.value)} placeholder="A note (optional)" size="xs" value={note} />
+                        <TextInput
+                            maxLength={200}
+                            onChange={(e) => setNote(e.currentTarget.value)}
+                            placeholder="A note (optional)"
+                            size="xs"
+                            value={note}
+                        />
                     )}
                     <Button disabled={!to || !song || !me} onClick={send} size="xs">
                         {mode === 'gift' ? 'Send the gift' : 'Send the ask'}
@@ -510,7 +624,11 @@ export const GiftsPanel = () => {
                 <Card icon={'\u{1F4E8}'} title="Gifts for you">
                     {(gifts.data?.received ?? []).map((g) =>
                         g.opened ? (
-                            <SongRow extra={<span className={styles.muted}>from {g.fromName}</span>} key={g.id} song={g.song} />
+                            <SongRow
+                                extra={<span className={styles.muted}>from {g.fromName}</span>}
+                                key={g.id}
+                                song={g.song}
+                            />
                         ) : (
                             <button
                                 className={styles.wrapped}
@@ -522,7 +640,9 @@ export const GiftsPanel = () => {
                                         .then((opened) => {
                                             qc.invalidateQueries({ queryKey: ['sour-gifts'] });
                                             play(opened.song);
-                                            toast.success({ message: `${g.fromName} sent you ${opened.song.title}${opened.note ? `: "${opened.note}"` : ''}` });
+                                            toast.success({
+                                                message: `${g.fromName} sent you ${opened.song.title}${opened.note ? `: "${opened.note}"` : ''}`,
+                                            });
                                         })
                                         .catch(fail)
                                 }
@@ -547,14 +667,22 @@ export const GiftsPanel = () => {
                 <Card icon={'\u{1F4E4}'} title="You sent">
                     {(gifts.data?.sent ?? []).slice(0, 12).map((g) => (
                         <SongRow
-                            extra={<span className={styles.muted}>{`to ${g.toName}${g.opened ? ' - unwrapped' : ''}`}</span>}
+                            extra={
+                                <span
+                                    className={styles.muted}
+                                >{`to ${g.toName}${g.opened ? ' - unwrapped' : ''}`}</span>
+                            }
                             key={g.id}
                             song={g.song}
                         />
                     ))}
                     {(asks.data?.sent ?? []).map((a) => (
                         <SongRow
-                            extra={<span className={styles.muted}>{`asked ${a.toName}: ${a.status === 'waiting' ? 'waiting' : a.status === 'played' ? 'queued it' : 'said no'}`}</span>}
+                            extra={
+                                <span
+                                    className={styles.muted}
+                                >{`asked ${a.toName}: ${a.status === 'waiting' ? 'waiting' : a.status === 'played' ? 'queued it' : 'said no'}`}</span>
+                            }
                             key={a.id}
                             song={a.song}
                         />
@@ -592,15 +720,29 @@ const CapsulesCard = () => {
                 A song and a note that stay locked until the date you pick.
             </Text>
             <Select
-                data={[{ label: 'The whole group', value: 'group' }, ...friends.map((f) => ({ label: f.name, value: f.id }))]}
+                data={[
+                    { label: 'The whole group', value: 'group' },
+                    ...friends.map((f) => ({ label: f.name, value: f.id })),
+                ]}
                 onChange={setTo}
                 size="xs"
                 value={to}
             />
             <SongPicker onPick={setSong} picked={song} />
-            <TextInput maxLength={500} onChange={(e) => setNote(e.currentTarget.value)} placeholder="A note for later" size="xs" value={note} />
+            <TextInput
+                maxLength={500}
+                onChange={(e) => setNote(e.currentTarget.value)}
+                placeholder="A note for later"
+                size="xs"
+                value={note}
+            />
             <Group gap="xs">
-                <TextInput onChange={(e) => setWhen(e.currentTarget.value)} size="xs" type="datetime-local" value={when} />
+                <TextInput
+                    onChange={(e) => setWhen(e.currentTarget.value)}
+                    size="xs"
+                    type="datetime-local"
+                    value={when}
+                />
                 <Button
                     disabled={!me || !song || !to || !when}
                     onClick={() =>
@@ -608,7 +750,12 @@ const CapsulesCard = () => {
                         song &&
                         to &&
                         socialApi
-                            .capsule(url, me, { note, song, to, unlockAt: new Date(when).getTime() })
+                            .capsule(url, me, {
+                                note,
+                                song,
+                                to,
+                                unlockAt: new Date(when).getTime(),
+                            })
                             .then(() => {
                                 setSong(null);
                                 setNote('');
@@ -629,14 +776,18 @@ const CapsulesCard = () => {
                         <Icon icon="lock" />
                         <div className={styles.grow}>
                             <Text size="sm">From {c.fromName}</Text>
-                            <span className={styles.muted}>Opens {new Date(c.unlockAt).toLocaleDateString()}</span>
+                            <span className={styles.muted}>
+                                Opens {new Date(c.unlockAt).toLocaleDateString()}
+                            </span>
                         </div>
                     </div>
                 ) : c.song ? (
                     <SongRow
                         extra={
                             <span className={styles.muted}>
-                                {c.locked ? `opens ${new Date(c.unlockAt).toLocaleDateString()} for ${c.toName}` : `from ${c.fromName}${c.note ? `: ${c.note}` : ''}`}
+                                {c.locked
+                                    ? `opens ${new Date(c.unlockAt).toLocaleDateString()} for ${c.toName}`
+                                    : `from ${c.fromName}${c.note ? `: ${c.note}` : ''}`}
                             </span>
                         }
                         key={c.id}
@@ -673,7 +824,11 @@ export const TasteMap = () => {
         const out: Array<[number, number, number]> = [];
         for (let i = 0; i < profiles.length; i++)
             for (let j = i + 1; j < profiles.length; j++)
-                out.push([i, j, (tasteMatch(profiles[i].stats, profiles[j].stats)?.percent ?? 0) / 100]);
+                out.push([
+                    i,
+                    j,
+                    (tasteMatch(profiles[i].stats, profiles[j].stats)?.percent ?? 0) / 100,
+                ]);
         return out;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [key]);
@@ -730,8 +885,8 @@ export const TasteMap = () => {
     return (
         <Card icon={'\u{1F5FA}️'} title="Taste map">
             <Text isMuted size="sm">
-                Friends with similar taste sit closer together. Bigger bubbles listen more. Click someone for their
-                profile.
+                Friends with similar taste sit closer together. Bigger bubbles listen more. Click
+                someone for their profile.
             </Text>
             {profiles.length < 2 ? (
                 <Text isMuted size="sm">
@@ -771,15 +926,44 @@ export const TasteMap = () => {
                             }}
                             style={{ cursor: 'pointer' }}
                         >
-                            <circle cx={p.x} cy={p.y} fill={p.color} r={p.r} stroke={p.id === me?.id ? 'currentColor' : 'none'} strokeWidth={3} />
+                            <circle
+                                cx={p.x}
+                                cy={p.y}
+                                fill={p.color}
+                                r={p.r}
+                                stroke={p.id === me?.id ? 'currentColor' : 'none'}
+                                strokeWidth={3}
+                            />
                             {p.image ? (
-                                <image clipPath={`url(#map-${p.id})`} height={p.r * 2} href={p.image} preserveAspectRatio="xMidYMid slice" width={p.r * 2} x={p.x - p.r} y={p.y - p.r} />
+                                <image
+                                    clipPath={`url(#map-${p.id})`}
+                                    height={p.r * 2}
+                                    href={p.image}
+                                    preserveAspectRatio="xMidYMid slice"
+                                    width={p.r * 2}
+                                    x={p.x - p.r}
+                                    y={p.y - p.r}
+                                />
                             ) : (
-                                <text dominantBaseline="central" fill="#151515" fontSize={p.r * 0.8} fontWeight={700} textAnchor="middle" x={p.x} y={p.y}>
+                                <text
+                                    dominantBaseline="central"
+                                    fill="#151515"
+                                    fontSize={p.r * 0.8}
+                                    fontWeight={700}
+                                    textAnchor="middle"
+                                    x={p.x}
+                                    y={p.y}
+                                >
                                     {(p.name[0] || '?').toUpperCase()}
                                 </text>
                             )}
-                            <text fill="currentColor" fontSize={13} textAnchor="middle" x={p.x} y={p.y + p.r + 15}>
+                            <text
+                                fill="currentColor"
+                                fontSize={13}
+                                textAnchor="middle"
+                                x={p.x}
+                                y={p.y + p.r + 15}
+                            >
                                 {p.id === me?.id ? `${p.name} (you)` : p.name}
                             </text>
                         </g>
@@ -831,22 +1015,37 @@ export const RequestsPanel = () => {
             <Card icon={'\u{1F4E5}'} title="Requests right now">
                 {(requests.data ?? []).slice(0, 25).map((r) => {
                     const step = Math.max(0, STEPS.indexOf(r.status));
-                    const fraction = r.progress && r.progress.total ? r.progress.done / r.progress.total : r.status === 'done' ? 1 : (step + 0.5) / STEPS.length;
+                    const fraction =
+                        r.progress && r.progress.total
+                            ? r.progress.done / r.progress.total
+                            : r.status === 'done'
+                              ? 1
+                              : (step + 0.5) / STEPS.length;
                     return (
                         <div className={styles.row} key={r.id}>
                             <div className={styles.grow}>
                                 <Text size="sm" truncate>
-                                    {r.title ? `${r.title}${r.artist ? ` - ${r.artist}` : ''}` : r.query}
+                                    {r.title
+                                        ? `${r.title}${r.artist ? ` - ${r.artist}` : ''}`
+                                        : r.query}
                                 </Text>
                                 <span className={styles.muted}>
                                     {r.type !== 'song' ? `${r.type} - ` : ''}
-                                    {r.status === 'failed' ? `couldn't get it${r.note ? `: ${r.note}` : ''}` : r.status}
-                                    {r.progress && r.progress.total ? ` - ${r.progress.done} of ${r.progress.total}` : ''}
+                                    {r.status === 'failed'
+                                        ? `couldn't get it${r.note ? `: ${r.note}` : ''}`
+                                        : r.status}
+                                    {r.progress && r.progress.total
+                                        ? ` - ${r.progress.done} of ${r.progress.total}`
+                                        : ''}
                                     {r.by ? ` - asked by ${r.by}` : ''}
                                 </span>
                                 {r.status !== 'failed' && (
                                     <div className={styles.progress}>
-                                        <div style={{ width: `${Math.round(Math.min(1, fraction) * 100)}%` }} />
+                                        <div
+                                            style={{
+                                                width: `${Math.round(Math.min(1, fraction) * 100)}%`,
+                                            }}
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -855,7 +1054,8 @@ export const RequestsPanel = () => {
                 })}
                 {requests.isFetched && !requests.data?.length && (
                     <Text isMuted size="sm">
-                        Nothing requested yet - the + button in the player bar asks Hermes Music for music.
+                        Nothing requested yet - the + button in the player bar asks Hermes Music for
+                        music.
                     </Text>
                 )}
             </Card>
@@ -867,7 +1067,11 @@ export const RequestsPanel = () => {
                             <Text fw={700} size="sm" w={22}>
                                 {i + 1}
                             </Text>
-                            {prof ? <ProfileAvatar profile={prof} size={28} /> : <span className={styles.emoji}>{'\u{1F34B}'}</span>}
+                            {prof ? (
+                                <ProfileAvatar profile={prof} size={28} />
+                            ) : (
+                                <span className={styles.emoji}>{'\u{1F34B}'}</span>
+                            )}
                             <div className={styles.grow}>
                                 <Text size="sm" truncate>
                                     {l.name}

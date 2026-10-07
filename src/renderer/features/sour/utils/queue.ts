@@ -24,7 +24,11 @@ export const queueGroupSongs = async (
     );
     const items = found.flat();
     if (!items.length) return 0;
-    if (reason) setReason(items.map((s) => s.id), reason);
+    if (reason)
+        setReason(
+            items.map((s) => s.id),
+            reason,
+        );
     await addToQueueByData(play, items);
     return items.length;
 };

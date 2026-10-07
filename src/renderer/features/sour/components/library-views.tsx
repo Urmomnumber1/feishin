@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FastAverageColor } from 'fast-average-color';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router';
 
 import styles from './library-views.module.css';
@@ -29,7 +29,12 @@ export const useAllAlbums = () => {
         queryFn: async ({ signal }) => {
             const res = await api.controller.getAlbumList({
                 apiClientProps: { serverId: server?.id || '', signal },
-                query: { limit: 600, sortBy: AlbumListSort.RECENTLY_ADDED, sortOrder: SortOrder.DESC, startIndex: 0 },
+                query: {
+                    limit: 600,
+                    sortBy: AlbumListSort.RECENTLY_ADDED,
+                    sortOrder: SortOrder.DESC,
+                    startIndex: 0,
+                },
             });
             return res?.items ?? [];
         },
@@ -81,11 +86,15 @@ const hueOf = ([r, g, b]: number[]) => {
     if (max === r) h = ((g - b) / (max - min)) % 6;
     else if (max === g) h = (b - r) / (max - min) + 2;
     else h = (r - g) / (max - min) + 4;
-    return ((h * 60) + 360) % 360;
+    return (h * 60 + 360) % 360;
 };
 
 const useAlbumColor = (album: Album) => {
-    const src = useItemImageUrl({ id: album.imageId || undefined, itemType: LibraryItem.ALBUM, type: 'table' });
+    const src = useItemImageUrl({
+        id: album.imageId || undefined,
+        itemType: LibraryItem.ALBUM,
+        type: 'table',
+    });
     const [color, setColor] = useState<null | number[]>(src ? (colorCache.get(src) ?? null) : null);
     useEffect(() => {
         let alive = true;
@@ -97,7 +106,13 @@ const useAlbumColor = (album: Album) => {
     return color;
 };
 
-const AlbumTile = ({ album, onColor }: { album: Album; onColor: (id: string, hue: number) => void }) => {
+const AlbumTile = ({
+    album,
+    onColor,
+}: {
+    album: Album;
+    onColor: (id: string, hue: number) => void;
+}) => {
     const navigate = useNavigate();
     const server = useCurrentServer();
     const color = useAlbumColor(album);
@@ -107,12 +122,21 @@ const AlbumTile = ({ album, onColor }: { album: Album; onColor: (id: string, hue
     return (
         <button
             className={styles.tile}
-            onClick={() => navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: album.id }))}
+            onClick={() =>
+                navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: album.id }))
+            }
             title={`${album.name} - ${album.albumArtistName}`}
             type="button"
         >
             {album.imageId && server?.id ? (
-                <ItemImage className={styles.img} containerClassName={styles.img} id={album.imageId} itemType={LibraryItem.ALBUM} serverId={server.id} type="table" />
+                <ItemImage
+                    className={styles.img}
+                    containerClassName={styles.img}
+                    id={album.imageId}
+                    itemType={LibraryItem.ALBUM}
+                    serverId={server.id}
+                    type="table"
+                />
             ) : (
                 <span className={styles.blank} />
             )}
@@ -120,19 +144,29 @@ const AlbumTile = ({ album, onColor }: { album: Album; onColor: (id: string, hue
     );
 };
 
-const Spine = ({ album, onColor }: { album: Album; onColor: (id: string, hue: number) => void }) => {
+const Spine = ({
+    album,
+    onColor,
+}: {
+    album: Album;
+    onColor: (id: string, hue: number) => void;
+}) => {
     const navigate = useNavigate();
     const server = useCurrentServer();
     const color = useAlbumColor(album);
     useEffect(() => {
         if (color) onColor(album.id, hueOf(color));
     }, [album.id, color, onColor]);
-    const rgb = color ? `rgb(${color[0]}, ${color[1]}, ${color[2]})` : 'var(--theme-colors-surface)';
+    const rgb = color
+        ? `rgb(${color[0]}, ${color[1]}, ${color[2]})`
+        : 'var(--theme-colors-surface)';
     const dark = color ? color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11 < 140 : true;
     return (
         <button
             className={styles.spine}
-            onClick={() => navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: album.id }))}
+            onClick={() =>
+                navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: album.id }))
+            }
             style={{ background: rgb, color: dark ? '#fff' : '#151515' }}
             title={`${album.name} - ${album.albumArtistName}`}
             type="button"
@@ -140,7 +174,14 @@ const Spine = ({ album, onColor }: { album: Album; onColor: (id: string, hue: nu
             <span className={styles.spineText}>{album.name}</span>
             {album.imageId && server?.id && (
                 <span className={styles.pull}>
-                    <ItemImage className={styles.img} containerClassName={styles.img} id={album.imageId} itemType={LibraryItem.ALBUM} serverId={server.id} type="table" />
+                    <ItemImage
+                        className={styles.img}
+                        containerClassName={styles.img}
+                        id={album.imageId}
+                        itemType={LibraryItem.ALBUM}
+                        serverId={server.id}
+                        type="table"
+                    />
                 </span>
             )}
         </button>
@@ -153,17 +194,18 @@ export const CoverWall = () => {
     const [sortBy, setSortBy] = useState('color');
     const [hues, setHues] = useState<Record<string, number>>({});
     const [order, setOrder] = useState<string[]>([]);
-    const onColor = useMemo(() => {
-        const pending: Record<string, number> = {};
-        let timer: null | ReturnType<typeof setTimeout> = null;
-        return (id: string, hue: number) => {
-            pending[id] = hue;
-            if (timer) return;
-            timer = setTimeout(() => {
-                timer = null;
-                setHues((h) => ({ ...h, ...pending }));
-            }, 400);
-        };
+    const pending = useRef<Record<string, number>>({});
+    const timer = useRef<null | ReturnType<typeof setTimeout>>(null);
+    // colours arrive one cover at a time: gather them and update a few times a second
+    const onColor = useCallback((id: string, hue: number) => {
+        pending.current[id] = hue;
+        if (timer.current) return;
+        timer.current = setTimeout(() => {
+            timer.current = null;
+            const batch = pending.current;
+            pending.current = {};
+            setHues((h) => ({ ...h, ...batch }));
+        }, 400);
     }, []);
     const list = albums.data ?? [];
     // re-sort by colour every couple of seconds while colours are still coming in
@@ -186,7 +228,9 @@ export const CoverWall = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [list.length, sortBy, Object.keys(hues).length]);
     const byId = new Map(list.map((a) => [a.id, a]));
-    const sorted = (order.length ? order : list.map((a) => a.id)).map((id) => byId.get(id)).filter((a): a is Album => !!a);
+    const sorted = (order.length ? order : list.map((a) => a.id))
+        .map((id) => byId.get(id))
+        .filter((a): a is Album => !!a);
     return (
         <div className={styles.wrap}>
             <Group justify="space-between">
@@ -251,17 +295,34 @@ export const Timeline = () => {
                                 <button
                                     className={styles.timeAlbum}
                                     key={a.id}
-                                    onClick={() => navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: a.id }))}
+                                    onClick={() =>
+                                        navigate(
+                                            generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, {
+                                                albumId: a.id,
+                                            }),
+                                        )
+                                    }
                                     title={`${a.name} - ${a.albumArtistName}: ${a.playCount ?? 0} plays`}
                                     type="button"
                                 >
                                     {a.imageId && server?.id ? (
-                                        <ItemImage className={styles.img} containerClassName={styles.img} id={a.imageId} itemType={LibraryItem.ALBUM} serverId={server.id} type="table" />
+                                        <ItemImage
+                                            className={styles.img}
+                                            containerClassName={styles.img}
+                                            id={a.imageId}
+                                            itemType={LibraryItem.ALBUM}
+                                            serverId={server.id}
+                                            type="table"
+                                        />
                                     ) : (
                                         <span className={styles.blank} />
                                     )}
                                     <span className={styles.plays}>
-                                        <span style={{ height: `${((a.playCount ?? 0) / maxPlays) * 100}%` }} />
+                                        <span
+                                            style={{
+                                                height: `${((a.playCount ?? 0) / maxPlays) * 100}%`,
+                                            }}
+                                        />
                                     </span>
                                 </button>
                             ))}
@@ -285,12 +346,23 @@ const FolderRow = ({ albums, empty, title }: { albums: Album[]; empty: string; t
                         <button
                             className={styles.tile}
                             key={a.id}
-                            onClick={() => navigate(generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: a.id }))}
+                            onClick={() =>
+                                navigate(
+                                    generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, { albumId: a.id }),
+                                )
+                            }
                             title={`${a.name} - ${a.albumArtistName}`}
                             type="button"
                         >
                             {a.imageId && server?.id ? (
-                                <ItemImage className={styles.img} containerClassName={styles.img} id={a.imageId} itemType={LibraryItem.ALBUM} serverId={server.id} type="table" />
+                                <ItemImage
+                                    className={styles.img}
+                                    containerClassName={styles.img}
+                                    id={a.imageId}
+                                    itemType={LibraryItem.ALBUM}
+                                    serverId={server.id}
+                                    type="table"
+                                />
                             ) : (
                                 <span className={styles.blank} />
                             )}
@@ -313,7 +385,7 @@ export const SmartFolders = () => {
     const profiles = useSourProfiles().data ?? [];
     const qc = useQueryClient();
     const serverId = useCurrentServer()?.id;
-    const now = Date.now();
+    const [now] = useState(() => Date.now());
     const recent = albums.filter((a) => a.lastPlayedAt && now - Date.parse(a.lastPlayedAt) < 7 * DAY);
     const fresh = albums.filter((a) => a.createdAt && now - Date.parse(a.createdAt) < 7 * DAY);
     const never = albums.filter((a) => !a.playCount);

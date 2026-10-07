@@ -11,8 +11,8 @@ import {
     ProfileName,
     SongCover,
 } from '/@/renderer/features/sour/components/profile-bits';
-import { NowPlayingRing } from '/@/renderer/features/sour/components/profile-extras';
 import { ProfileEditor } from '/@/renderer/features/sour/components/profile-editor';
+import { NowPlayingRing } from '/@/renderer/features/sour/components/profile-extras';
 import { ProfileView } from '/@/renderer/features/sour/components/profile-view';
 import {
     openFriendGroup,

@@ -20,14 +20,6 @@ import {
 } from '/@/renderer/features/sour/api/sour-api';
 import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import {
-    ArtistCollage,
-    DuoSection,
-    EraSection,
-    HeatmapSection,
-    NowPlayingRing,
-    useProfileVisit,
-} from '/@/renderer/features/sour/components/profile-extras';
-import {
     activity,
     hue,
     ItemCover,
@@ -35,6 +27,14 @@ import {
     SongCover,
     usePlaySong,
 } from '/@/renderer/features/sour/components/profile-bits';
+import {
+    ArtistCollage,
+    DuoSection,
+    EraSection,
+    HeatmapSection,
+    NowPlayingRing,
+    useProfileVisit,
+} from '/@/renderer/features/sour/components/profile-extras';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { AppRoute } from '/@/renderer/router/routes';
 import { usePlayerSong } from '/@/renderer/store';
@@ -192,7 +192,6 @@ export const ProfileView = ({
         collage: <ArtistCollage profile={profile} />,
         duo: !isMe && !preview && <DuoSection other={profile} />,
         era: <EraSection profile={profile} />,
-        heatmap: <HeatmapSection profile={profile} />,
         favoriteAlbums: favorites.some((f) => favoriteKind(f) === 'album') && (
             <Section title="Favourite albums">
                 {tiles(favorites.filter((f) => favoriteKind(f) === 'album'))}
@@ -222,6 +221,7 @@ export const ProfileView = ({
                 </Group>
             </Section>
         ),
+        heatmap: <HeatmapSection profile={profile} />,
         jokes: !!c.jokes && (
             <Section title="Inside jokes">
                 <Text className={styles.bio}>{c.jokes}</Text>
@@ -245,26 +245,29 @@ export const ProfileView = ({
                     </Text>
                 </Stack>
             </button>
-        ) : profile.online && profile.listening && (
-            <button
-                className={styles.nowCard}
-                onClick={() => profile.listening && playSong(profile.listening)}
-                style={{ borderColor: accent }}
-                type="button"
-            >
-                <SongCover size={56} song={profile.listening} />
-                <Stack gap={0} miw={0}>
-                    <Text className={styles.eyebrow}>
-                        {profile.group ? `Listening in ${profile.group.name}` : 'Listening now'}
-                    </Text>
-                    <Text fw={700} truncate>
-                        {profile.listening.title}
-                    </Text>
-                    <Text isMuted size="sm" truncate>
-                        {profile.listening.artist}
-                    </Text>
-                </Stack>
-            </button>
+        ) : (
+            profile.online &&
+            profile.listening && (
+                <button
+                    className={styles.nowCard}
+                    onClick={() => profile.listening && playSong(profile.listening)}
+                    style={{ borderColor: accent }}
+                    type="button"
+                >
+                    <SongCover size={56} song={profile.listening} />
+                    <Stack gap={0} miw={0}>
+                        <Text className={styles.eyebrow}>
+                            {profile.group ? `Listening in ${profile.group.name}` : 'Listening now'}
+                        </Text>
+                        <Text fw={700} truncate>
+                            {profile.listening.title}
+                        </Text>
+                        <Text isMuted size="sm" truncate>
+                            {profile.listening.artist}
+                        </Text>
+                    </Stack>
+                </button>
+            )
         ),
         pinnedPlaylist: c.pinnedPlaylist && (
             <Section title="Pinned playlist">
@@ -461,7 +464,10 @@ export const ProfileView = ({
                     </Button>
                 )}
                 <div className={styles.profile} style={{ background: c.theme?.card || undefined }}>
-                    <div className={c.bannerPan ? `${styles.banner} sour-banner-pan` : styles.banner} style={bannerStyle}>
+                    <div
+                        className={c.bannerPan ? `${styles.banner} sour-banner-pan` : styles.banner}
+                        style={bannerStyle}
+                    >
                         {c.header && <span className={styles.header}>{c.header}</span>}
                         {(c.stickers || []).map((s, i) => (
                             <span

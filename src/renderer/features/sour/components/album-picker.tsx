@@ -61,7 +61,12 @@ export const AlbumOfWeekPicker = ({
                 </>
             ) : (
                 <>
-                    <TextInput onChange={(e) => setText(e.currentTarget.value)} placeholder="Search for an album" size="xs" value={text} />
+                    <TextInput
+                        onChange={(e) => setText(e.currentTarget.value)}
+                        placeholder="Search for an album"
+                        size="xs"
+                        value={text}
+                    />
                     {(found.data?.albums ?? []).map((a) => (
                         <Button
                             justify="flex-start"

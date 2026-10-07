@@ -13,11 +13,11 @@ import {
     type SourProfile,
     timeAgo,
 } from '/@/renderer/features/sour/api/sour-api';
-import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
 import { AlbumOfWeekPicker } from '/@/renderer/features/sour/components/album-picker';
-import { fontChoices } from '/@/renderer/features/sour/fonts';
+import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
 import { SongCover } from '/@/renderer/features/sour/components/profile-bits';
 import { ProfileView, SECTIONS } from '/@/renderer/features/sour/components/profile-view';
+import { fontChoices } from '/@/renderer/features/sour/fonts';
 import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { playSound, SOUNDS } from '/@/renderer/features/sour/utils/sounds';
 import { usePlayerSong } from '/@/renderer/store';
@@ -292,9 +292,9 @@ export const ProfileEditor = ({
                 />
                 <Select
                     data={fontChoices(mine?.perks)}
-                    searchable
                     label="Name font"
                     onChange={(v) => setC({ nameFont: v || 'default' })}
+                    searchable
                     value={c.nameFont || 'default'}
                 />
                 <Select

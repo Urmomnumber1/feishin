@@ -66,7 +66,11 @@ export const SongPicker = ({
                     value={text}
                 />
                 {playing && (
-                    <Button onClick={() => onPick(toGroupSong(playing))} size="compact-xs" variant="default">
+                    <Button
+                        onClick={() => onPick(toGroupSong(playing))}
+                        size="compact-xs"
+                        variant="default"
+                    >
                         Playing now
                     </Button>
                 )}
@@ -76,7 +80,12 @@ export const SongPicker = ({
                     {(results.data?.songs ?? []).map((song) => {
                         const s = toGroupSong(song);
                         return (
-                            <button className={styles.result} key={song.id} onClick={() => onPick(s)} type="button">
+                            <button
+                                className={styles.result}
+                                key={song.id}
+                                onClick={() => onPick(s)}
+                                type="button"
+                            >
                                 <SongCover size={30} song={s} />
                                 <div className={styles.text}>
                                     <Text size="sm" truncate>

@@ -2,7 +2,11 @@ import styles from '../components/hub.module.css';
 
 import { NativeScrollArea } from '/@/renderer/components/native-scroll-area/native-scroll-area';
 import { LibraryTools } from '/@/renderer/features/sour/components/library-tools';
-import { CoverWall, SmartFolders, Timeline } from '/@/renderer/features/sour/components/library-views';
+import {
+    CoverWall,
+    SmartFolders,
+    Timeline,
+} from '/@/renderer/features/sour/components/library-views';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { Tabs } from '/@/shared/components/tabs/tabs';
 

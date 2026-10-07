@@ -138,7 +138,14 @@ export const Sidebar = () => {
                         item: styles.accordionItem,
                         root: styles.accordionRoot,
                     }}
-                    defaultValue={['pins', 'sour', 'library', 'collections', 'playlists', 'friends']}
+                    defaultValue={[
+                        'pins',
+                        'sour',
+                        'library',
+                        'collections',
+                        'playlists',
+                        'friends',
+                    ]}
                     multiple
                 >
                     <SidebarPins />

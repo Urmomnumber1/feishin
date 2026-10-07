@@ -1,5 +1,6 @@
 import styles from '../components/hub.module.css';
 
+import { NativeScrollArea } from '/@/renderer/components/native-scroll-area/native-scroll-area';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import {
     ColorOfTheDay,
@@ -12,7 +13,6 @@ import {
     WrappedNightCard,
 } from '/@/renderer/features/sour/components/hub-panels';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
-import { NativeScrollArea } from '/@/renderer/components/native-scroll-area/native-scroll-area';
 import { Tabs } from '/@/shared/components/tabs/tabs';
 import { Text } from '/@/shared/components/text/text';
 
@@ -25,7 +25,8 @@ const SourHubRoute = () => {
                 <h1 className={styles.title}>Sour Hub</h1>
                 {!url ? (
                     <Text isMuted>
-                        Set your Hermes Music address first (Settings &gt; General &gt; Music videos).
+                        Set your Hermes Music address first (Settings &gt; General &gt; Music
+                        videos).
                     </Text>
                 ) : (
                     <Tabs defaultValue="feed" keepMounted={false}>
