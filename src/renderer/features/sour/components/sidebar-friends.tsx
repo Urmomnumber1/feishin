@@ -5,7 +5,12 @@ import styles from './sidebar-friends.module.css';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { type SourProfile, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile, ProfileAvatar, SongCover } from '/@/renderer/features/sour/components/people';
+import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-item';
+import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
+import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { AppRoute } from '/@/renderer/router/routes';
+import { Group } from '/@/shared/components/group/group';
 import { Accordion } from '/@/shared/components/accordion/accordion';
 import { Icon } from '/@/shared/components/icon/icon';
 import { Text } from '/@/shared/components/text/text';
@@ -87,3 +92,36 @@ export const SidebarFriends = () => {
         </Accordion.Item>
     );
 };
+
+// Left sidebar: Sour Player's own pages
+export const SidebarSour = () => (
+    <Accordion.Item value="sour">
+        <Accordion.Control>
+            <Text fw={500} variant="secondary">
+                Sour
+            </Text>
+        </Accordion.Control>
+        <Accordion.Panel>
+            <SidebarItem to={AppRoute.SOUR_HUB}>
+                <Group gap="md">
+                    <Icon icon="partyPopper" size="lg" />
+                    Sour Hub
+                </Group>
+            </SidebarItem>
+            <SidebarItem to={AppRoute.SOUR_LIBRARY}>
+                <Group gap="md">
+                    <Icon icon="grid" size="lg" />
+                    Sour Library
+                </Group>
+            </SidebarItem>
+            <button className={styles.link} onClick={() => toggleStage(true)} type="button">
+                <Icon icon="sparkles" size="lg" />
+                Sour Stage
+            </button>
+            <button className={styles.link} onClick={openSourStudio} type="button">
+                <Icon icon="palette" size="lg" />
+                Sour Studio
+            </button>
+        </Accordion.Panel>
+    </Accordion.Item>
+);

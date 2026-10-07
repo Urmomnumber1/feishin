@@ -1,0 +1,50 @@
+.picker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.results {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.result,
+.picked {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 6px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+}
+
+.result {
+    cursor: pointer;
+}
+
+.result:hover {
+    background: alpha(var(--theme-colors-foreground), 0.08);
+}
+
+.picked {
+    background: alpha(var(--theme-colors-primary), 0.12);
+}
+
+.text {
+    flex: 1;
+    min-width: 0;
+}

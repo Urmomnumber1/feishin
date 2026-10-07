@@ -43,3 +43,24 @@
     background: transparent;
     border: none;
 }
+
+.link {
+    display: flex;
+    gap: var(--theme-spacing-md);
+    align-items: center;
+    width: 100%;
+    padding: 0.4rem 1rem;
+    font: inherit;
+    font-size: var(--theme-font-size-md);
+    color: var(--theme-colors-foreground-muted);
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: var(--theme-radius-md);
+}
+
+.link:hover {
+    color: var(--theme-colors-foreground);
+    background: alpha(var(--theme-colors-foreground), 0.06);
+}

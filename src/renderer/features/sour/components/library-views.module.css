@@ -1,0 +1,172 @@
+.wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 3px;
+}
+
+.tile {
+    position: relative;
+    aspect-ratio: 1;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    background: alpha(var(--theme-colors-foreground), 0.05);
+    border: 0;
+    border-radius: 4px;
+    transition: transform 0.15s;
+}
+
+.tile:hover {
+    z-index: 2;
+    box-shadow: 0 10px 28px rgb(0 0 0 / 50%);
+    transform: scale(1.35);
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.blank {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: alpha(var(--theme-colors-foreground), 0.08);
+}
+
+.shelf {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 2px;
+    align-items: flex-end;
+    padding: 16px 12px 0;
+    background: linear-gradient(transparent calc(100% - 10px), #5a3d22 calc(100% - 10px));
+    background-size: 100% 196px;
+}
+
+.spine {
+    position: relative;
+    width: 26px;
+    height: 180px;
+    margin-bottom: 10px;
+    padding: 0;
+    overflow: visible;
+    cursor: pointer;
+    border: 0;
+    border-radius: 2px 2px 0 0;
+    box-shadow: inset -3px 0 0 rgb(0 0 0 / 18%);
+    transition: transform 0.2s;
+    transform-origin: bottom center;
+}
+
+.spine:hover {
+    z-index: 2;
+    transform: translateY(-14px) rotate(-6deg);
+}
+
+.spine-text {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    max-height: 160px;
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform: translateX(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+}
+
+.pull {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    display: none;
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
+    transform: translateX(-50%);
+}
+
+.spine:hover .pull {
+    display: block;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.year {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.year-label {
+    position: sticky;
+    top: 0;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--theme-colors-primary);
+}
+
+.year-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.time-album {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+}
+
+.plays {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    bottom: 4px;
+    display: flex;
+    align-items: flex-end;
+    width: 5px;
+    overflow: hidden;
+    background: rgb(0 0 0 / 40%);
+    border-radius: 3px;
+}
+
+.plays > span {
+    width: 100%;
+    background: var(--theme-colors-primary);
+}
+
+.folders {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.folder {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 4px;
+}

@@ -32,4 +32,6 @@ export enum AppRoute {
     SEARCH = '/search/:itemType',
     SERVERS = '/servers',
     SETTINGS = '/settings',
+    SOUR_HUB = '/sour/hub',
+    SOUR_LIBRARY = '/sour/library',
 }
