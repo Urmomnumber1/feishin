@@ -25,6 +25,7 @@ import {
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
 import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
+import { useHoverPreview } from '/@/renderer/features/sour/utils/preview';
 import { setReason } from '/@/renderer/features/sour/utils/reasons';
 import { useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData } from '/@/renderer/store/player.store';
@@ -304,6 +305,22 @@ export const ActivityTicker = () => {
     );
 };
 
+// a cover on a shelf (with a hover preview when that's turned on)
+const ShelfItem = ({ note, onPlay, song }: { note: string; onPlay: () => void; song: GroupSong }) => {
+    const preview = useHoverPreview(song);
+    return (
+        <button className={styles.shelfItem} onClick={onPlay} title={`${song.title} - ${song.artist} (${note})`} type="button" {...preview}>
+            <SongCover size={110} song={song} />
+            <Text size="xs" truncate>
+                {song.title}
+            </Text>
+            <Text isMuted size="xs" truncate>
+                {note}
+            </Text>
+        </button>
+    );
+};
+
 // ---------- songs friends love that you haven't played ----------
 export const UnheardByYou = () => {
     const me = useSourStore((s) => s.me);
@@ -351,21 +368,7 @@ export const UnheardByYou = () => {
             </div>
             <div className={styles.shelf}>
                 {songs.map((s) => (
-                    <button
-                        className={styles.shelfItem}
-                        key={s.id}
-                        onClick={() => play(s)}
-                        title={`${s.title} - ${s.artist} (${s.from} loves it)`}
-                        type="button"
-                    >
-                        <SongCover size={110} song={s} />
-                        <Text size="xs" truncate>
-                            {s.title}
-                        </Text>
-                        <Text isMuted size="xs" truncate>
-                            {s.from} loves it
-                        </Text>
-                    </button>
+                    <ShelfItem key={s.id} note={`${s.from} loves it`} onPlay={() => play(s)} song={s} />
                 ))}
             </div>
         </section>
