@@ -1,0 +1,340 @@
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.label {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.muted {
+    font-size: 0.8rem;
+    color: var(--theme-colors-foreground-muted);
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.greet {
+    font-size: 1.9rem;
+    font-weight: 900;
+}
+
+.banner {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    min-height: 118px;
+    padding: 16px;
+    background: linear-gradient(120deg, alpha(var(--theme-colors-primary), 0.3), alpha(var(--theme-colors-primary), 0.06));
+    border: 1px solid alpha(var(--theme-colors-primary), 0.3);
+    border-radius: 16px;
+    animation: slide 0.5s ease-out;
+}
+
+.banner-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--theme-colors-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.banner-title {
+    overflow: hidden;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.dot {
+    width: 8px;
+    height: 4px;
+    padding: 0;
+    cursor: pointer;
+    background: alpha(var(--theme-colors-foreground), 0.25);
+    border: 0;
+    border-radius: 2px;
+    transition: width 0.2s;
+}
+
+.dot-on {
+    width: 20px;
+    background: var(--theme-colors-primary);
+}
+
+.moods {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.mood {
+    height: 74px;
+    padding: 12px;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    border: 0;
+    border-radius: 12px;
+    transition: transform 0.15s;
+}
+
+.mood:hover {
+    transform: translateY(-3px);
+}
+
+.friends {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.friend {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 8px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border: 0;
+    border-radius: 12px;
+}
+
+.away {
+    opacity: 0.55;
+}
+
+.friend-cover {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.friend-cover > div {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1;
+}
+
+.friend-face {
+    position: absolute;
+    bottom: -10px;
+    left: 8px;
+}
+
+.blank {
+    display: block;
+    aspect-ratio: 1;
+    background: alpha(var(--theme-colors-foreground), 0.08);
+    border-radius: 8px;
+}
+
+.ticker {
+    overflow: hidden;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    background: alpha(var(--theme-colors-primary), 0.1);
+    border-radius: 10px;
+}
+
+.ticker-track {
+    display: inline-flex;
+    gap: 60px;
+    padding: 8px 0;
+    animation: ticker 60s linear infinite;
+}
+
+.ticker:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+.shelf {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.shelf-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 110px;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: none;
+    border: 0;
+}
+
+.roulette {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.wheel-wrap {
+    position: relative;
+    width: 170px;
+    height: 170px;
+}
+
+.wheel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 4px solid alpha(var(--theme-colors-foreground), 0.2);
+    border-radius: 50%;
+    transition: transform 3s cubic-bezier(0.17, 0.67, 0.2, 1);
+}
+
+.wheel-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70px;
+    margin-left: -35px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #151515;
+    text-align: center;
+    transform-origin: center center;
+}
+
+.pointer {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    z-index: 2;
+    border-top: 16px solid var(--theme-colors-foreground);
+    border-right: 9px solid transparent;
+    border-left: 9px solid transparent;
+    transform: translateX(-50%);
+}
+
+.roulette-side {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    max-width: 280px;
+}
+
+.blobs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.blob {
+    padding: 6px;
+    overflow: hidden;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    border: 0;
+    border-radius: 50%;
+    transition: transform 0.15s;
+}
+
+.blob:hover {
+    transform: scale(1.08);
+}
+
+.dial {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    padding: 12px 16px 24px;
+    background: alpha(var(--theme-colors-foreground), 0.04);
+    border-radius: 12px;
+}
+
+.decade {
+    min-width: 90px;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--theme-colors-primary);
+}
+
+.timeline {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    padding-bottom: 6px;
+    overflow-x: auto;
+    border-bottom: 2px solid alpha(var(--theme-colors-foreground), 0.1);
+}
+
+.time-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    background: none;
+    border: 0;
+}
+
+@keyframes slide {
+    from {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes ticker {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}

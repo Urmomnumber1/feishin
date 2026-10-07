@@ -3,6 +3,20 @@ import { type ReactNode, useState } from 'react';
 
 import styles from './home-sections.module.css';
 
+import {
+    ActivityTicker,
+    DecadeDial,
+    FriendCards,
+    GenreBlobs,
+    HotSeatHome,
+    MoodTiles,
+    PlayedTimeline,
+    SongRoulette,
+    SourHero,
+    UnheardByYou,
+} from '/@/renderer/features/sour/components/home-plus';
+import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
+
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import {
     type GroupSong,
@@ -38,6 +52,16 @@ import { Play } from '/@/shared/types/types';
 
 // Home sections that come from the friend group (Hermes Music) or this computer's plays.
 export const SOUR_HOME_ITEMS = new Set<string>([
+    HomeItem.ACTIVITY_TICKER,
+    HomeItem.DECADE_DIAL,
+    HomeItem.FRIEND_CARDS,
+    HomeItem.GENRE_BLOBS,
+    HomeItem.HOT_SEAT,
+    HomeItem.MOODS,
+    HomeItem.PLAYED_TODAY,
+    HomeItem.ROULETTE,
+    HomeItem.SOUR_HERO,
+    HomeItem.UNHEARD,
     HomeItem.BLEND,
     HomeItem.FRIENDS_PLAYING,
     HomeItem.GROUP_TOP,
@@ -438,10 +462,50 @@ const SmartPlaylists = () => {
     );
 };
 
+// sections that work without Hermes Music (they only use the music server or this computer)
+const LOCAL_ONLY = new Set<string>([
+    HomeItem.DECADE_DIAL,
+    HomeItem.GENRE_BLOBS,
+    HomeItem.JUMP_BACK_IN,
+    HomeItem.MOODS,
+    HomeItem.PLAYED_TODAY,
+    HomeItem.ROULETTE,
+    HomeItem.SMART_PLAYLISTS,
+    HomeItem.SOUR_HERO,
+]);
+
 export const SourHomeSection = ({ id }: { id: string }) => {
     const url = useHermesUrl();
-    if (!url && id !== HomeItem.JUMP_BACK_IN && id !== HomeItem.SMART_PLAYLISTS) return null;
+    if (!url && !LOCAL_ONLY.has(id)) return null;
+    return (
+        <SourSafe name={`home: ${id}`}>
+            <SourHomeSectionInner id={id} />
+        </SourSafe>
+    );
+};
+
+const SourHomeSectionInner = ({ id }: { id: string }) => {
     switch (id) {
+        case HomeItem.ACTIVITY_TICKER:
+            return <ActivityTicker />;
+        case HomeItem.DECADE_DIAL:
+            return <DecadeDial />;
+        case HomeItem.FRIEND_CARDS:
+            return <FriendCards />;
+        case HomeItem.GENRE_BLOBS:
+            return <GenreBlobs />;
+        case HomeItem.HOT_SEAT:
+            return <HotSeatHome />;
+        case HomeItem.MOODS:
+            return <MoodTiles />;
+        case HomeItem.PLAYED_TODAY:
+            return <PlayedTimeline />;
+        case HomeItem.ROULETTE:
+            return <SongRoulette />;
+        case HomeItem.SOUR_HERO:
+            return <SourHero />;
+        case HomeItem.UNHEARD:
+            return <UnheardByYou />;
         case HomeItem.BLEND:
             return <Blend />;
         case HomeItem.FRIENDS_PLAYING:

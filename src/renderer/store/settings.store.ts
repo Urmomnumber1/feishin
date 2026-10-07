@@ -69,6 +69,16 @@ const deepMergeIntoState = <T extends Record<string, any>>(
 };
 
 const HomeItemSchema = z.enum([
+    'activityTicker',
+    'decadeDial',
+    'friendCards',
+    'genreBlobs',
+    'hotSeat',
+    'moods',
+    'playedToday',
+    'roulette',
+    'sourHero',
+    'unheard',
     'blend',
     'friendsPlaying',
     'genres',
@@ -985,6 +995,16 @@ export enum GenreTarget {
 }
 
 export enum HomeItem {
+    ACTIVITY_TICKER = 'activityTicker',
+    DECADE_DIAL = 'decadeDial',
+    FRIEND_CARDS = 'friendCards',
+    GENRE_BLOBS = 'genreBlobs',
+    HOT_SEAT = 'hotSeat',
+    MOODS = 'moods',
+    PLAYED_TODAY = 'playedToday',
+    ROULETTE = 'roulette',
+    SOUR_HERO = 'sourHero',
+    UNHEARD = 'unheard',
     BLEND = 'blend',
     FRIENDS_PLAYING = 'friendsPlaying',
     GENRES = 'genres',
@@ -1265,6 +1285,10 @@ export const sidebarItems: SidebarItemType[] = [
 ];
 
 const defaultHomeItemOrder: HomeItem[] = [
+    HomeItem.SOUR_HERO,
+    HomeItem.ACTIVITY_TICKER,
+    HomeItem.MOODS,
+    HomeItem.FRIEND_CARDS,
     HomeItem.SOUR_RADIO,
     HomeItem.FRIENDS_PLAYING,
     HomeItem.YOUR_REQUESTS,
@@ -1281,6 +1305,12 @@ const defaultHomeItemOrder: HomeItem[] = [
     HomeItem.GROUP_TOP,
     HomeItem.SHARED_FAVORITES,
     HomeItem.SMART_PLAYLISTS,
+    HomeItem.UNHEARD,
+    HomeItem.HOT_SEAT,
+    HomeItem.ROULETTE,
+    HomeItem.PLAYED_TODAY,
+    HomeItem.GENRE_BLOBS,
+    HomeItem.DECADE_DIAL,
     HomeItem.PLAYLISTS,
 ];
 
@@ -2996,10 +3026,36 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                     ];
                 }
 
+                if (version < 37) {
+                    // Sour Player 0.4: greeting and banner, moods, friend cards and the fun extras
+                    const have = new Set(state.general.homeItems.map((item) => item.id));
+                    const top = [
+                        HomeItem.SOUR_HERO,
+                        HomeItem.ACTIVITY_TICKER,
+                        HomeItem.MOODS,
+                        HomeItem.FRIEND_CARDS,
+                    ];
+                    const rest = [
+                        HomeItem.UNHEARD,
+                        HomeItem.HOT_SEAT,
+                        HomeItem.ROULETTE,
+                        HomeItem.PLAYED_TODAY,
+                        HomeItem.GENRE_BLOBS,
+                        HomeItem.DECADE_DIAL,
+                    ];
+                    state.general.homeItems = [
+                        ...top.filter((id) => !have.has(id)).map((id) => ({ disabled: false, id })),
+                        ...state.general.homeItems,
+                        ...rest
+                            .filter((id) => !have.has(id))
+                            .map((id) => ({ disabled: false, id })),
+                    ];
+                }
+
                 return persistedState;
             },
             name: 'store_settings',
-            version: 36,
+            version: 37,
         },
     ),
 );

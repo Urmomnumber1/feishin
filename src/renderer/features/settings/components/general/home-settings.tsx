@@ -26,6 +26,16 @@ const HOME_ITEMS: Array<[string, string]> = [
     [HomeItem.GROUP_TOP, "The group's top songs"],
     [HomeItem.SHARED_FAVORITES, 'Shared favourites'],
     [HomeItem.SMART_PLAYLISTS, 'Smart playlists'],
+    [HomeItem.SOUR_HERO, 'Greeting and banner'],
+    [HomeItem.ACTIVITY_TICKER, 'What the group is up to (ticker)'],
+    [HomeItem.MOODS, 'Mood tiles'],
+    [HomeItem.FRIEND_CARDS, 'Friends right now (cards)'],
+    [HomeItem.UNHEARD, 'Unheard by you'],
+    [HomeItem.HOT_SEAT, 'Hot seat'],
+    [HomeItem.ROULETTE, 'Song roulette'],
+    [HomeItem.PLAYED_TODAY, 'Today so far'],
+    [HomeItem.GENRE_BLOBS, 'Library by genre'],
+    [HomeItem.DECADE_DIAL, 'Decade dial'],
 ];
 
 export const HomeSettings = memo(() => {
