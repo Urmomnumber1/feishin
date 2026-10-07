@@ -3,10 +3,10 @@ import { useEffect } from 'react';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
-import { LoopWatcher } from '/@/renderer/features/sour/stage/loop';
-import { SourStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';
+import { LoopWatcher } from '/@/renderer/features/sour/stage/loop';
+import { SourStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useSettingsStore } from '/@/renderer/store/settings.store';
 

@@ -47,8 +47,8 @@ import { ListenAlong, SocialWatcher } from '/@/renderer/features/sour/components
 import { SourPresence } from '/@/renderer/features/sour/components/sour-presence';
 import { SourStudioButton } from '/@/renderer/features/sour/components/sour-studio';
 import { SourStageButton } from '/@/renderer/features/sour/stage/sour-stage';
-import { PlayerBarVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { PlayerBarVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useHotkeys } from '/@/renderer/hooks/use-hotkeys';
 import {
     AUTO_DJ_MODE,

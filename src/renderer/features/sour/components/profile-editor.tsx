@@ -12,6 +12,7 @@ import {
     sourApi,
     type SourProfile,
 } from '/@/renderer/features/sour/api/sour-api';
+import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
 import { SongCover } from '/@/renderer/features/sour/components/profile-bits';
 import { ProfileView, SECTIONS } from '/@/renderer/features/sour/components/profile-view';
 import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
@@ -28,7 +29,6 @@ import { Slider } from '/@/shared/components/slider/slider';
 import { Stack } from '/@/shared/components/stack/stack';
 import { Switch } from '/@/shared/components/switch/switch';
 import { TextInput } from '/@/shared/components/text-input/text-input';
-import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
 import { Text } from '/@/shared/components/text/text';
 import { Textarea } from '/@/shared/components/textarea/textarea';
 import { toast } from '/@/shared/components/toast/toast';

@@ -91,8 +91,8 @@
 
     width: min(42vh, 30vw);
     aspect-ratio: 1;
-    perspective: 900px;
     transform: scale(calc(1 + var(--beat) * 0.025));
+    perspective: 900px;
 }
 
 .card {
@@ -105,8 +105,8 @@
     cursor: pointer;
     background: transparent;
     border: 0;
-    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
     transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
     animation: peel-in 0.6s ease-out;
 }
 
@@ -209,9 +209,9 @@
 
 .title {
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: clamp(1.4rem, 2.6vw, 2.4rem);
     font-weight: 800;
-    text-overflow: ellipsis;
     white-space: nowrap;
     text-shadow: 0 2px 14px rgb(0 0 0 / 50%);
 }
@@ -251,10 +251,10 @@
     font-size: clamp(1.1rem, 1.8vw, 1.7rem);
     font-weight: 700;
     color: rgb(255 255 255 / 45%);
+    transform-origin: left center;
     transition:
         color 0.3s,
         transform 0.3s;
-    transform-origin: left center;
 }
 
 .centered .line {

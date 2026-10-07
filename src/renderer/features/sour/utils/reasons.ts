@@ -11,4 +11,5 @@ export const setReason = (songIds: string[], reason: string) => {
     }
 };
 
-export const getReason = (songId?: null | string) => (songId ? (reasons.get(songId) ?? null) : null);
+export const getReason = (songId?: null | string) =>
+    songId ? (reasons.get(songId) ?? null) : null;

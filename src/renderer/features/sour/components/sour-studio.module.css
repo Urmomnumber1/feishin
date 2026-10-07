@@ -109,7 +109,7 @@
 
 .font-sample {
     overflow: hidden;
-    font-size: 1.3rem;
     text-overflow: ellipsis;
+    font-size: 1.3rem;
     white-space: nowrap;
 }

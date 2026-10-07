@@ -18,6 +18,7 @@ import {
     tasteMatch,
     timeAgo,
 } from '/@/renderer/features/sour/api/sour-api';
+import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import {
     activity,
     hue,
@@ -35,7 +36,6 @@ import { Button } from '/@/shared/components/button/button';
 import { Group } from '/@/shared/components/group/group';
 import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
-import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import { Text } from '/@/shared/components/text/text';
 import { toast } from '/@/shared/components/toast/toast';
 

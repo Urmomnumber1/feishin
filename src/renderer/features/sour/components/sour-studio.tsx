@@ -12,16 +12,19 @@ import {
     useMyProfile,
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
-import { SourVisualizer, VISUALIZER_STYLES } from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import {
+    SourVisualizer,
+    VISUALIZER_STYLES,
+} from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import { useSettingsStore } from '/@/renderer/store/settings.store';
 import { THEME_DATA } from '/@/renderer/themes/use-app-theme';
 import { FONT_OPTIONS } from '/@/renderer/types/fonts';
-import { useSettingsStore } from '/@/renderer/store/settings.store';
+import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { SegmentedControl } from '/@/shared/components/segmented-control/segmented-control';
 import { Select } from '/@/shared/components/select/select';
 import { Slider } from '/@/shared/components/slider/slider';
 import { Stack } from '/@/shared/components/stack/stack';
 import { Switch } from '/@/shared/components/switch/switch';
-import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Tabs } from '/@/shared/components/tabs/tabs';
 import { Text } from '/@/shared/components/text/text';
 import { getAppTheme } from '/@/shared/themes/app-theme';
@@ -55,20 +58,25 @@ const Skins = () => {
     return (
         <Stack gap="sm">
             <Text isMuted size="sm">
-                Click one to wear it. Holiday skins also switch on by themselves (Holidays tab). Every
-                other theme is in Settings &gt; Theme.
+                Click one to wear it. Holiday skins also switch on by themselves (Holidays tab).
+                Every other theme is in Settings &gt; Theme.
             </Text>
             <div className={styles.grid}>
                 {skins.map((t) => {
-                    const c = getAppTheme(t.value).colors;
+                    const c = getAppTheme(t.value).colors ?? {};
                     return (
                         <button
                             className={clsx(styles.skin, { [styles.active]: theme === t.value })}
                             key={t.value}
                             onClick={() =>
-                                setSettings({ general: { followSystemTheme: false, theme: t.value } })
+                                setSettings({
+                                    general: { followSystemTheme: false, theme: t.value },
+                                })
                             }
-                            style={{ background: String(c.background), color: String(c.foreground) }}
+                            style={{
+                                background: String(c.background),
+                                color: String(c.foreground),
+                            }}
                             type="button"
                         >
                             <span className={styles.swatches}>
@@ -76,9 +84,7 @@ const Skins = () => {
                                 <i style={{ background: String(c.surface) }} />
                                 <i style={{ background: String(c['background-alternate']) }} />
                             </span>
-                            <span className={styles.skinName}>
-                                {t.label.replace(/^Sour /, '')}
-                            </span>
+                            <span className={styles.skinName}>{t.label.replace(/^Sour /, '')}</span>
                         </button>
                     );
                 })}
@@ -98,7 +104,10 @@ const Holidays = () => {
             />
             <div className={styles.list}>
                 {HOLIDAY_LIST.map((h) => (
-                    <div className={clsx(styles.row, { [styles.now]: now?.id === h.id })} key={h.id}>
+                    <div
+                        className={clsx(styles.row, { [styles.now]: now?.id === h.id })}
+                        key={h.id}
+                    >
                         <span className={styles.emoji}>{h.emoji}</span>
                         <span className={styles.grow}>{h.name}</span>
                         <Text isMuted size="xs">
@@ -184,20 +193,44 @@ const Layout = () => {
                     Spacing
                 </Text>
                 <Slider
+                    defaultValue={look.density}
                     label={(v) => (v < 0.95 ? 'Compact' : v > 1.05 ? 'Cozy' : 'Normal')}
                     max={1.25}
                     min={0.8}
                     onChangeEnd={(v) => setLook({ density: v })}
                     step={0.05}
-                    defaultValue={look.density}
                 />
             </Stack>
-            <LookSwitch description="Swap the sidebar to the right side." id="sidebarRight" label="Sidebar on the right" />
-            <LookSwitch description="See-through menus and popups." id="glass" label="Glass menus" />
-            <LookSwitch description="A little lemon instead of the arrow." id="cursor" label="Lemon cursor" />
-            <LookSwitch description="Buttons squish a little when pressed." id="pressFx" label="Press animations" />
-            <LookSwitch description="Album covers fade in instead of popping." id="fadeCovers" label="Fade in covers" />
-            <LookSwitch description="Turns off animations and the holiday bits." id="reducedMotion" label="Reduce motion" />
+            <LookSwitch
+                description="Swap the sidebar to the right side."
+                id="sidebarRight"
+                label="Sidebar on the right"
+            />
+            <LookSwitch
+                description="See-through menus and popups."
+                id="glass"
+                label="Glass menus"
+            />
+            <LookSwitch
+                description="A little lemon instead of the arrow."
+                id="cursor"
+                label="Lemon cursor"
+            />
+            <LookSwitch
+                description="Buttons squish a little when pressed."
+                id="pressFx"
+                label="Press animations"
+            />
+            <LookSwitch
+                description="Album covers fade in instead of popping."
+                id="fadeCovers"
+                label="Fade in covers"
+            />
+            <LookSwitch
+                description="Turns off animations and the holiday bits."
+                id="reducedMotion"
+                label="Reduce motion"
+            />
         </Stack>
     );
 };
@@ -212,16 +245,22 @@ const Fonts = () => {
                 data={FONT_OPTIONS}
                 description="The font for the whole app."
                 label="App font"
-                onChange={(v) => v && setSettings({ font: { builtIn: v, type: FontType.BUILT_IN } })}
+                onChange={(v) =>
+                    v && setSettings({ font: { builtIn: v, type: FontType.BUILT_IN } })
+                }
                 value={font.type === FontType.BUILT_IN ? font.builtIn : null}
             />
             <Text isMuted size="sm">
-                Fonts for your name (profile editor) and your playlist titles (playlist Theme button):
+                Fonts for your name (profile editor) and your playlist titles (playlist Theme
+                button):
             </Text>
             <div className={styles.fonts}>
                 {SOUR_FONTS.filter((f) => !f.perk || perks.includes(f.id)).map((f) => (
                     <div className={styles.fontRow} key={f.id}>
-                        <span className={styles.fontSample} style={{ fontFamily: fontFamily(f.id) }}>
+                        <span
+                            className={styles.fontSample}
+                            style={{ fontFamily: fontFamily(f.id) }}
+                        >
                             Sour Player
                         </span>
                         <Text isMuted size="xs">
@@ -241,10 +280,15 @@ const Icons = () => {
     useEffect(() => {
         let alive = true;
         Promise.all(
-            ICON_PACKS.map(async (p) => [p.id, await drawAppIcon(p.id, null, p.id === 'pixel')] as const),
+            ICON_PACKS.map(
+                async (p) => [p.id, await drawAppIcon(p.id, null, p.id === 'pixel')] as const,
+            ),
         )
             .then((list) => {
-                if (alive) setPreviews(Object.fromEntries(list.filter(([, v]) => v)) as Record<string, string>);
+                if (alive)
+                    setPreviews(
+                        Object.fromEntries(list.filter(([, v]) => v)) as Record<string, string>,
+                    );
             })
             .catch(() => {});
         return () => {
@@ -264,7 +308,11 @@ const Icons = () => {
                         onClick={() => setLook({ iconPack: p.id })}
                         type="button"
                     >
-                        {previews[p.id] ? <img alt="" src={previews[p.id]} /> : <span className={styles.iconBlank} />}
+                        {previews[p.id] ? (
+                            <img alt="" src={previews[p.id]} />
+                        ) : (
+                            <span className={styles.iconBlank} />
+                        )}
                         <span>{p.label}</span>
                     </button>
                 ))}
@@ -275,13 +323,41 @@ const Icons = () => {
 
 const Extras = () => (
     <Stack gap="md">
-        <LookSwitch description="A short lemon splash while Sour Player opens." id="splash" label="Splash screen" />
-        <LookSwitch description="A short jingle when Sour Player opens." id="startupSound" label="Startup sound" />
-        <LookSwitch description="The accent colour changes every day (the same for everyone)." id="dailyTheme" label="Colour of the day" />
-        <LookSwitch description="The accent follows the cover of the song that's playing." id="albumAccent" label="Accent from the album" />
-        <LookSwitch description="A slow gradient in the album colours behind the pages." id="animatedBackground" label="Animated background" />
-        <LookSwitch description="Pop-ups when friends join your group, send you songs and more." id="socialToasts" label="Friend pop-ups" />
-        <LookSwitch description="Hover a cover in Sour Player's own lists for a second to hear a bit of it." id="hoverPreview" label="Hover previews" />
+        <LookSwitch
+            description="A short lemon splash while Sour Player opens."
+            id="splash"
+            label="Splash screen"
+        />
+        <LookSwitch
+            description="A short jingle when Sour Player opens."
+            id="startupSound"
+            label="Startup sound"
+        />
+        <LookSwitch
+            description="The accent colour changes every day (the same for everyone)."
+            id="dailyTheme"
+            label="Colour of the day"
+        />
+        <LookSwitch
+            description="The accent follows the cover of the song that's playing."
+            id="albumAccent"
+            label="Accent from the album"
+        />
+        <LookSwitch
+            description="A slow gradient in the album colours behind the pages."
+            id="animatedBackground"
+            label="Animated background"
+        />
+        <LookSwitch
+            description="Pop-ups when friends join your group, send you songs and more."
+            id="socialToasts"
+            label="Friend pop-ups"
+        />
+        <LookSwitch
+            description="Hover a cover in Sour Player's own lists for a second to hear a bit of it."
+            id="hoverPreview"
+            label="Hover previews"
+        />
     </Stack>
 );
 

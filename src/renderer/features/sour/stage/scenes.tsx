@@ -19,7 +19,13 @@ interface Dot {
 }
 
 // Slow animated backdrops for the Sour Stage
-export const Scene = ({ className, scene }: { className?: string; scene: SourLook['stageScene'] }) => {
+export const Scene = ({
+    className,
+    scene,
+}: {
+    className?: string;
+    scene: SourLook['stageScene'];
+}) => {
     const ref = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
         const canvas = ref.current;
@@ -35,7 +41,8 @@ export const Scene = ({ className, scene }: { className?: string; scene: SourLoo
         fit();
         const observer = new ResizeObserver(fit);
         observer.observe(canvas);
-        const count = scene === 'rain' ? 220 : scene === 'stars' ? 180 : scene === 'snow' ? 140 : 60;
+        const count =
+            scene === 'rain' ? 220 : scene === 'stars' ? 180 : scene === 'snow' ? 140 : 60;
         const dots: Dot[] = Array.from({ length: count }, () => ({
             l: Math.random(),
             s: Math.random(),
@@ -76,11 +83,13 @@ export const Scene = ({ className, scene }: { className?: string; scene: SourLoo
                 }
             } else if (scene === 'stars') {
                 for (const d of dots) {
-                    const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(now / (900 + d.s * 2000) + d.l * 10));
+                    const twinkle =
+                        0.4 + 0.6 * Math.abs(Math.sin(now / (900 + d.s * 2000) + d.l * 10));
                     ctx.fillStyle = `rgb(255 255 255 / ${twinkle * (0.3 + d.z * 0.6)})`;
                     ctx.fillRect(d.x * W, d.y * H * 0.85, 1 + d.z * 1.6, 1 + d.z * 1.6);
                 }
-                if (!shooting && Math.random() < 0.003) shooting = { t: now, x: Math.random() * W * 0.7, y: Math.random() * H * 0.4 };
+                if (!shooting && Math.random() < 0.003)
+                    shooting = { t: now, x: Math.random() * W * 0.7, y: Math.random() * H * 0.4 };
                 if (shooting) {
                     const p = (now - shooting.t) / 900;
                     if (p > 1) shooting = null;

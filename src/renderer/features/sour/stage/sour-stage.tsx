@@ -12,14 +12,37 @@ import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { avatarUrl } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import { hue, ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
-import { clearLoop, setLoopPoint, setSpeedPreset, SPEEDS, useLoop } from '/@/renderer/features/sour/stage/loop';
+import {
+    clearLoop,
+    setLoopPoint,
+    setSpeedPreset,
+    SPEEDS,
+    useLoop,
+} from '/@/renderer/features/sour/stage/loop';
 import { Scene, SCENES } from '/@/renderer/features/sour/stage/scenes';
-import { type SourLook, useMyProfile, useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import {
+    type SourLook,
+    useMyProfile,
+    useSourProfiles,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { getReason } from '/@/renderer/features/sour/utils/reasons';
-import { makeLevels, readLevels, useLevelSource } from '/@/renderer/features/sour/visualizer/levels';
-import { SourVisualizer, VISUALIZER_STYLES } from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import {
+    makeLevels,
+    readLevels,
+    useLevelSource,
+} from '/@/renderer/features/sour/visualizer/levels';
+import {
+    SourVisualizer,
+    VISUALIZER_STYLES,
+} from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useFastAverageColor } from '/@/renderer/hooks';
-import { usePlayerSong, usePlayerSpeed, usePlayerStatus, usePlayerStoreBase } from '/@/renderer/store/player.store';
+import {
+    usePlayerSong,
+    usePlayerSpeed,
+    usePlayerStatus,
+    usePlayerStoreBase,
+} from '/@/renderer/store/player.store';
 import { usePlayerTimestamp } from '/@/renderer/store/timestamp.store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Icon } from '/@/shared/components/icon/icon';
@@ -50,7 +73,11 @@ const toLines = (lyrics: unknown): { lines: Line[]; synced: boolean } => {
             .filter((l) => typeof l?.startMs === 'number')
             .map((l) => ({
                 cues: l.cueLines?.flatMap((c) =>
-                    (c.words ?? []).map((w) => ({ endMs: w.endMs, startMs: w.startMs, text: w.text })),
+                    (c.words ?? []).map((w) => ({
+                        endMs: w.endMs,
+                        startMs: w.startMs,
+                        text: w.text,
+                    })),
                 ),
                 startMs: l.startMs,
                 text: l.text,
@@ -63,7 +90,8 @@ const toLines = (lyrics: unknown): { lines: Line[]; synced: boolean } => {
         const stamps = [...raw.matchAll(LRC)];
         const text = raw.replace(LRC, '').trim();
         for (const m of stamps) {
-            const ms = Number(m[1]) * 60000 + Number(m[2]) * 1000 + Number((m[3] || '0').padEnd(3, '0'));
+            const ms =
+                Number(m[1]) * 60000 + Number(m[2]) * 1000 + Number((m[3] || '0').padEnd(3, '0'));
             timed.push({ startMs: ms, text });
         }
     }
@@ -98,7 +126,10 @@ const KaraokeLine = ({ line, next, nowMs }: { line: Line; next?: Line; nowMs: nu
     }
     const words = line.text.split(/(\s+)/);
     const end = next ? next.startMs : line.startMs + 4000;
-    const progress = Math.min(1, Math.max(0, (nowMs - line.startMs) / Math.max(400, end - line.startMs)));
+    const progress = Math.min(
+        1,
+        Math.max(0, (nowMs - line.startMs) / Math.max(400, end - line.startMs)),
+    );
     const lit = Math.ceil(progress * words.length);
     return (
         <>
@@ -135,7 +166,11 @@ const StageView = () => {
         itemType: LibraryItem.SONG,
         type: 'fullScreenPlayer',
     });
-    const { background } = useFastAverageColor({ algorithm: 'dominant', src: cover || null, srcLoaded: true });
+    const { background } = useFastAverageColor({
+        algorithm: 'dominant',
+        src: cover || null,
+        srcLoaded: true,
+    });
     const color = background || 'rgb(60, 50, 20)';
 
     const { data } = useQuery(
@@ -153,7 +188,8 @@ const StageView = () => {
     const offset = data?.selectedOffsetMs ?? 0;
     const nowMs = timestamp * 1000 + offset;
     let current = -1;
-    if (synced) for (let i = 0; i < lines.length; i++) if (lines[i].startMs <= nowMs + 150) current = i;
+    if (synced)
+        for (let i = 0; i < lines.length; i++) if (lines[i].startMs <= nowMs + 150) current = i;
 
     useEffect(() => {
         setFlipped(false);
@@ -163,7 +199,11 @@ const StageView = () => {
     useEffect(() => {
         const box = lyricsBox.current;
         const el = box?.querySelector<HTMLElement>(`[data-line="${current}"]`);
-        if (box && el) box.scrollTo({ behavior: 'smooth', top: el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2 });
+        if (box && el)
+            box.scrollTo({
+                behavior: 'smooth',
+                top: el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2,
+            });
     }, [current]);
 
     // the cover gives a little bump on every beat
@@ -199,22 +239,33 @@ const StageView = () => {
     const groupSong = group && !group.ended ? group.queue[group.index] : undefined;
     const addedBy = groupSong && groupSong.id === song?.id ? groupSong.by : null;
     const why = getReason(song?.id) ?? (addedBy ? `Added by ${addedBy} in ${group?.name}` : null);
-    const sameSong = profiles.filter((p) => p.id !== me?.id && p.online && p.listening?.id === song?.id);
+    const sameSong = profiles.filter(
+        (p) => p.id !== me?.id && p.online && p.listening?.id === song?.id,
+    );
     const fans = profiles
         .map((p) => ({ p, plays: p.stats?.topSongs.find((t) => t.id === song?.id)?.plays ?? 0 }))
         .filter((x) => x.plays > 0)
         .sort((a, b) => b.plays - a.plays)
         .slice(0, 5);
-    const orbit = (group && !group.ended ? group.members.map((m) => ({ id: m.profile, name: m.name })) : sameSong.map((p) => ({ id: p.id, name: p.name })))
-        .map((m) => {
-            const prof = profiles.find((p) => p.id === m.id);
-            return { color: `hsl(${hue(m.name)} 60% 50%)`, image: prof ? avatarUrl(hermes, prof) : null, name: m.name };
-        });
+    const orbit = (
+        group && !group.ended
+            ? group.members.map((m) => ({ id: m.profile, name: m.name }))
+            : sameSong.map((p) => ({ id: p.id, name: p.name }))
+    ).map((m) => {
+        const prof = profiles.find((p) => p.id === m.id);
+        return {
+            color: `hsl(${hue(m.name)} 60% 50%)`,
+            image: prof ? avatarUrl(hermes, prof) : null,
+            name: m.name,
+        };
+    });
     const speedId = SPEEDS.find((s) => Math.abs(s.speed - speed) < 0.01)?.id ?? 'normal';
 
     return (
         <div className={styles.stage} style={{ '--stage-color': color } as CSSProperties}>
-            {cover && <div className={styles.blur} style={{ backgroundImage: `url("${cover}")` }} />}
+            {cover && (
+                <div className={styles.blur} style={{ backgroundImage: `url("${cover}")` }} />
+            )}
             <Scene className={styles.scene} scene={look.stageScene} />
             <div className={styles.toolbar}>
                 <Select
@@ -227,7 +278,9 @@ const StageView = () => {
                 />
                 <Select
                     aria-label="Visualizer"
-                    data={VISUALIZER_STYLES.filter((v) => !v.perk || perks.includes(v.perk)).map((v) => ({ label: v.label, value: v.id }))}
+                    data={VISUALIZER_STYLES.filter((v) => !v.perk || perks.includes(v.perk)).map(
+                        (v) => ({ label: v.label, value: v.id }),
+                    )}
                     onChange={(v) => v && setLook({ visualizer: v as SourLook['visualizer'] })}
                     size="xs"
                     value={look.visualizer}
@@ -251,7 +304,13 @@ const StageView = () => {
                 >
                     <Icon icon="disc" />
                 </button>
-                <button aria-label="Close the Sour Stage" className={styles.tool} onClick={() => toggleStage(false)} title="Close (Esc)" type="button">
+                <button
+                    aria-label="Close the Sour Stage"
+                    className={styles.tool}
+                    onClick={() => toggleStage(false)}
+                    title="Close (Esc)"
+                    type="button"
+                >
                     <Icon icon="x" />
                 </button>
             </div>
@@ -263,7 +322,10 @@ const StageView = () => {
                         onMouseLeave={() => setTilt({ x: 0, y: 0 })}
                         onMouseMove={(e) => {
                             const r = e.currentTarget.getBoundingClientRect();
-                            setTilt({ x: ((e.clientX - r.left) / r.width - 0.5) * 12, y: ((e.clientY - r.top) / r.height - 0.5) * -12 });
+                            setTilt({
+                                x: ((e.clientX - r.left) / r.width - 0.5) * 12,
+                                y: ((e.clientY - r.top) / r.height - 0.5) * -12,
+                            });
                         }}
                         ref={coverWrap}
                     >
@@ -272,11 +334,24 @@ const StageView = () => {
                             className={clsx(styles.card, { [styles.flipped]: flipped })}
                             key={song?._uniqueId ?? 'none'}
                             onClick={() => setFlipped((f) => !f)}
-                            style={look.stageVinyl || flipped ? undefined : { transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg)` }}
+                            style={
+                                look.stageVinyl || flipped
+                                    ? undefined
+                                    : { transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg)` }
+                            }
                             type="button"
                         >
-                            <div className={clsx(styles.front, { [styles.vinyl]: look.stageVinyl, [styles.spinning]: look.stageVinyl && playing })}>
-                                {cover ? <img alt="" src={cover} /> : <Icon icon="itemSong" size="xl" />}
+                            <div
+                                className={clsx(styles.front, {
+                                    [styles.spinning]: look.stageVinyl && playing,
+                                    [styles.vinyl]: look.stageVinyl,
+                                })}
+                            >
+                                {cover ? (
+                                    <img alt="" src={cover} />
+                                ) : (
+                                    <Icon icon="itemSong" size="xl" />
+                                )}
                                 {look.stageVinyl && <span className={styles.hole} />}
                             </div>
                             <div className={styles.back}>
@@ -295,7 +370,9 @@ const StageView = () => {
                                             <dt>Track</dt>
                                             <dd>
                                                 {song.trackNumber}
-                                                {song.discNumber > 1 ? ` (disc ${song.discNumber})` : ''}
+                                                {song.discNumber > 1
+                                                    ? ` (disc ${song.discNumber})`
+                                                    : ''}
                                             </dd>
                                         </>
                                     )}
@@ -342,14 +419,29 @@ const StageView = () => {
                             size="xs"
                             value={speedId}
                         />
-                        <button className={clsx(styles.tool, { [styles.on]: loop.a !== null })} onClick={() => setLoopPoint('a')} title="Loop from here (A)" type="button">
+                        <button
+                            className={clsx(styles.tool, { [styles.on]: loop.a !== null })}
+                            onClick={() => setLoopPoint('a')}
+                            title="Loop from here (A)"
+                            type="button"
+                        >
                             A
                         </button>
-                        <button className={clsx(styles.tool, { [styles.on]: loop.b !== null })} onClick={() => setLoopPoint('b')} title="Loop until here (B)" type="button">
+                        <button
+                            className={clsx(styles.tool, { [styles.on]: loop.b !== null })}
+                            onClick={() => setLoopPoint('b')}
+                            title="Loop until here (B)"
+                            type="button"
+                        >
                             B
                         </button>
                         {(loop.a !== null || loop.b !== null) && (
-                            <button className={styles.tool} onClick={clearLoop} title="Stop looping" type="button">
+                            <button
+                                className={styles.tool}
+                                onClick={clearLoop}
+                                title="Stop looping"
+                                type="button"
+                            >
                                 <Icon icon="x" />
                             </button>
                         )}
@@ -362,10 +454,16 @@ const StageView = () => {
                 </div>
 
                 <div className={clsx(styles.lyrics, styles[look.lyricStyle])} ref={lyricsBox}>
-                    {lines.length === 0 && <div className={styles.noLyrics}>No lyrics for this song</div>}
+                    {lines.length === 0 && (
+                        <div className={styles.noLyrics}>No lyrics for this song</div>
+                    )}
                     {look.lyricStyle === 'huge' && synced ? (
                         <div className={styles.hugeLine}>
-                            <KaraokeLine line={lines[Math.max(0, current)] ?? { startMs: 0, text: '' }} next={lines[current + 1]} nowMs={nowMs} />
+                            <KaraokeLine
+                                line={lines[Math.max(0, current)] ?? { startMs: 0, text: '' }}
+                                next={lines[current + 1]}
+                                nowMs={nowMs}
+                            />
                         </div>
                     ) : (
                         lines.map((line, i) => (
@@ -390,13 +488,24 @@ const StageView = () => {
 
             <div className={styles.bottom}>
                 <div className={styles.viz}>
-                    <SourVisualizer colors={[color]} coverUrl={cover} people={orbit} style={look.visualizer} />
+                    <SourVisualizer
+                        colors={[color]}
+                        coverUrl={cover}
+                        people={orbit}
+                        style={look.visualizer}
+                    />
                 </div>
                 <div className={styles.info}>
                     {sameSong.length > 0 && (
                         <span className={styles.friends}>
                             {sameSong.slice(0, 5).map((p) => (
-                                <button className={styles.friend} key={p.id} onClick={() => openProfile(p)} title={`${p.name} is playing this too`} type="button">
+                                <button
+                                    className={styles.friend}
+                                    key={p.id}
+                                    onClick={() => openProfile(p)}
+                                    title={`${p.name} is playing this too`}
+                                    type="button"
+                                >
                                     <ProfileAvatar profile={p} size={26} />
                                 </button>
                             ))}

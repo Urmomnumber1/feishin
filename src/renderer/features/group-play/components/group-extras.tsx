@@ -7,13 +7,13 @@ import styles from './group-extras.module.css';
 import { api } from '/@/renderer/api';
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import { REACTIONS } from '/@/renderer/features/group-play/components/group-reactions';
-import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import {
     type GroupSong,
     type GroupState,
     useGroupPlayStore,
 } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
+import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';

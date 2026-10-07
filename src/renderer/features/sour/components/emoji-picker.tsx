@@ -10,58 +10,178 @@ import { TextInput } from '/@/shared/components/text-input/text-input';
 // Windows, Linux and macOS. Each entry: the emoji and a few words to search by.
 const EMOJI: Record<string, Array<[string, string]>> = {
     Faces: [
-        ['😀', 'grin happy smile'], ['😂', 'laugh tears lol'], ['🤣', 'rofl laugh'], ['😊', 'blush smile'],
-        ['😍', 'love heart eyes'], ['🥰', 'love hearts'], ['😘', 'kiss'], ['😎', 'cool sunglasses'],
-        ['🤩', 'star struck wow'], ['🥳', 'party'], ['😏', 'smirk'], ['😌', 'relieved calm'],
-        ['😴', 'sleep tired'], ['🤔', 'thinking hmm'], ['🤨', 'raised eyebrow sus'], ['😐', 'neutral meh'],
-        ['🙄', 'eye roll'], ['😬', 'grimace awkward'], ['😮', 'wow surprised'], ['😱', 'scream shock'],
-        ['😭', 'cry sob'], ['😢', 'sad tear'], ['😤', 'huff angry'], ['😡', 'angry mad'],
-        ['🤯', 'mind blown'], ['🥶', 'cold freezing'], ['🥵', 'hot'], ['🤢', 'sick gross'],
-        ['🤠', 'cowboy'], ['🤡', 'clown'], ['👻', 'ghost boo'], ['💀', 'skull dead lmao'],
-        ['👽', 'alien'], ['🤖', 'robot'], ['😈', 'devil'], ['🙃', 'upside down'],
-        ['🫠', 'melting'], ['🫡', 'salute'], ['🤫', 'shh quiet'], ['🤭', 'oops giggle'],
-    ],
-    Gestures: [
-        ['👍', 'thumbs up yes like'], ['👎', 'thumbs down no'], ['👏', 'clap'], ['🙌', 'hands up yay'],
-        ['🙏', 'please thanks pray'], ['🤝', 'handshake deal'], ['✌️', 'peace'], ['🤘', 'rock on metal'],
-        ['🤙', 'call me shaka'], ['👋', 'wave hi bye'], ['💪', 'strong flex'], ['🫶', 'heart hands'],
-        ['👀', 'eyes look'], ['🫵', 'you point'], ['👑', 'crown king queen'], ['💅', 'nails sassy'],
-        ['🕺', 'dance man'], ['💃', 'dance woman'], ['🎧', 'headphones music'], ['👨‍💻', 'coder laptop'],
-    ],
-    Hearts: [
-        ['❤️', 'red heart love'], ['🧡', 'orange heart'], ['💛', 'yellow heart'], ['💚', 'green heart'],
-        ['💙', 'blue heart'], ['💜', 'purple heart'], ['🖤', 'black heart'], ['🤍', 'white heart'],
-        ['💖', 'sparkling heart'], ['💕', 'two hearts'], ['💔', 'broken heart'], ['❤️‍🔥', 'heart on fire'],
-        ['💯', 'hundred'], ['✨', 'sparkles'], ['💫', 'dizzy star'], ['⭐', 'star'],
-        ['🔥', 'fire lit'], ['💥', 'boom'], ['💤', 'zzz sleep'], ['💬', 'speech chat'],
-    ],
-    Music: [
-        ['🎵', 'note music'], ['🎶', 'notes music'], ['🎤', 'mic sing karaoke'], ['🎸', 'guitar'],
-        ['🎹', 'piano keys'], ['🥁', 'drum'], ['🎷', 'sax'], ['🎺', 'trumpet'],
-        ['🎻', 'violin'], ['📻', 'radio'], ['💿', 'cd disc'], ['📀', 'dvd'],
-        ['🔊', 'loud speaker'], ['🔇', 'mute'], ['🎚️', 'slider mixer'], ['🎛️', 'knobs dj'],
-        ['🪩', 'disco ball'], ['🎉', 'party popper'], ['🎊', 'confetti'], ['🪗', 'accordion'],
+        ['😀', 'grin happy smile'],
+        ['😂', 'laugh tears lol'],
+        ['🤣', 'rofl laugh'],
+        ['😊', 'blush smile'],
+        ['😍', 'love heart eyes'],
+        ['🥰', 'love hearts'],
+        ['😘', 'kiss'],
+        ['😎', 'cool sunglasses'],
+        ['🤩', 'star struck wow'],
+        ['🥳', 'party'],
+        ['😏', 'smirk'],
+        ['😌', 'relieved calm'],
+        ['😴', 'sleep tired'],
+        ['🤔', 'thinking hmm'],
+        ['🤨', 'raised eyebrow sus'],
+        ['😐', 'neutral meh'],
+        ['🙄', 'eye roll'],
+        ['😬', 'grimace awkward'],
+        ['😮', 'wow surprised'],
+        ['😱', 'scream shock'],
+        ['😭', 'cry sob'],
+        ['😢', 'sad tear'],
+        ['😤', 'huff angry'],
+        ['😡', 'angry mad'],
+        ['🤯', 'mind blown'],
+        ['🥶', 'cold freezing'],
+        ['🥵', 'hot'],
+        ['🤢', 'sick gross'],
+        ['🤠', 'cowboy'],
+        ['🤡', 'clown'],
+        ['👻', 'ghost boo'],
+        ['💀', 'skull dead lmao'],
+        ['👽', 'alien'],
+        ['🤖', 'robot'],
+        ['😈', 'devil'],
+        ['🙃', 'upside down'],
+        ['🫠', 'melting'],
+        ['🫡', 'salute'],
+        ['🤫', 'shh quiet'],
+        ['🤭', 'oops giggle'],
     ],
     Food: [
-        ['🍋', 'lemon sour'], ['🍋‍🟩', 'lime'], ['🍊', 'orange'], ['🍓', 'strawberry'],
-        ['🍒', 'cherry'], ['🍑', 'peach'], ['🍍', 'pineapple'], ['🥑', 'avocado'],
-        ['🍕', 'pizza'], ['🍔', 'burger'], ['🍟', 'fries'], ['🌮', 'taco'],
-        ['🍜', 'ramen noodles'], ['🍣', 'sushi'], ['🍩', 'donut'], ['🍪', 'cookie'],
-        ['🎂', 'cake birthday'], ['🍿', 'popcorn'], ['☕', 'coffee'], ['🧋', 'boba tea'],
-    ],
-    Nature: [
-        ['🌸', 'blossom flower'], ['🌹', 'rose'], ['🌻', 'sunflower'], ['🌵', 'cactus'],
-        ['🍀', 'clover luck'], ['🍁', 'maple leaf'], ['🌈', 'rainbow'], ['☀️', 'sun'],
-        ['🌙', 'moon night'], ['⚡', 'lightning'], ['❄️', 'snow cold'], ['🌊', 'wave ocean'],
-        ['🐶', 'dog'], ['🐱', 'cat'], ['🐸', 'frog'], ['🐧', 'penguin'],
-        ['🦋', 'butterfly'], ['🐝', 'bee'], ['🦄', 'unicorn'], ['🐐', 'goat'],
+        ['🍋', 'lemon sour'],
+        ['🍋‍🟩', 'lime'],
+        ['🍊', 'orange'],
+        ['🍓', 'strawberry'],
+        ['🍒', 'cherry'],
+        ['🍑', 'peach'],
+        ['🍍', 'pineapple'],
+        ['🥑', 'avocado'],
+        ['🍕', 'pizza'],
+        ['🍔', 'burger'],
+        ['🍟', 'fries'],
+        ['🌮', 'taco'],
+        ['🍜', 'ramen noodles'],
+        ['🍣', 'sushi'],
+        ['🍩', 'donut'],
+        ['🍪', 'cookie'],
+        ['🎂', 'cake birthday'],
+        ['🍿', 'popcorn'],
+        ['☕', 'coffee'],
+        ['🧋', 'boba tea'],
     ],
     Fun: [
-        ['🎮', 'game controller'], ['🕹️', 'joystick'], ['🎲', 'dice'], ['🏆', 'trophy win'],
-        ['⚽', 'soccer football'], ['🏀', 'basketball'], ['🚗', 'car drive'], ['✈️', 'plane travel'],
-        ['🚀', 'rocket'], ['🏝️', 'island beach'], ['🎃', 'pumpkin halloween'], ['🎄', 'tree christmas'],
-        ['🎁', 'gift present'], ['🎈', 'balloon'], ['🧃', 'juice box'], ['🛹', 'skateboard'],
-        ['📸', 'camera photo'], ['💡', 'idea'], ['📚', 'books study'], ['💻', 'laptop'],
+        ['🎮', 'game controller'],
+        ['🕹️', 'joystick'],
+        ['🎲', 'dice'],
+        ['🏆', 'trophy win'],
+        ['⚽', 'soccer football'],
+        ['🏀', 'basketball'],
+        ['🚗', 'car drive'],
+        ['✈️', 'plane travel'],
+        ['🚀', 'rocket'],
+        ['🏝️', 'island beach'],
+        ['🎃', 'pumpkin halloween'],
+        ['🎄', 'tree christmas'],
+        ['🎁', 'gift present'],
+        ['🎈', 'balloon'],
+        ['🧃', 'juice box'],
+        ['🛹', 'skateboard'],
+        ['📸', 'camera photo'],
+        ['💡', 'idea'],
+        ['📚', 'books study'],
+        ['💻', 'laptop'],
+    ],
+    Gestures: [
+        ['👍', 'thumbs up yes like'],
+        ['👎', 'thumbs down no'],
+        ['👏', 'clap'],
+        ['🙌', 'hands up yay'],
+        ['🙏', 'please thanks pray'],
+        ['🤝', 'handshake deal'],
+        ['✌️', 'peace'],
+        ['🤘', 'rock on metal'],
+        ['🤙', 'call me shaka'],
+        ['👋', 'wave hi bye'],
+        ['💪', 'strong flex'],
+        ['🫶', 'heart hands'],
+        ['👀', 'eyes look'],
+        ['🫵', 'you point'],
+        ['👑', 'crown king queen'],
+        ['💅', 'nails sassy'],
+        ['🕺', 'dance man'],
+        ['💃', 'dance woman'],
+        ['🎧', 'headphones music'],
+        ['👨‍💻', 'coder laptop'],
+    ],
+    Hearts: [
+        ['❤️', 'red heart love'],
+        ['🧡', 'orange heart'],
+        ['💛', 'yellow heart'],
+        ['💚', 'green heart'],
+        ['💙', 'blue heart'],
+        ['💜', 'purple heart'],
+        ['🖤', 'black heart'],
+        ['🤍', 'white heart'],
+        ['💖', 'sparkling heart'],
+        ['💕', 'two hearts'],
+        ['💔', 'broken heart'],
+        ['❤️‍🔥', 'heart on fire'],
+        ['💯', 'hundred'],
+        ['✨', 'sparkles'],
+        ['💫', 'dizzy star'],
+        ['⭐', 'star'],
+        ['🔥', 'fire lit'],
+        ['💥', 'boom'],
+        ['💤', 'zzz sleep'],
+        ['💬', 'speech chat'],
+    ],
+    Music: [
+        ['🎵', 'note music'],
+        ['🎶', 'notes music'],
+        ['🎤', 'mic sing karaoke'],
+        ['🎸', 'guitar'],
+        ['🎹', 'piano keys'],
+        ['🥁', 'drum'],
+        ['🎷', 'sax'],
+        ['🎺', 'trumpet'],
+        ['🎻', 'violin'],
+        ['📻', 'radio'],
+        ['💿', 'cd disc'],
+        ['📀', 'dvd'],
+        ['🔊', 'loud speaker'],
+        ['🔇', 'mute'],
+        ['🎚️', 'slider mixer'],
+        ['🎛️', 'knobs dj'],
+        ['🪩', 'disco ball'],
+        ['🎉', 'party popper'],
+        ['🎊', 'confetti'],
+        ['🪗', 'accordion'],
+    ],
+    Nature: [
+        ['🌸', 'blossom flower'],
+        ['🌹', 'rose'],
+        ['🌻', 'sunflower'],
+        ['🌵', 'cactus'],
+        ['🍀', 'clover luck'],
+        ['🍁', 'maple leaf'],
+        ['🌈', 'rainbow'],
+        ['☀️', 'sun'],
+        ['🌙', 'moon night'],
+        ['⚡', 'lightning'],
+        ['❄️', 'snow cold'],
+        ['🌊', 'wave ocean'],
+        ['🐶', 'dog'],
+        ['🐱', 'cat'],
+        ['🐸', 'frog'],
+        ['🐧', 'penguin'],
+        ['🦋', 'butterfly'],
+        ['🐝', 'bee'],
+        ['🦄', 'unicorn'],
+        ['🐐', 'goat'],
     ],
 };
 
@@ -75,7 +195,13 @@ export const firstGrapheme = (text: string) => {
     return '';
 };
 
-export const EmojiPicker = ({ label = 'Add an emoji', onPick }: { label?: string; onPick: (emoji: string) => void }) => {
+export const EmojiPicker = ({
+    label = 'Add an emoji',
+    onPick,
+}: {
+    label?: string;
+    onPick: (emoji: string) => void;
+}) => {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
     const found = useMemo(() => {
@@ -88,7 +214,14 @@ export const EmojiPicker = ({ label = 'Add an emoji', onPick }: { label?: string
         setSearch('');
     };
     return (
-        <Popover onChange={setOpen} opened={open} position="top" shadow="md" width={320} withinPortal>
+        <Popover
+            onChange={setOpen}
+            opened={open}
+            position="top"
+            shadow="md"
+            width={320}
+            withinPortal
+        >
             <Popover.Target>
                 <ActionIcon
                     aria-label={label}
@@ -112,7 +245,13 @@ export const EmojiPicker = ({ label = 'Add an emoji', onPick }: { label?: string
                     {found ? (
                         <div className={styles.grid}>
                             {found.map(([e, words]) => (
-                                <button className={styles.emoji} key={e} onClick={() => pick(e)} title={words} type="button">
+                                <button
+                                    className={styles.emoji}
+                                    key={e}
+                                    onClick={() => pick(e)}
+                                    title={words}
+                                    type="button"
+                                >
                                     {e}
                                 </button>
                             ))}
@@ -123,7 +262,13 @@ export const EmojiPicker = ({ label = 'Add an emoji', onPick }: { label?: string
                                 <div className={styles.group}>{group}</div>
                                 <div className={styles.grid}>
                                     {list.map(([e, words]) => (
-                                        <button className={styles.emoji} key={e} onClick={() => pick(e)} title={words} type="button">
+                                        <button
+                                            className={styles.emoji}
+                                            key={e}
+                                            onClick={() => pick(e)}
+                                            title={words}
+                                            type="button"
+                                        >
                                             {e}
                                         </button>
                                     ))}
