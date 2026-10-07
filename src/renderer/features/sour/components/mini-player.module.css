@@ -1,5 +1,6 @@
 .mini {
     position: fixed;
+    line-height: 1.35;
     inset: 0;
     z-index: 10000;
     display: grid;

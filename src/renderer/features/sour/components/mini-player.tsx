@@ -1,11 +1,11 @@
 import isElectron from 'is-electron';
 import { useEffect } from 'react';
-import { create } from 'zustand';
 
 import styles from './mini-player.module.css';
 
 import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
+import { useMiniStore } from '/@/renderer/features/sour/store/mini.store';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { SourVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { usePlayerSong, usePlayerStatus } from '/@/renderer/store/player.store';
@@ -14,7 +14,7 @@ import { Icon } from '/@/shared/components/icon/icon';
 import { LibraryItem } from '/@/shared/types/domain-types';
 import { PlayerStatus } from '/@/shared/types/types';
 
-const useMini = create<{ on: boolean }>(() => ({ on: false }));
+const useMini = useMiniStore;
 
 export const isMiniPlayer = () => useMini.getState().on;
 
