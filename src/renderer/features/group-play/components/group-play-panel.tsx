@@ -180,7 +180,8 @@ export const GroupPlayPanel = () => {
     };
 
     if (!code) {
-        const name = userName.trim() || 'Guest';
+        // signed in: your name is your Sour profile's (the same on every computer with your Navidrome login)
+        const name = myProfile?.name || userName.trim() || 'Guest';
         const start = (savedName?: string) =>
             run(async () => {
                 const res = await groupApi.create(
@@ -224,12 +225,22 @@ export const GroupPlayPanel = () => {
                 <div className={styles.profile}>
                     <Avatar large name={name} src={myPicture} />
                     <Stack flex={1} gap={6}>
-                        <TextInput
-                            label="Your name"
-                            onChange={(e) => actions.setUserName(e.currentTarget.value)}
-                            placeholder="Shown to the others"
-                            value={userName}
-                        />
+                        {myProfile ? (
+                            <Stack gap={0}>
+                                <Text fw={700}>{myProfile.name}</Text>
+                                <Text isMuted size="xs">
+                                    Your Sour profile{sourMe?.account ? ` (Navidrome: ${sourMe.account})` : ''} - change
+                                    your name in People &gt; My profile
+                                </Text>
+                            </Stack>
+                        ) : (
+                            <TextInput
+                                label="Your name"
+                                onChange={(e) => actions.setUserName(e.currentTarget.value)}
+                                placeholder="Shown to the others"
+                                value={userName}
+                            />
+                        )}
                         <Group gap="xs">
                             <FileButton
                                 accept="image/png,image/jpeg,image/webp,image/gif"
@@ -327,7 +338,7 @@ export const GroupPlayPanel = () => {
     const isHost = role === 'host';
     const isRadio = !!state?.radio;
     const hostName = state?.host ?? 'Host';
-    const me = isHost ? hostName : userName.trim() || 'Guest';
+    const me = isHost ? hostName : myProfile?.name || userName.trim() || 'Guest';
     const canControl = !isRadio && (isHost || !!state?.guestControl);
     // blind round: listeners don't see what's playing until it's over
     const hideNow = !!state?.blind && role === 'member';

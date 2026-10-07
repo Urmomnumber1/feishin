@@ -6,7 +6,7 @@ import { usePlayCountStore } from '/@/renderer/features/hermes-plays/store/play-
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { sourApi } from '/@/renderer/features/sour/api/sour-api';
 import { deviceId } from '/@/renderer/features/sour/components/social';
-import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer } from '/@/renderer/store';
 import { useAuthStore } from '/@/renderer/store/auth.store';
 import { usePlayerStoreBase } from '/@/renderer/store/player.store';
@@ -30,6 +30,13 @@ export const SourPresence = () => {
     const credential = useAuthStore((state) => state.currentServer?.credential) || '';
     const canLink = !!credential && server?.type !== ServerType.JELLYFIN;
     const warned = useRef('');
+    // Group Play and requests use your profile's name, so one Navidrome account is one person everywhere
+    const profileName = useMyProfile().data?.name;
+    useEffect(() => {
+        if (profileName && profileName !== useGroupPlayStore.getState().userName) {
+            useGroupPlayStore.getState().actions.setUserName(profileName);
+        }
+    }, [profileName]);
 
     useEffect(() => {
         if (!url || !server) return undefined;

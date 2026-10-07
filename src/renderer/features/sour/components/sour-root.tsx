@@ -1,12 +1,7 @@
 import { useEffect } from 'react';
 
 import { BlindWatcher, CountdownOverlay } from '/@/renderer/features/group-play/components/group-room';
-import {
-    EasterEggs,
-    ExtraShortcuts,
-    MilestoneCelebration,
-    Splash,
-} from '/@/renderer/features/sour/components/app-extras';
+import { ExtraShortcuts, Splash } from '/@/renderer/features/sour/components/app-extras';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
 import { SocialWatchers, useDailyColorStore } from '/@/renderer/features/sour/components/social-watchers';
@@ -164,12 +159,6 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="splash">
             <Splash />
-        </SourSafe>
-        <SourSafe name="easter eggs">
-            <EasterEggs />
-        </SourSafe>
-        <SourSafe name="milestones">
-            <MilestoneCelebration />
         </SourSafe>
         <SourSafe name="shortcuts">
             <ExtraShortcuts />

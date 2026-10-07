@@ -70,70 +70,6 @@
     letter-spacing: 0.04em;
 }
 
-.rain {
-    position: fixed;
-    inset: 0;
-    z-index: 6000;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.rain span {
-    position: absolute;
-    top: -60px;
-    font-family: 'Sour Emoji', sans-serif;
-    font-size: 2.2rem;
-    animation-name: fall;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-}
-
-.celebrate {
-    position: fixed;
-    inset: 0;
-    z-index: 7000;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    font: inherit;
-    color: #fff;
-    cursor: pointer;
-    background: rgb(0 0 0 / 60%);
-    border: 0;
-    animation: pop-in 0.4s ease-out;
-}
-
-.celebrate-number {
-    font-size: 8rem;
-    font-weight: 900;
-    line-height: 1;
-    color: var(--theme-colors-primary);
-    text-shadow: 0 10px 40px rgb(0 0 0 / 60%);
-}
-
-.celebrate-text {
-    font-size: 1.6rem;
-    font-weight: 800;
-}
-
-.confetti {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-.confetti i {
-    position: absolute;
-    top: -20px;
-    width: 10px;
-    height: 16px;
-    border-radius: 2px;
-    animation: fall 3s linear infinite;
-}
-
 @keyframes splash-out {
     0%,
     70% {
@@ -161,20 +97,3 @@
     }
 }
 
-@keyframes fall {
-    to {
-        transform: translateY(110vh) rotate(360deg);
-    }
-}
-
-@keyframes pop-in {
-    from {
-        opacity: 0;
-        transform: scale(1.1);
-    }
-
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
