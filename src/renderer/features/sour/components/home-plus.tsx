@@ -339,11 +339,12 @@ const ShelfItem = ({
 export const UnheardByYou = () => {
     const me = useSourStore((s) => s.me);
     const history = useSourStore((s) => s.history);
-    const profiles = useSourProfiles().data ?? [];
+    const profileData = useSourProfiles().data;
     const qc = useQueryClient();
     const serverId = useCurrentServer()?.id;
     const play = usePlaySong();
     const songs = useMemo(() => {
+        const profiles = profileData ?? [];
         const heard = new Set(history.map((h) => h.song.id));
         const mine = profiles.find((p) => p.id === me?.id);
         for (const s of mine?.stats?.topSongs ?? []) heard.add(s.id);
@@ -358,7 +359,7 @@ export const UnheardByYou = () => {
             }
         }
         return [...pool.values()].slice(0, 12);
-    }, [history, me?.id, profiles]);
+    }, [history, me?.id, profileData]);
     if (!songs.length) return null;
     return (
         <section className={styles.section}>
