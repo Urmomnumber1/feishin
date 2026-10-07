@@ -7,6 +7,7 @@ import styles from './group-extras.module.css';
 import { api } from '/@/renderer/api';
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import { REACTIONS } from '/@/renderer/features/group-play/components/group-reactions';
+import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import {
     type GroupSong,
     type GroupState,
@@ -86,6 +87,7 @@ export const GroupChat = ({ state }: { state: GroupState }) => {
                     if (e.key === 'Enter') send();
                 }}
                 placeholder="Say something"
+                rightSection={<EmojiPicker onPick={(e) => setText((t) => t + e)} />}
                 size="xs"
                 value={text}
             />
@@ -109,6 +111,10 @@ export const ReactionBar = () => {
                     {emoji}
                 </button>
             ))}
+            <EmojiPicker
+                label="Another reaction"
+                onPick={(emoji) => code && groupApi.react(url, code, who(), emoji).catch(() => {})}
+            />
         </Group>
     );
 };

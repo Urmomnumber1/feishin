@@ -28,6 +28,7 @@ import { Slider } from '/@/shared/components/slider/slider';
 import { Stack } from '/@/shared/components/stack/stack';
 import { Switch } from '/@/shared/components/switch/switch';
 import { TextInput } from '/@/shared/components/text-input/text-input';
+import { EmojiPicker, firstGrapheme } from '/@/renderer/features/sour/components/emoji-picker';
 import { Text } from '/@/shared/components/text/text';
 import { Textarea } from '/@/shared/components/textarea/textarea';
 import { toast } from '/@/shared/components/toast/toast';
@@ -303,9 +304,9 @@ export const ProfileEditor = ({
             <Group gap="xs" grow>
                 <TextInput
                     label="Mood emoji"
-                    maxLength={4}
-                    onChange={(e) => setC({ emoji: e.currentTarget.value })}
+                    onChange={(e) => setC({ emoji: firstGrapheme(e.currentTarget.value.trim()) })}
                     placeholder="🎧"
+                    rightSection={<EmojiPicker onPick={(e) => setC({ emoji: e })} />}
                     value={c.emoji || ''}
                 />
                 <TextInput

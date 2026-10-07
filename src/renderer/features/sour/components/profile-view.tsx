@@ -35,6 +35,7 @@ import { Button } from '/@/shared/components/button/button';
 import { Group } from '/@/shared/components/group/group';
 import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
+import { EmojiPicker } from '/@/renderer/features/sour/components/emoji-picker';
 import { Text } from '/@/shared/components/text/text';
 import { toast } from '/@/shared/components/toast/toast';
 
@@ -343,6 +344,7 @@ export const ProfileView = ({
                             placeholder={
                                 isMe ? 'Write on your wall' : `Write on ${profile.name}'s wall`
                             }
+                            rightSection={<EmojiPicker onPick={(e) => setNote((n) => n + e)} />}
                             value={note}
                         />
                         <Button
