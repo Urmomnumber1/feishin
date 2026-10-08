@@ -152,6 +152,15 @@ jobs:
                   body: |
                       Sour Player: the music player for Hermes Music (built on Feishin).
 
+                      **New in 0.4.1 (quality of life):** music videos stay in step without stuttering (also
+                      when a song is slowed or sped up); the Sour Stage cover really peels off like a sticker
+                      when the album changes (and no longer blinks between songs of the same album); a new Soul
+                      visualizer; profiles show when someone joined and what they added to the library; the
+                      profile editor's tabs work again; the player bar no longer covers the seek bar in smaller
+                      windows; closing the app from the mini player no longer leaves it tiny next time; holiday
+                      decorations and visualizers use much less CPU; fewer background requests. With Hermes
+                      Music 3.2, the Hermes config page can remove someone from Sour Player.
+
                       **New in 0.4:** your Sour profile is your Navidrome account (same profile on every
                       computer, duplicates merge by themselves); 27 skins and holiday decorations; the Sour Studio
                       (skins, visualizers, layout, fonts, app icon); the Sour Stage (full screen now playing with
