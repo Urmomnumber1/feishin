@@ -152,7 +152,12 @@ const StageView = () => {
     const look = useSourStore((s) => s.look);
     const setLook = useSourStore((s) => s.setLook);
     const me = useSourStore((s) => s.me);
-    const perks = useMyProfile().data?.perks ?? [];
+    const myProfile = useMyProfile().data;
+    const perks = myProfile?.perks ?? [];
+    // a perk look someone doesn't have (once their profile is known) shows as the lemon bars
+    const perkStyle = VISUALIZER_STYLES.find((v) => v.id === look.visualizer)?.perk;
+    const visualizer =
+        perkStyle && myProfile && !perks.includes(perkStyle) ? 'bars' : look.visualizer;
     const profiles = useSourProfiles().data ?? [];
     const hermes = useHermesUrl();
     const group = useGroupPlayStore((s) => s.state);
@@ -310,7 +315,7 @@ const StageView = () => {
                     )}
                     onChange={(v) => v && setLook({ visualizer: v as SourLook['visualizer'] })}
                     size="xs"
-                    value={look.visualizer}
+                    value={visualizer}
                     w={150}
                 />
                 <SegmentedControl
@@ -544,14 +549,14 @@ const StageView = () => {
             <div className={styles.bottom}>
                 <div
                     className={clsx(styles.viz, {
-                        [styles.vizTall]: look.visualizer === 'soul',
+                        [styles.vizTall]: visualizer === 'soul',
                     })}
                 >
                     <SourVisualizer
                         colors={[color]}
                         coverUrl={cover}
                         people={orbit}
-                        style={look.visualizer}
+                        style={visualizer}
                     />
                 </div>
                 <div className={styles.info}>
