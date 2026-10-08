@@ -23,8 +23,17 @@ export interface LeaderboardRow {
 export interface Me {
     // the Navidrome account this profile belongs to (older Hermes Music versions don't have accounts)
     account?: null | string;
+    // set when an admin edits a friend's profile: the admin's own profile id (the key is the admin's too)
+    as?: string;
     id: string;
     key: string;
+}
+
+export interface AddedItem {
+    artist: string;
+    created: string;
+    title: string;
+    type: string;
 }
 
 export interface Milestone {
@@ -205,7 +214,7 @@ export const sourApi = {
         call<{ code: string }>(`${base}/api/profiles/${me.id}/link`, { key: me.key }),
     list: (base: string) => callList<SourProfile>(`${base}/api/profiles`),
     me: (base: string, me: Me) =>
-        call<SourProfile>(`${base}/api/profiles/${me.id}/me`, { key: me.key }),
+        call<SourProfile>(`${base}/api/profiles/${me.id}/me`, { as: me.as, key: me.key }),
     milestones: (base: string) => callList<Milestone>(`${base}/api/milestones`),
     // sign in with the Navidrome account Sour Player is logged into: Hermes Music checks the login with
     // Navidrome and answers with that account's profile (an older profile from this computer joins it)
@@ -240,10 +249,16 @@ export const sourApi = {
     presence: (base: string, me: Me, body: Record<string, unknown>) =>
         call<{ ok: boolean }>(`${base}/api/presence`, { ...me, ...body }),
     profile: (base: string, id: string) => call<SourProfile>(`${base}/api/profiles/${id}`),
+    // what they asked Hermes Music to add to the library lately
+    added: (base: string, id: string) =>
+        call<{ items: AddedItem[]; month: number; total: number }>(
+            `${base}/api/profiles/${id}/added`,
+        ),
     register: (base: string, name: string) =>
         call<{ id: string; key: string; profile: SourProfile }>(`${base}/api/profiles`, { name }),
     restoreAvatar: (base: string, me: Me, version: number) =>
         call<SourProfile>(`${base}/api/profiles/${me.id}/image`, {
+            as: me.as,
             key: me.key,
             kind: 'avatar',
             restore: version,
@@ -259,7 +274,13 @@ export const sourApi = {
         me: Me,
         kind: 'avatar' | 'background' | 'banner',
         data: null | string,
-    ) => call<SourProfile>(`${base}/api/profiles/${me.id}/image`, { data, key: me.key, kind }),
+    ) =>
+        call<SourProfile>(`${base}/api/profiles/${me.id}/image`, {
+            as: me.as,
+            data,
+            key: me.key,
+            kind,
+        }),
     setPlaylistTheme: (
         base: string,
         me: Me,
@@ -288,7 +309,7 @@ export const sourApi = {
         changes: Partial<
             Pick<SourProfile, 'away' | 'bio' | 'color' | 'custom' | 'favorites' | 'name' | 'status'>
         >,
-    ) => call<SourProfile>(`${base}/api/profiles/${me.id}`, { key: me.key, ...changes }),
+    ) => call<SourProfile>(`${base}/api/profiles/${me.id}`, { as: me.as, key: me.key, ...changes }),
     wall: (
         base: string,
         me: Me,

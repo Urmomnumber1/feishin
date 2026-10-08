@@ -4,9 +4,13 @@ import {
     SettingOption,
     SettingsSection,
 } from '/@/renderer/features/settings/components/settings-section';
-import { openPeople } from '/@/renderer/features/sour/components/people';
+import { openPeople, openProfileHelper } from '/@/renderer/features/sour/components/people';
 import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
-import { type SourLook, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import {
+    type SourLook,
+    useMyProfile,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { Button } from '/@/shared/components/button/button';
 import { Switch } from '/@/shared/components/switch/switch';
 
@@ -24,6 +28,7 @@ const BUTTONS: Array<[string, string]> = [
 export const SourSettings = memo(() => {
     const look = useSourStore((state) => state.look);
     const setLook = useSourStore((state) => state.setLook);
+    const admin = !!useMyProfile().data?.perks?.includes('admin');
 
     const toggle = (key: keyof SourLook, title: string, description: string): SettingOption => ({
         control: (
@@ -47,6 +52,17 @@ export const SourSettings = memo(() => {
             description:
                 'Your profile, who is online, the group page, the leaderboard and your recaps.',
             title: 'Profile and friends',
+        },
+        {
+            control: (
+                <Button onClick={openProfileHelper} size="compact-sm" variant="default">
+                    Edit a profile
+                </Button>
+            ),
+            description:
+                "Fix a friend's name, bio, pictures or colours for them. Only you have this.",
+            isHidden: !admin,
+            title: "Edit someone's profile",
         },
         {
             control: (

@@ -1,10 +1,11 @@
 import { openModal } from '@mantine/modals';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import styles from './people.module.css';
 
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
-import { type SourProfile } from '/@/renderer/features/sour/api/sour-api';
+import { type Me, sourApi, type SourProfile } from '/@/renderer/features/sour/api/sour-api';
 import {
     activity,
     ProfileAvatar,
@@ -20,7 +21,11 @@ import {
     openRecap,
     openYearInReview,
 } from '/@/renderer/features/sour/components/social';
-import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import {
+    useMyProfile,
+    useSourProfiles,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Button } from '/@/shared/components/button/button';
 import { Group } from '/@/shared/components/group/group';
@@ -32,8 +37,12 @@ export { ProfileAvatar, SongCover };
 // a profile that switches between viewing and editing (editing only for your own)
 const ProfileScreen = ({ id, onBack }: { id: string; onBack?: () => void }) => {
     const profiles = useSourProfiles().data ?? [];
+    const own = useMyProfile().data;
     const [editing, setEditing] = useState(false);
-    const profile = profiles.find((p) => p.id === id);
+    const listed = profiles.find((p) => p.id === id);
+    // your own profile comes with everything, even when it is private to others (so editing it
+    // never starts from the hidden version)
+    const profile = listed && own?.id === id ? { ...listed, ...own } : listed;
     if (!profile) return <Text isMuted>Loading...</Text>;
     if (editing) return <ProfileEditor onDone={() => setEditing(false)} profile={profile} />;
     return <ProfileView onBack={onBack} onEdit={() => setEditing(true)} profile={profile} />;
@@ -138,6 +147,65 @@ export const PeopleButton = () => {
         />
     );
 };
+
+// Admins (a Hermes Music perk, Settings > Sour Player) can fix a friend's profile for them: name,
+// bio, pictures, colours... Hermes Music checks the perk; everyone else never sees this.
+const ProfileHelper = () => {
+    const url = useHermesUrl();
+    const me = useSourStore((state) => state.me);
+    const profiles = useSourProfiles().data ?? [];
+    const [id, setId] = useState<null | string>(null);
+    const helper: Me | null = me && id ? { as: me.id, id, key: me.key } : null;
+    const target = useQuery({
+        enabled: !!url && !!helper,
+        queryFn: () => sourApi.me(url, helper as Me),
+        queryKey: ['sour-help', url, id],
+        staleTime: 0,
+    });
+
+    if (id && target.data) {
+        return <ProfileEditor helping onDone={() => setId(null)} profile={target.data} />;
+    }
+    if (id) {
+        return (
+            <Stack gap="sm">
+                <Text isMuted>{target.error ? target.error.message : 'Loading...'}</Text>
+                <Button onClick={() => setId(null)} size="xs" variant="default" w="fit-content">
+                    Back
+                </Button>
+            </Stack>
+        );
+    }
+    const others = profiles.filter((p) => p.id !== me?.id);
+    return (
+        <Stack gap={4}>
+            <Text isMuted size="sm">
+                Pick whose profile to fix. They see the changes right away; nothing else of theirs
+                is touched.
+            </Text>
+            {others.map((p) => (
+                <button
+                    className={styles.person}
+                    key={p.id}
+                    onClick={() => setId(p.id)}
+                    type="button"
+                >
+                    <ProfileAvatar profile={p} size={36} />
+                    <Stack flex={1} gap={0} miw={0}>
+                        <ProfileName profile={p} size={14} />
+                        <Text isMuted size="xs" truncate>
+                            {activity(p)}
+                        </Text>
+                    </Stack>
+                </button>
+            ))}
+            {!others.length && <Text isMuted>Nobody else has a profile yet.</Text>}
+        </Stack>
+    );
+};
+
+export const openProfileHelper = () =>
+    openModal({ children: <ProfileHelper />, size: 'xl', title: "Edit someone's profile" });
 
 export const openPeople = () =>
     openModal({ children: <PeoplePanel />, size: 'xl', title: 'People' });

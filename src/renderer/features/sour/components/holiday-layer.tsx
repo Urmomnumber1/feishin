@@ -72,6 +72,28 @@ const spawn = (kind: Particles, w: number, h: number, anywhere: boolean): Bit =>
     };
 };
 
+// Emoji are slow to draw, so each one is drawn once per size into a little canvas and reused.
+const sprites = new Map<string, HTMLCanvasElement>();
+const sprite = (glyph: string, size: number) => {
+    const key = `${glyph}:${size}`;
+    let img = sprites.get(key);
+    if (!img) {
+        img = document.createElement('canvas');
+        img.width = img.height = Math.ceil(size * 1.5);
+        const g = img.getContext('2d');
+        if (g) {
+            g.font = `${size}px "Sour Emoji", sans-serif`;
+            g.textAlign = 'center';
+            g.textBaseline = 'middle';
+            g.fillText(glyph, img.width / 2, img.height / 2);
+        }
+        sprites.set(key, img);
+    }
+    return img;
+};
+// the emoji font may arrive after the first sprites were drawn
+document.fonts.addEventListener('loadingdone', () => sprites.clear());
+
 // Falling (or floating) holiday bits over the app: snow in December, bats in October, hearts around
 // Valentine's... and confetti on your birthday. Behind the player bar, never in the way of clicks.
 const ParticleCanvas = ({ kind }: { kind: Particles }) => {
@@ -96,7 +118,8 @@ const ParticleCanvas = ({ kind }: { kind: Particles }) => {
         let last = performance.now();
         const draw = (now: number) => {
             frame = requestAnimationFrame(draw);
-            if (document.hidden) return;
+            // about 30 frames a second is plenty for drifting decorations
+            if (document.hidden || now - last < 31) return;
             const dt = Math.min(3, (now - last) / 16.7);
             last = now;
             ctx.clearRect(0, 0, w, h);
@@ -132,9 +155,6 @@ const ParticleCanvas = ({ kind }: { kind: Particles }) => {
                 }
                 return;
             }
-            ctx.font = '22px "Sour Emoji", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
             bits = bits.map((b) => {
                 b.a += b.spin * dt;
                 b.x += (b.vx + Math.sin(now / 1400 + b.hue) * 0.25) * dt;
@@ -156,12 +176,12 @@ const ParticleCanvas = ({ kind }: { kind: Particles }) => {
                     ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2);
                     ctx.restore();
                 } else {
+                    const img = sprite(b.glyph, Math.round(b.size / 2) * 2);
                     ctx.save();
                     ctx.globalAlpha = 0.8;
                     ctx.translate(b.x, b.y);
                     ctx.rotate(kind === 'bats' ? Math.sin(now / 200 + b.hue) * 0.2 : b.a);
-                    ctx.font = `${Math.round(b.size)}px "Sour Emoji", sans-serif`;
-                    ctx.fillText(b.glyph, 0, 0);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
                     ctx.restore();
                 }
             }

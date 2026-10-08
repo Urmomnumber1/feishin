@@ -26,7 +26,8 @@ import {
     useGeneralSettings,
     useSettingsStoreActions,
 } from '/@/renderer/store/settings.store';
-import { type Font, FONT_OPTIONS } from '/@/renderer/types/fonts';
+import { useMyProfile } from '/@/renderer/features/sour/store/sour.store';
+import { type Font, fontOptions } from '/@/renderer/types/fonts';
 import { FileInput } from '/@/shared/components/file-input/file-input';
 import { NumberInput } from '/@/shared/components/number-input/number-input';
 import { SegmentedControl } from '/@/shared/components/segmented-control/segmented-control';
@@ -141,6 +142,7 @@ export const ApplicationSettings = memo(() => {
     const { t } = useTranslation();
     const settings = useGeneralSettings();
     const fontSettings = useFontSettings();
+    const perks = useMyProfile().data?.perks;
     const { setSettings } = useSettingsStoreActions();
     const [localFonts, setLocalFonts] = useState<Font[]>([]);
 
@@ -275,7 +277,7 @@ export const ApplicationSettings = memo(() => {
         {
             control: (
                 <Select
-                    data={FONT_OPTIONS}
+                    data={fontOptions(perks, fontSettings.builtIn)}
                     onChange={(e) => {
                         if (!e) return;
                         setSettings({

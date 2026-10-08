@@ -6,11 +6,13 @@ import styles from './sour-visualizer.module.css';
 import { useSourStore, type VisualizerStyle } from '/@/renderer/features/sour/store/sour.store';
 import {
     BINS,
+    isPlaying,
     type Levels,
     makeLevels,
     readLevels,
     useLevelSource,
 } from '/@/renderer/features/sour/visualizer/levels';
+import { drawSoul, makeSoul } from '/@/renderer/features/sour/visualizer/soul';
 
 export interface OrbitPerson {
     color: string;
@@ -47,21 +49,6 @@ interface Spark {
 
 const FALLBACK_COLORS = ['#e86a92', '#f2c14e', '#6ca0dc'];
 
-// the soul heart, 13x11 pixels
-const HEART = [
-    '0011100011100',
-    '0111110111110',
-    '1111111111111',
-    '1111111111111',
-    '1111111111111',
-    '0111111111110',
-    '0011111111100',
-    '0001111111000',
-    '0000111110000',
-    '0000011100000',
-    '0000001000000',
-];
-
 const loadImage = (src: string) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -70,7 +57,8 @@ const loadImage = (src: string) => {
 };
 
 // One canvas, seven looks. Draws every frame from the shared levels (real audio when the player's
-// audio can be read, the song's tempo otherwise) and sleeps while the window is hidden.
+// audio can be read, the song's tempo otherwise). Sleeps while the window is hidden or the canvas is
+// off screen, and only redraws a few times a second once the music has stopped and settled.
 export const SourVisualizer = ({ className, colors, coverUrl, people, style }: Props) => {
     useLevelSource();
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -88,6 +76,11 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
         const faces = new Map<string, HTMLImageElement>();
         let frame = 0;
         let flash = 0;
+        let last = 0;
+        let drawn = 0;
+        let spin = 0;
+        let visible = true;
+        const soul = makeSoul();
 
         const fit = () => {
             const r = canvas.getBoundingClientRect();
@@ -98,18 +91,32 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
         fit();
         const observer = new ResizeObserver(fit);
         observer.observe(canvas);
+        const seen = new IntersectionObserver(([entry]) => {
+            visible = entry.isIntersecting;
+        });
+        seen.observe(canvas);
 
         const draw = (now: number) => {
             frame = requestAnimationFrame(draw);
-            if (document.hidden) return;
+            if (document.hidden || !visible) return;
             const { colors: cols, coverUrl: src, people: who, style: look } = latest.current;
             readLevels(levels, now);
+            const dt = Math.min(3, (now - (last || now)) / 16.7);
+            last = now;
+            const playing = isPlaying();
+            const settled =
+                !playing && levels.energy < 0.004 && !sparks.length && flash < 0.02;
+            const still =
+                look !== 'soul' || (soul.broken > 0.97 && !soul.stars.length && !soul.vy);
+            if (settled && still && now - drawn < 400) return;
+            drawn = now;
+            if (playing) spin += dt / 540;
             const W = canvas.width;
             const H = canvas.height;
             const dpr = window.devicePixelRatio || 1;
             const { bins, kick } = levels;
             if (levels.beat) flash = 1;
-            flash *= 0.9;
+            flash *= Math.pow(0.9, dt);
             if (src && src !== coverSrc) {
                 coverSrc = src;
                 cover = loadImage(src);
@@ -153,7 +160,7 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                 ctx.clip();
                 if (cover && cover.complete && cover.naturalWidth) {
                     ctx.translate(cx, cy);
-                    ctx.rotate(now / 9000);
+                    ctx.rotate(spin);
                     ctx.drawImage(cover, -R, -R, R * 2, R * 2);
                 } else {
                     ctx.fillStyle = '#2b2b2b';
@@ -284,43 +291,14 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     ctx.restore();
                 });
             } else if (look === 'soul') {
-                const scale = Math.max(2, Math.floor((Math.min(W, H) * (0.5 + kick * 0.18)) / 13));
-                const ox = Math.round(W / 2 - (13 * scale) / 2);
-                const oy = Math.round(H / 2 - (11 * scale) / 2);
-                ctx.fillStyle = `rgb(255, ${Math.round(flash * 90)}, ${Math.round(flash * 90)})`;
-                HEART.forEach((row, y) => {
-                    for (let x = 0; x < row.length; x++) {
-                        if (row[x] === '1')
-                            ctx.fillRect(ox + x * scale, oy + y * scale, scale, scale);
-                    }
-                });
-                // little star-like sparks on the beat
-                if (levels.beat) {
-                    for (let i = 0; i < 10; i++) {
-                        const a = Math.random() * Math.PI * 2;
-                        sparks.push({
-                            h: 0,
-                            l: 1,
-                            vx: Math.cos(a) * 3 * dpr,
-                            vy: Math.sin(a) * 3 * dpr,
-                            x: W / 2,
-                            y: H / 2,
-                        });
-                    }
-                }
-                sparks = sparks.filter((p) => (p.l -= 0.025) > 0).slice(-120);
-                for (const p of sparks) {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    ctx.fillStyle = `rgb(255 255 255 / ${p.l})`;
-                    ctx.fillRect(p.x, p.y, scale * 0.6, scale * 0.6);
-                }
+                drawSoul(ctx, W, H, levels, soul, playing, dt, now);
             }
         };
         frame = requestAnimationFrame(draw);
         return () => {
             cancelAnimationFrame(frame);
             observer.disconnect();
+            seen.disconnect();
         };
     }, []);
 

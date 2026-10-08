@@ -18,7 +18,7 @@ import {
 } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useSettingsStore } from '/@/renderer/store/settings.store';
 import { THEME_DATA } from '/@/renderer/themes/use-app-theme';
-import { FONT_OPTIONS } from '/@/renderer/types/fonts';
+import { fontOptions } from '/@/renderer/types/fonts';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { SegmentedControl } from '/@/shared/components/segmented-control/segmented-control';
 import { Select } from '/@/shared/components/select/select';
@@ -242,7 +242,7 @@ const Fonts = () => {
     return (
         <Stack gap="sm">
             <Select
-                data={FONT_OPTIONS}
+                data={fontOptions(perks, font.builtIn)}
                 description="The font for the whole app."
                 label="App font"
                 onChange={(v) =>

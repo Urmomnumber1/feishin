@@ -23,6 +23,10 @@ import { Text } from '/@/shared/components/text/text';
 import { toast } from '/@/shared/components/toast/toast';
 import { PlayerStatus } from '/@/shared/types/types';
 
+// YouTube player states
+const YT_PLAYING = 1;
+const YT_BUFFERING = 3;
+
 interface SyncedVideoProps {
     artist: string;
     compact?: boolean;
@@ -46,12 +50,16 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
     const url = useHermesUrl();
     const queryClient = useQueryClient();
     const frame = useRef<HTMLIFrameElement>(null);
-    const yt = useRef({ at: 0, duration: 0, playing: false, time: 0 });
+    const yt = useRef({ at: 0, duration: 0, heard: -1e9, state: -1, time: 0 });
     const offsetRef = useRef(video.offset ?? 0);
     const [nudge, setNudge] = useState(0);
     const [saving, setSaving] = useState(false);
     const [skipping, setSkipping] = useState(false);
     const offset = (video.offset ?? 0) + nudge;
+    // start the video where the song already is, so it doesn't open with a big jump
+    const [start] = useState(() =>
+        Math.max(0, Math.floor(useTimestampStoreBase.getState().timestamp + (saved.offset ?? 0))),
+    );
 
     useEffect(() => {
         offsetRef.current = offset;
@@ -73,52 +81,82 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
             }
             if (data.event !== 'infoDelivery' || !data.info) return;
             const { currentTime, duration, playerState } = data.info;
+            yt.current.heard = performance.now();
             if (typeof currentTime === 'number') {
                 yt.current.time = currentTime;
                 yt.current.at = performance.now();
             }
             if (typeof duration === 'number') yt.current.duration = duration;
-            if (typeof playerState === 'number') yt.current.playing = playerState === 1;
+            if (typeof playerState === 'number') yt.current.state = playerState;
         };
         window.addEventListener('message', onMessage);
 
-        // ask the player to report its time; repeated because the player may not be ready yet
-        const listen = setInterval(() => {
-            send({ channel: 'widget', event: 'listening', id: 'hermes-video' });
-            command('mute');
-        }, 1000);
-
-        let songTs = -1;
-        let songAt = 0;
-        let lastSeek = 0;
-        const sync = setInterval(() => {
+        // A seek makes YouTube buffer, so the video is only corrected when it is really off,
+        // never while it is still catching up from the last seek, and seeks land a little
+        // ahead of the song to cover the buffering (the lead is learned after each seek).
+        let clock = -1;
+        let clockAt = 0;
+        let lastRaw = -1;
+        let settleUntil = 0;
+        let measure = false;
+        let lead = 0.3;
+        let offBeats = 0;
+        let lastCommand = 0;
+        const tick = () => {
             const now = performance.now();
-            const ts = useTimestampStoreBase.getState().timestamp;
-            const playing = usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
-            // the song position only updates about twice a second; estimate in between
-            if (ts !== songTs) {
-                songTs = ts;
-                songAt = now;
-            }
-            const target = songTs + (playing ? (now - songAt) / 1000 : 0) + offsetRef.current;
             const v = yt.current;
-            const videoTime = v.time + (v.playing ? (now - v.at) / 1000 : 0);
+            // ask the player to report its time until it does (also after it reloads)
+            if (now - v.heard > 2000 && now - lastCommand > 1000) {
+                send({ channel: 'widget', event: 'listening', id: 'hermes-video' });
+                command('mute');
+                lastCommand = now;
+            }
+            const raw = useTimestampStoreBase.getState().timestamp;
+            const playing = usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
+            // the song position arrives about twice a second and a little unevenly, so it is
+            // smoothed into a steady clock; a big jump (seek, new song) is taken as it is
+            if (clock >= 0 && playing) clock += (now - clockAt) / 1000;
+            clockAt = now;
+            if (raw !== lastRaw) {
+                lastRaw = raw;
+                clock = clock < 0 || Math.abs(raw - clock) > 1 ? raw : clock + (raw - clock) * 0.25;
+            }
+            const target = clock + offsetRef.current;
+            const videoPlaying = v.state === YT_PLAYING;
+            const videoTime = v.time + (videoPlaying ? (now - v.at) / 1000 : 0);
+
             if (target < 0 || (v.duration && target > v.duration)) {
-                if (v.playing) command('pauseVideo');
+                if (videoPlaying) command('pauseVideo');
                 return;
             }
-            if (Math.abs(videoTime - target) > 0.4 && now - lastSeek > 1500) {
-                command('seekTo', [target, true]);
-                yt.current = { ...v, at: now, time: target };
-                lastSeek = now;
+            if (playing && !videoPlaying && v.state !== YT_BUFFERING && now - lastCommand > 800) {
+                command('playVideo');
+                lastCommand = now;
             }
-            if (playing && !v.playing) command('playVideo');
-            if (!playing && v.playing) command('pauseVideo');
-        }, 250);
+            if (!playing && videoPlaying) command('pauseVideo');
+            if (v.state === YT_BUFFERING || now < settleUntil) return;
+            if (playing && !videoPlaying) return;
+
+            const drift = videoTime - target;
+            if (measure && videoPlaying) {
+                // how far behind the song the video came out of the last seek
+                lead = Math.min(1.5, Math.max(0, lead - drift));
+                measure = false;
+            }
+            offBeats = Math.abs(drift) > (playing ? 0.35 : 0.2) ? offBeats + 1 : 0;
+            if (offBeats >= 2) {
+                const to = target + (playing ? lead : 0);
+                command('seekTo', [to, true]);
+                yt.current = { ...v, at: now, time: to };
+                settleUntil = now + 1200;
+                measure = playing;
+                offBeats = 0;
+            }
+        };
+        const sync = setInterval(tick, 200);
 
         return () => {
             window.removeEventListener('message', onMessage);
-            clearInterval(listen);
             clearInterval(sync);
         };
     }, []);
@@ -191,7 +229,7 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
         }
     };
 
-    const params = 'enablejsapi=1&mute=1&autoplay=1&controls=0&rel=0&playsinline=1&disablekb=1';
+    const params = `enablejsapi=1&mute=1&autoplay=1&controls=0&rel=0&playsinline=1&disablekb=1&start=${start}`;
 
     return (
         <>

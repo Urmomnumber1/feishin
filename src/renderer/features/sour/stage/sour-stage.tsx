@@ -20,6 +20,7 @@ import {
     SPEEDS,
     useLoop,
 } from '/@/renderer/features/sour/stage/loop';
+import { PeelOff } from '/@/renderer/features/sour/stage/peel-off';
 import { Scene, SCENES } from '/@/renderer/features/sour/stage/scenes';
 import {
     type SourLook,
@@ -208,6 +209,19 @@ const StageView = () => {
         setFlipped(false);
     }, [song?._uniqueId]);
 
+    // a new song: the old cover peels off the new one (not when it's the same cover)
+    const [peel, setPeel] = useState<null | { id: string; src: string }>(null);
+    const shown = useRef<{ id?: string; src?: null | string }>({});
+    useEffect(() => {
+        const before = shown.current;
+        shown.current = { id: song?._uniqueId, src: cover };
+        if (!song || !before.id || before.id === song._uniqueId) return;
+        if (before.src && before.src !== cover && !look.stageVinyl && !look.reducedMotion) {
+            setPeel({ id: song._uniqueId, src: before.src });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [song?._uniqueId, cover]);
+
     // keep the sung line in the middle
     useEffect(() => {
         const box = lyricsBox.current;
@@ -367,6 +381,9 @@ const StageView = () => {
                                 )}
                                 {look.stageVinyl && <span className={styles.hole} />}
                             </div>
+                            {peel && peel.id === song?._uniqueId && !flipped && (
+                                <PeelOff onDone={() => setPeel(null)} src={peel.src} />
+                            )}
                             <div className={styles.back}>
                                 <div className={styles.backTitle}>{song?.name}</div>
                                 <div>{song?.artistName}</div>

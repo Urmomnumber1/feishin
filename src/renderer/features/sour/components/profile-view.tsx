@@ -28,6 +28,7 @@ import {
     usePlaySong,
 } from '/@/renderer/features/sour/components/profile-bits';
 import {
+    AddedSection,
     ArtistCollage,
     DuoSection,
     EraSection,
@@ -64,12 +65,16 @@ export const SECTIONS: Array<[string, string]> = [
     ['pinnedPlaylist', 'Pinned playlist'],
     ['recent', 'Recently played'],
     ['stats', 'Stats'],
+    ['added', 'Added to the library'],
     ['heatmap', 'Listening heatmap'],
     ['era', 'Their eras'],
     ['collage', 'Top artists'],
     ['jokes', 'Inside jokes'],
     ['wall', 'Wall'],
 ];
+
+const memberSince = (created: string) =>
+    new Date(created).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
 const Section = ({ children, title }: { children: ReactNode; title: string }) => (
     <Stack gap={6}>
@@ -185,6 +190,7 @@ export const ProfileView = ({
     const favorites = profile.favorites || [];
     const lastPlayed = !profile.online ? c.recentPlays?.[0] : undefined;
     const sections: Record<string, ReactNode> = {
+        added: !preview && <AddedSection profile={profile} />,
         albumOfWeek: c.albumOfWeek && (
             <Section title="Album of the week">
                 <div className={styles.favorite}>
@@ -521,6 +527,11 @@ export const ProfileView = ({
                             </Text>
                             {!profile.online && profile.away && (
                                 <Text size="sm">Away: {profile.away}</Text>
+                            )}
+                            {profile.created && (
+                                <Text isMuted size="xs">
+                                    On Sour Player since {memberSince(profile.created)}
+                                </Text>
                             )}
                         </Stack>
                         {!preview && isMe && onEdit && (

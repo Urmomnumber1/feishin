@@ -11,13 +11,16 @@ export const BINS = 48;
 // What the visualizers draw from, refreshed every frame: 48 frequency bands (0-1, bass first), the
 // kick (bass punch, 0-1), overall energy and whether a beat just landed. When the player's audio
 // can be read (web player, or the Feishin visualizer capture) the numbers are real; otherwise they
-// follow the song's tempo so the visualizers still move with the music.
+// follow the song's tempo so the visualizers still move with the music. They are worked out once
+// per frame and shared, so every visualizer on screen sees the same beats.
 export interface Levels {
     beat: boolean;
     bins: Float32Array;
     energy: number;
     kick: number;
     real: boolean;
+    // beats this visualizer has already seen
+    seen: number;
 }
 
 export const makeLevels = (): Levels => ({
@@ -26,7 +29,12 @@ export const makeLevels = (): Levels => ({
     energy: 0,
     kick: 0,
     real: false,
+    seen: 0,
 });
+
+const shared = makeLevels();
+let sharedAt = -1;
+let beats = 0;
 
 let analyser: AnalyserNode | null = null;
 let sources: AudioNode[] = [];
@@ -84,12 +92,12 @@ export const useLevelSource = () => {
     }, [playbackType, webAudio]);
 };
 
-const playing = () => usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
+export const isPlaying = () =>
+    usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
 
-// fills `levels` for this moment (`now` in ms)
-export const readLevels = (levels: Levels, now: number) => {
+const measure = (levels: Levels, now: number) => {
     const bins = levels.bins;
-    const isPlaying = playing();
+    const playing = isPlaying();
     levels.beat = false;
     if (analyser && raw) {
         analyser.getByteFrequencyData(raw);
@@ -109,10 +117,10 @@ export const readLevels = (levels: Levels, now: number) => {
         const t = now / 1000;
         const beats = (t * bpm) / 60;
         const phase = beats % 1;
-        const kick = isPlaying ? Math.exp(-phase * 6) : 0;
+        const kick = playing ? Math.exp(-phase * 6) : 0;
         for (let i = 0; i < BINS; i++) {
             const f = i / BINS;
-            const v = isPlaying
+            const v = playing
                 ? (1 - f) * 0.55 * kick +
                   0.25 * Math.abs(Math.sin(t * 3 + i * 0.5)) * (1 - f * 0.5) +
                   0.15 * Math.abs(Math.sin(t * 7.3 + i * 1.7)) +
@@ -121,7 +129,7 @@ export const readLevels = (levels: Levels, now: number) => {
             bins[i] += (v - bins[i]) * 0.3;
         }
         const index = Math.floor(beats);
-        if (isPlaying && index !== lastBeatIndex) {
+        if (playing && index !== lastBeatIndex) {
             lastBeatIndex = index;
             levels.beat = true;
         }
@@ -139,5 +147,20 @@ export const readLevels = (levels: Levels, now: number) => {
             levels.beat = true;
         }
     }
+};
+
+// fills `levels` for this moment (`now` in ms, the frame time)
+export const readLevels = (levels: Levels, now: number) => {
+    if (now !== sharedAt) {
+        sharedAt = now;
+        measure(shared, now);
+        if (shared.beat) beats++;
+    }
+    levels.bins.set(shared.bins);
+    levels.energy = shared.energy;
+    levels.kick = shared.kick;
+    levels.real = shared.real;
+    levels.beat = beats !== levels.seen;
+    levels.seen = beats;
     return levels;
 };

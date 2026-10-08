@@ -166,3 +166,13 @@
     flex-direction: column;
     gap: 6px;
 }
+
+.added {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2px 16px;
+}
+
+.kind {
+    color: var(--theme-colors-foreground-muted);
+}

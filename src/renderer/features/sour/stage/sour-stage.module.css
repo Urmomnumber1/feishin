@@ -108,7 +108,41 @@
     border: 0;
     transform-style: preserve-3d;
     transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
-    animation: peel-in 0.6s ease-out;
+}
+
+/* the cover before, peeling off (peel-off.tsx) */
+.peel {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    transform: translateZ(2px);
+}
+
+.peel-stuck {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+.peel-stuck img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: none !important;
+}
+
+.peel-shadow {
+    position: absolute;
+    inset: -100%;
+    filter: drop-shadow(5px 7px 9px rgb(0 0 0 / 45%));
+}
+
+.peel-flap {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(0 0, 0 0, 0 0);
 }
 
 .flipped {
@@ -366,18 +400,6 @@
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-@keyframes peel-in {
-    from {
-        opacity: 0;
-        transform: rotate(-8deg) scale(0.85) translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: none;
     }
 }
 

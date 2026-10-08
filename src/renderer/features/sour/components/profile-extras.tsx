@@ -7,7 +7,7 @@ import { type GroupSong } from '/@/renderer/features/group-play/store/group-play
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { searchQueries } from '/@/renderer/features/search/api/search-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
-import { type SourProfile, tasteMatch } from '/@/renderer/features/sour/api/sour-api';
+import { sourApi, type SourProfile, tasteMatch } from '/@/renderer/features/sour/api/sour-api';
 import {
     activity,
     hue,
@@ -233,6 +233,37 @@ export const HeatmapSection = ({ profile }: { profile: SourProfile }) => {
             <Text isMuted size="xs">
                 {total} hours in the last six months
             </Text>
+        </Titled>
+    );
+};
+
+// ---------- what they had Hermes Music add to the library ----------
+export const AddedSection = ({ profile }: { profile: SourProfile }) => {
+    const url = useHermesUrl();
+    const added = useQuery({
+        enabled: !!url,
+        queryFn: () => sourApi.added(url, profile.id),
+        queryKey: ['sour-added', url, profile.id],
+        retry: false,
+        staleTime: 5 * 60000,
+    });
+    if (!added.data?.total) return null;
+    const { items, month, total } = added.data;
+    return (
+        <Titled title="Added to the library">
+            <Text isMuted size="xs">
+                {total} {total === 1 ? 'request' : 'requests'} added
+                {month ? `, ${month} this month` : ''}
+            </Text>
+            <div className={styles.added}>
+                {items.map((item, i) => (
+                    <Text key={`${item.title}-${i}`} size="sm" truncate>
+                        <b>{item.title}</b>
+                        {item.artist && item.type === 'song' ? ` - ${item.artist}` : ''}
+                        {item.type !== 'song' && <span className={styles.kind}> ({item.type})</span>}
+                    </Text>
+                ))}
+            </div>
         </Titled>
     );
 };

@@ -7,6 +7,7 @@ import { toGroupSong } from '/@/renderer/features/group-play/api/group-play-api'
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import {
+    type Me,
     type ProfileCustom,
     readPicture,
     sourApi,
@@ -48,20 +49,26 @@ const weekNow = () => {
 type Draft = Pick<SourProfile, 'away' | 'bio' | 'color' | 'custom' | 'name' | 'status'>;
 
 // Edit your own profile with a live preview next to it. Nothing is saved until you press Save;
-// Undo puts everything back to how it was when you opened the editor.
+// Undo puts everything back to how it was when you opened the editor. `helping`: an admin edits a
+// friend's profile (`profile` is then that friend's full profile from Hermes Music).
 export const ProfileEditor = ({
+    helping,
     onDone,
     profile,
 }: {
+    helping?: boolean;
     onDone: () => void;
     profile: SourProfile;
 }) => {
     const url = useHermesUrl();
-    const me = useSourStore((state) => state.me);
+    const own = useSourStore((state) => state.me);
+    const me: Me | null =
+        helping && own ? { as: own.id, id: profile.id, key: own.key } : own;
     const setStore = useSourStore((state) => state.set);
     const blocked = useSourStore((state) => state.blocked);
     const unblock = useSourStore((state) => state.unblock);
-    const mine = useMyProfile().data;
+    const myProfile = useMyProfile().data;
+    const mine = helping ? profile : myProfile;
     const queryClient = useQueryClient();
     const current = usePlayerSong();
     const original: Draft = {
@@ -85,7 +92,7 @@ export const ProfileEditor = ({
         setDraft((d) => ({ ...d, custom: { ...d.custom, ...changes } }));
     const refresh = () => {
         queryClient.invalidateQueries({ queryKey: ['sour-profiles', url] });
-        queryClient.invalidateQueries({ queryKey: ['sour-me', url] });
+        queryClient.invalidateQueries({ queryKey: [helping ? 'sour-help' : 'sour-me', url] });
     };
 
     const picture = (kind: 'avatar' | 'background' | 'banner', file: File | null) => {
@@ -111,8 +118,10 @@ export const ProfileEditor = ({
         sourApi
             .update(url, me, draft)
             .then(() => {
-                useGroupPlayStore.getState().actions.setUserName(draft.name);
-                toast.success({ message: 'Profile saved' });
+                if (!helping) useGroupPlayStore.getState().actions.setUserName(draft.name);
+                toast.success({
+                    message: helping ? `Saved ${draft.name}'s profile` : 'Profile saved',
+                });
                 refresh();
                 onDone();
             })
@@ -693,7 +702,7 @@ export const ProfileEditor = ({
                 label="Show me who looks at my profile"
                 onChange={(e) => setC({ visits: e.currentTarget.checked })}
             />
-            {!!c.visits && (
+            {!!c.visits && !helping && (
                 <Stack gap={2}>
                     {(mine?.visits ?? []).slice(0, 10).map((v) => (
                         <Text key={`${v.from}-${v.at}`} size="xs">
@@ -828,13 +837,18 @@ export const ProfileEditor = ({
     return (
         <div className={styles.editor}>
             <Stack className={styles.editorForm} gap="md">
+                {helping && (
+                    <Text className={styles.helping} size="sm">
+                        You&apos;re editing <b>{profile.name}</b>&apos;s profile for them.
+                    </Text>
+                )}
                 <SegmentedControl
                     data={[
                         { label: 'Look', value: 'look' },
                         { label: 'About', value: 'about' },
                         { label: 'Music', value: 'music' },
                         { label: 'Privacy', value: 'privacy' },
-                        { label: 'Account', value: 'account' },
+                        ...(helping ? [] : [{ label: 'Account', value: 'account' }]),
                     ]}
                     onChange={setTab}
                     value={tab}
