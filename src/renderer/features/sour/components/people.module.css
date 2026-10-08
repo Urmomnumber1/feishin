@@ -331,6 +331,11 @@
     overflow-y: auto;
 }
 
+/* the form scrolls; its parts keep their size (the tab bar used to get squashed flat) */
+.editor-form > * {
+    flex-shrink: 0;
+}
+
 .editor-preview {
     max-height: 72vh;
     padding-left: 16px;

@@ -51,8 +51,10 @@
     width: 100%;
     padding: 0.4rem 1rem;
     font: inherit;
+    font-family: var(--theme-content-font-family);
     font-size: var(--theme-font-size-md);
-    color: var(--theme-colors-foreground-muted);
+    font-weight: 600;
+    color: var(--theme-colors-foreground);
     text-align: left;
     cursor: pointer;
     background: transparent;

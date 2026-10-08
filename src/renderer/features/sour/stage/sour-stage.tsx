@@ -359,7 +359,6 @@ const StageView = () => {
                         <button
                             aria-label={flipped ? 'Show the cover' : 'Show the song details'}
                             className={clsx(styles.card, { [styles.flipped]: flipped })}
-                            key={song?._uniqueId ?? 'none'}
                             onClick={() => setFlipped((f) => !f)}
                             style={
                                 look.stageVinyl || flipped
@@ -382,7 +381,11 @@ const StageView = () => {
                                 {look.stageVinyl && <span className={styles.hole} />}
                             </div>
                             {peel && peel.id === song?._uniqueId && !flipped && (
-                                <PeelOff onDone={() => setPeel(null)} src={peel.src} />
+                                <PeelOff
+                                    key={peel.id}
+                                    onDone={() => setPeel(null)}
+                                    src={peel.src}
+                                />
                             )}
                             <div className={styles.back}>
                                 <div className={styles.backTitle}>{song?.name}</div>
@@ -539,7 +542,11 @@ const StageView = () => {
             </div>
 
             <div className={styles.bottom}>
-                <div className={styles.viz}>
+                <div
+                    className={clsx(styles.viz, {
+                        [styles.vizTall]: look.visualizer === 'soul',
+                    })}
+                >
                     <SourVisualizer
                         colors={[color]}
                         coverUrl={cover}

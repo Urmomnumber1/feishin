@@ -351,6 +351,11 @@
     height: 110px;
 }
 
+/* the Soul's battle box needs more room than a strip */
+.viz-tall {
+    height: min(190px, 24vh);
+}
+
 .info {
     display: flex;
     gap: 16px;

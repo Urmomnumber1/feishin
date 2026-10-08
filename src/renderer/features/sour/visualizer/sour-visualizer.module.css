@@ -10,3 +10,10 @@
     height: 22px;
     opacity: 0.9;
 }
+
+/* small windows: no room for the strip in the player bar */
+@media (width < 1100px) {
+    .bar {
+        display: none;
+    }
+}

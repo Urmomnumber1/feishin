@@ -5,6 +5,7 @@ import styles from './holiday-layer.module.css';
 import { isBirthday } from '/@/renderer/features/sour/components/profile-bits';
 import { currentHoliday, type Particles } from '/@/renderer/features/sour/skins/holidays';
 import { useMyProfile, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { useCurrentServer } from '/@/renderer/store';
 
 interface Bit {
     a: number;
@@ -204,6 +205,8 @@ export const HolidayLayer = () => {
     const setLook = useSourStore((s) => s.setLook);
     const set = useSourStore((s) => s.set);
     const mine = useMyProfile().data;
+    // not over the sign-in page (it covered the button there)
+    const signedIn = !!useCurrentServer();
     const [, tick] = useState(0);
     useEffect(() => {
         // the date changes while the app stays open
@@ -215,7 +218,7 @@ export const HolidayLayer = () => {
     const holiday = holidays ? currentHoliday() : null;
     const kind: null | Particles = birthday ? 'confetti' : (holiday?.particles ?? null);
     const greetingId = birthday ? `birthday:${today()}` : holiday ? `${holiday.id}:${today()}` : '';
-    const showGreeting = !!greetingId && greeted !== greetingId;
+    const showGreeting = signedIn && !!greetingId && greeted !== greetingId;
 
     return (
         <>

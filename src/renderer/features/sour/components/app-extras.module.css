@@ -6,6 +6,10 @@
     overflow-y: auto;
 }
 
+.history > * {
+    flex-shrink: 0;
+}
+
 .day {
     margin: 4px 0;
     font-size: 0.8rem;

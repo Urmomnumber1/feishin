@@ -194,6 +194,8 @@ export const useSourProfiles = () => {
         queryFn: () => sourApi.list(url),
         queryKey: ['sour-profiles', url],
         refetchInterval: 15000,
+        // many parts of the app read this; one fetch serves them all
+        staleTime: 10000,
     });
 };
 
@@ -206,5 +208,6 @@ export const useMyProfile = () => {
         queryFn: () => sourApi.me(url, me as Me),
         queryKey: ['sour-me', url, me?.id],
         refetchInterval: 60000,
+        staleTime: 30000,
     });
 };
