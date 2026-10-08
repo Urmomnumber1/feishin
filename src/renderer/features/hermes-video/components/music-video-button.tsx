@@ -102,6 +102,7 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
         let lead = 0.3;
         let offBeats = 0;
         let lastCommand = 0;
+        let rate = 1;
         const tick = () => {
             const now = performance.now();
             const v = yt.current;
@@ -110,12 +111,21 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
                 send({ channel: 'widget', event: 'listening', id: 'hermes-video' });
                 command('mute');
                 lastCommand = now;
+                // a (re)loaded player starts at normal speed
+                rate = 1;
             }
             const raw = useTimestampStoreBase.getState().timestamp;
-            const playing = usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
+            const { speed, status } = usePlayerStoreBase.getState().player;
+            const playing = status === PlayerStatus.PLAYING;
+            // slowed / sped up songs: the video plays at the same speed
+            const songRate = speed > 0 ? speed : 1;
+            if (songRate !== rate && v.heard > 0) {
+                rate = songRate;
+                command('setPlaybackRate', [rate]);
+            }
             // the song position arrives about twice a second and a little unevenly, so it is
             // smoothed into a steady clock; a big jump (seek, new song) is taken as it is
-            if (clock >= 0 && playing) clock += (now - clockAt) / 1000;
+            if (clock >= 0 && playing) clock += ((now - clockAt) / 1000) * songRate;
             clockAt = now;
             if (raw !== lastRaw) {
                 lastRaw = raw;
@@ -123,7 +133,7 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
             }
             const target = clock + offsetRef.current;
             const videoPlaying = v.state === YT_PLAYING;
-            const videoTime = v.time + (videoPlaying ? (now - v.at) / 1000 : 0);
+            const videoTime = v.time + (videoPlaying ? ((now - v.at) / 1000) * rate : 0);
 
             if (target < 0 || (v.duration && target > v.duration)) {
                 if (videoPlaying) command('pauseVideo');
