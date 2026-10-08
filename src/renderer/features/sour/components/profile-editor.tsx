@@ -62,8 +62,7 @@ export const ProfileEditor = ({
 }) => {
     const url = useHermesUrl();
     const own = useSourStore((state) => state.me);
-    const me: Me | null =
-        helping && own ? { as: own.id, id: profile.id, key: own.key } : own;
+    const me: Me | null = helping && own ? { as: own.id, id: profile.id, key: own.key } : own;
     const setStore = useSourStore((state) => state.set);
     const blocked = useSourStore((state) => state.blocked);
     const unblock = useSourStore((state) => state.unblock);

@@ -104,10 +104,8 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
             const dt = Math.min(3, (now - (last || now)) / 16.7);
             last = now;
             const playing = isPlaying();
-            const settled =
-                !playing && levels.energy < 0.004 && !sparks.length && flash < 0.02;
-            const still =
-                look !== 'soul' || (soul.broken > 0.97 && !soul.stars.length && !soul.vy);
+            const settled = !playing && levels.energy < 0.004 && !sparks.length && flash < 0.02;
+            const still = look !== 'soul' || (soul.broken > 0.97 && !soul.stars.length && !soul.vy);
             if (settled && still && now - drawn < 400) return;
             drawn = now;
             if (playing) spin += dt / 540;

@@ -260,7 +260,9 @@ export const AddedSection = ({ profile }: { profile: SourProfile }) => {
                     <Text key={`${item.title}-${i}`} size="sm" truncate>
                         <b>{item.title}</b>
                         {item.artist && item.type === 'song' ? ` - ${item.artist}` : ''}
-                        {item.type !== 'song' && <span className={styles.kind}> ({item.type})</span>}
+                        {item.type !== 'song' && (
+                            <span className={styles.kind}> ({item.type})</span>
+                        )}
                     </Text>
                 ))}
             </div>

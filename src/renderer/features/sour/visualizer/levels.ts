@@ -92,8 +92,7 @@ export const useLevelSource = () => {
     }, [playbackType, webAudio]);
 };
 
-export const isPlaying = () =>
-    usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
+export const isPlaying = () => usePlayerStoreBase.getState().player.status === PlayerStatus.PLAYING;
 
 const measure = (levels: Levels, now: number) => {
     const bins = levels.bins;

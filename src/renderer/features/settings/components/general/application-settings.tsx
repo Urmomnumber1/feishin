@@ -18,6 +18,7 @@ import {
     SettingOption,
     SettingsSection,
 } from '/@/renderer/features/settings/components/settings-section';
+import { useMyProfile } from '/@/renderer/features/sour/store/sour.store';
 import {
     HomeFeatureStyle,
     SideQueueLayout,
@@ -26,7 +27,6 @@ import {
     useGeneralSettings,
     useSettingsStoreActions,
 } from '/@/renderer/store/settings.store';
-import { useMyProfile } from '/@/renderer/features/sour/store/sour.store';
 import { type Font, fontOptions } from '/@/renderer/types/fonts';
 import { FileInput } from '/@/shared/components/file-input/file-input';
 import { NumberInput } from '/@/shared/components/number-input/number-input';

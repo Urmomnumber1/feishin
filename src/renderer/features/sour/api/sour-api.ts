@@ -1,5 +1,12 @@
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 
+export interface AddedItem {
+    artist: string;
+    created: string;
+    title: string;
+    type: string;
+}
+
 export type FavoriteKind = 'album' | 'artist' | 'song';
 
 export interface FriendGroup {
@@ -27,13 +34,6 @@ export interface Me {
     as?: string;
     id: string;
     key: string;
-}
-
-export interface AddedItem {
-    artist: string;
-    created: string;
-    title: string;
-    type: string;
 }
 
 export interface Milestone {
@@ -192,6 +192,11 @@ export const backgroundUrl = (
 
 // Sour Player's side of Hermes Music: profiles, who's online, stats and playlist themes.
 export const sourApi = {
+    // what they asked Hermes Music to add to the library lately
+    added: (base: string, id: string) =>
+        call<{ items: AddedItem[]; month: number; total: number }>(
+            `${base}/api/profiles/${id}/added`,
+        ),
     claim: (base: string, code: string) =>
         call<{ id: string; key: string; profile: SourProfile }>(`${base}/api/profiles/claim`, {
             code,
@@ -249,11 +254,6 @@ export const sourApi = {
     presence: (base: string, me: Me, body: Record<string, unknown>) =>
         call<{ ok: boolean }>(`${base}/api/presence`, { ...me, ...body }),
     profile: (base: string, id: string) => call<SourProfile>(`${base}/api/profiles/${id}`),
-    // what they asked Hermes Music to add to the library lately
-    added: (base: string, id: string) =>
-        call<{ items: AddedItem[]; month: number; total: number }>(
-            `${base}/api/profiles/${id}/added`,
-        ),
     register: (base: string, name: string) =>
         call<{ id: string; key: string; profile: SourProfile }>(`${base}/api/profiles`, { name }),
     restoreAvatar: (base: string, me: Me, version: number) =>

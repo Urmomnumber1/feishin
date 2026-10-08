@@ -26,19 +26,19 @@ const CRACK = [6, 6, 7, 6, 5, 6, 7, 6, 5, 6, 6];
 // the save-point star, 5x5 pixels
 const STAR = ['00100', '01110', '11111', '01110', '00100'];
 
-interface Star {
-    life: number;
-    size: number;
-    x: number;
-    y: number;
-}
-
 export interface SoulState {
     broken: number;
     flash: number;
     scroll: number;
     stars: Star[];
     vy: number;
+    y: number;
+}
+
+interface Star {
+    life: number;
+    size: number;
+    x: number;
     y: number;
 }
 
@@ -148,7 +148,8 @@ export const drawSoul = (
     const cell = Math.max(1, Math.round((inner.h * 0.2) / 11));
     const floor = inner.y + inner.h * 0.62 - (11 * cell) / 2;
     if (!soul.y) soul.y = floor;
-    if (levels.beat && playing && soul.y >= floor - cell) soul.vy = -inner.h * (0.035 + kick * 0.02);
+    if (levels.beat && playing && soul.y >= floor - cell)
+        soul.vy = -inner.h * (0.035 + kick * 0.02);
     soul.vy += inner.h * 0.0035 * dt;
     soul.y = Math.min(floor, soul.y + soul.vy * dt);
     if (soul.y >= floor) soul.vy = 0;
@@ -215,7 +216,12 @@ export const drawSoul = (
     ctx.fillStyle = '#c40000';
     ctx.fillRect(barX, Math.round(y - barH / 2), barW, barH);
     ctx.fillStyle = '#ffff00';
-    ctx.fillRect(barX, Math.round(y - barH / 2), Math.round(barW * (total ? 1 - at / total : 1)), barH);
+    ctx.fillRect(
+        barX,
+        Math.round(y - barH / 2),
+        Math.round(barW * (total ? 1 - at / total : 1)),
+        barH,
+    );
     ctx.fillStyle = '#fff';
     ctx.fillText(text, barX + barW + size * 0.6, y);
 };
