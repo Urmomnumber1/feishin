@@ -53,8 +53,8 @@ export const LookEffects = () => {
     useEffect(() => {
         const root = document.documentElement;
         root.classList.toggle('sour-reduced-motion', look.reducedMotion);
-        root.classList.toggle('sour-animated-bg', look.animatedBackground);
-    }, [look.animatedBackground, look.reducedMotion]);
+        root.classList.toggle('sour-animated-bg', look.animatedBackground && !look.simple);
+    }, [look.animatedBackground, look.reducedMotion, look.simple]);
 
     useEffect(() => {
         const root = document.documentElement;
@@ -68,7 +68,7 @@ export const LookEffects = () => {
     useEffect(() => {
         if (started.current) return;
         started.current = true;
-        if (look.startupSound) window.setTimeout(() => playSound('lemon'), 800);
+        if (look.startupSound && !look.simple) window.setTimeout(() => playSound('lemon'), 800);
         // holiday skins (Sour Studio) win over the seasonal Hermes themes while a holiday is on
         if (look.seasonal && !(look.holidays && currentHoliday())) {
             const month = new Date().getMonth() + 1;
@@ -84,7 +84,7 @@ export const LookEffects = () => {
                           : AppTheme.HERMES_MIDNIGHT;
             setSettings({ general: { theme } });
         }
-    }, [look.holidays, look.seasonal, look.startupSound, setSettings]);
+    }, [look.holidays, look.seasonal, look.simple, look.startupSound, setSettings]);
 
     return null;
 };

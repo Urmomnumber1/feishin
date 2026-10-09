@@ -83,7 +83,7 @@ export const sourCommands = (navigate: (to: string) => void) => [
 
 // ---------- startup splash ----------
 export const Splash = () => {
-    const splash = useSourStore((s) => s.look.splash && !s.look.reducedMotion);
+    const splash = useSourStore((s) => s.look.splash && !s.look.reducedMotion && !s.look.simple);
     const [show, setShow] = useState(splash);
     useEffect(() => {
         if (!show) return undefined;

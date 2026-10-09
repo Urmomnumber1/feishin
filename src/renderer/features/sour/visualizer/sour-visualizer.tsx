@@ -17,7 +17,7 @@ import {
     readLevels,
     useLevelSource,
 } from '/@/renderer/features/sour/visualizer/levels';
-import { drawSoul, makeSoul } from '/@/renderer/features/sour/visualizer/soul';
+import { drawSoul, makeSoul, steerSoul } from '/@/renderer/features/sour/visualizer/soul';
 import { useFastAverageColor } from '/@/renderer/hooks';
 import { usePlayerSong } from '/@/renderer/store';
 import { LibraryItem } from '/@/shared/types/domain-types';
@@ -43,6 +43,8 @@ interface Props {
     colors?: string[];
     coverUrl?: null | string;
     people?: OrbitPerson[];
+    // Soul: you steer the SOUL with the arrow keys / WASD
+    soulPlay?: boolean;
     style: VisualizerStyle;
 }
 
@@ -67,11 +69,17 @@ const loadImage = (src: string) => {
 // One canvas, seven looks. Draws every frame from the shared levels (real audio when the player's
 // audio can be read, the song's tempo otherwise). Sleeps while the window is hidden or the canvas is
 // off screen, and only redraws a few times a second once the music has stopped and settled.
-export const SourVisualizer = ({ className, colors, coverUrl, people, style }: Props) => {
+export const SourVisualizer = ({ className, colors, coverUrl, people, soulPlay, style }: Props) => {
     useLevelSource();
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const latest = useRef({ colors, coverUrl, people, style });
-    latest.current = { colors, coverUrl, people, style };
+    const latest = useRef({ colors, coverUrl, people, soulPlay, style });
+    latest.current = { colors, coverUrl, people, soulPlay, style };
+    const steering = !!soulPlay && style === 'soul';
+    useEffect(() => {
+        if (!steering) return undefined;
+        steerSoul(true);
+        return () => steerSoul(false);
+    }, [steering]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -107,7 +115,13 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
         const draw = (now: number) => {
             frame = requestAnimationFrame(draw);
             if (document.hidden || !visible) return;
-            const { colors: cols, coverUrl: src, people: who, style: look } = latest.current;
+            const {
+                colors: cols,
+                coverUrl: src,
+                people: who,
+                soulPlay: steer,
+                style: look,
+            } = latest.current;
             readLevels(levels, now);
             const dt = Math.min(3, (now - (last || now)) / 16.7);
             last = now;
@@ -304,7 +318,7 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     ctx.restore();
                 });
             } else if (look === 'soul') {
-                drawSoul(ctx, W, H, levels, soul, playing, dt, now);
+                drawSoul(ctx, W, H, levels, soul, playing, dt, now, !!steer);
             }
         };
         frame = requestAnimationFrame(draw);
@@ -349,7 +363,7 @@ export const useBarVisualizer = () => {
 };
 
 export const PlayerBarVisualizer = () => {
-    const on = useSourStore((s) => s.look.barVisualizer);
+    const on = useSourStore((s) => s.look.barVisualizer && !s.look.simple);
     const { colors, coverUrl, style, width } = useBarVisualizer();
     if (!on) return null;
     return (

@@ -52,13 +52,15 @@ const LookSwitches = () => {
         const root = document.documentElement;
         root.classList.toggle('sour-corners-sharp', look.corners === 'sharp');
         root.classList.toggle('sour-corners-round', look.corners === 'round');
-        root.classList.toggle('sour-press', look.pressFx && !look.reducedMotion);
-        root.classList.toggle('sour-cursor', look.cursor);
+        const simple = !!look.simple;
+        root.classList.toggle('sour-simple', simple);
+        root.classList.toggle('sour-press', look.pressFx && !look.reducedMotion && !simple);
+        root.classList.toggle('sour-cursor', look.cursor && !simple);
         root.classList.toggle('sour-bar-floating', look.barLayout === 'floating');
-        root.classList.toggle('sour-glass', look.glass);
+        root.classList.toggle('sour-glass', look.glass && !simple);
         root.classList.toggle('sour-sidebar-right', look.sidebarRight);
         root.classList.toggle('sour-fade-covers', look.fadeCovers && !look.reducedMotion);
-        root.classList.toggle('sour-lemon-loader', look.lemonLoader);
+        root.classList.toggle('sour-lemon-loader', look.lemonLoader && !simple);
     }, [look]);
 
     useEffect(() => {

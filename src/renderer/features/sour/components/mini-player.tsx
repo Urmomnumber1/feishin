@@ -41,7 +41,7 @@ const MiniPlayerView = () => {
     const status = usePlayerStatus();
     const timestamp = usePlayerTimestamp();
     const { mediaNext, mediaPrevious, mediaSeekToTimestamp, mediaTogglePlayPause } = usePlayer();
-    const showBars = useSourStore((s) => s.look.barVisualizer);
+    const showBars = useSourStore((s) => s.look.barVisualizer && !s.look.simple);
     const bar = useBarVisualizer();
     const cover = useItemImageUrl({
         id: song?.imageId || undefined,

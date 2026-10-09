@@ -200,7 +200,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export const HolidayLayer = () => {
     const holidays = useSourStore((s) => s.look.holidays);
-    const reduced = useSourStore((s) => s.look.reducedMotion);
+    const reduced = useSourStore((s) => s.look.reducedMotion || !!s.look.simple);
     const greeted = useSourStore((s) => s.greeted);
     const setLook = useSourStore((s) => s.setLook);
     const set = useSourStore((s) => s.set);
@@ -218,7 +218,7 @@ export const HolidayLayer = () => {
     const holiday = holidays ? currentHoliday() : null;
     const kind: null | Particles = birthday ? 'confetti' : (holiday?.particles ?? null);
     const greetingId = birthday ? `birthday:${today()}` : holiday ? `${holiday.id}:${today()}` : '';
-    const showGreeting = signedIn && !!greetingId && greeted !== greetingId;
+    const showGreeting = signedIn && !reduced && !!greetingId && greeted !== greetingId;
 
     return (
         <>

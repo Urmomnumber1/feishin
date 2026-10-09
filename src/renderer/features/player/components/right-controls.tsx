@@ -127,8 +127,10 @@ export const RightControls = () => {
     const showFavorites = useShowFavorites();
     const playbackType = usePlaybackType();
     const hidden = useSourStore((state) => state.look.hiddenButtons);
+    // Simple mode: play, request music, lyrics, favourite, queue and volume only
+    const simple = useSourStore((state) => !!state.look.simple);
     const roomy = useMediaQuery('(min-width: 1180px)');
-    const show = (id: string) => !hidden.includes(id);
+    const show = (id: string) => !hidden.includes(id) && (!simple || id === 'request');
     return (
         <Flex
             align="flex-end"
@@ -142,22 +144,22 @@ export const RightControls = () => {
         >
             <SourWatchers />
             <Group gap={2} justify="flex-end" wrap="nowrap">
-                <PlayCounter />
+                {!simple && <PlayCounter />}
                 <HermesUpdateButton />
                 <DlnaCastButton />
-                <SleepTimerButton />
-                <PlayerConfig />
+                {!simple && <SleepTimerButton />}
+                {!simple && <PlayerConfig />}
                 {show('mini') && <MiniPlayerButton />}
                 {show('video') && <MusicVideoButton />}
                 {show('stage') && <SourStageButton />}
                 {show('studio') && <SourStudioButton />}
-                {showRatings && roomy && <RatingButton />}
-                <AutoDJButton />
+                {showRatings && roomy && !simple && <RatingButton />}
+                {!simple && <AutoDJButton />}
             </Group>
             <Group align="center" gap="xs" justify="flex-end" wrap="nowrap">
-                <NextUpHint />
+                {!simple && <NextUpHint />}
                 <PlayerBarVisualizer />
-                <FriendChips />
+                {!simple && <FriendChips />}
                 {show('people') && <PeopleButton />}
                 {show('request') && <RequestButton />}
                 {show('group') && <GroupPlayButton />}

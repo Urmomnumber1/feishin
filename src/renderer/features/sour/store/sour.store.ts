@@ -52,6 +52,8 @@ export interface SourLook {
     reducedMotion: boolean;
     seasonal: boolean;
     sidebarRight: boolean;
+    // Simple mode: only the basics (play, search, playlists, requests), no extras or effects
+    simple: boolean;
     socialToasts: boolean;
     splash: boolean;
     stageScene: 'drive' | 'none' | 'rain' | 'snow' | 'stars';
@@ -87,6 +89,7 @@ export const DEFAULT_LOOK: SourLook = {
     reducedMotion: false,
     seasonal: false,
     sidebarRight: false,
+    simple: false,
     socialToasts: true,
     splash: true,
     stageScene: 'none',
@@ -125,6 +128,9 @@ interface SourStore {
     setMe: (me: Me | null) => void;
     unblock: (name: string) => void;
 }
+
+// Simple mode is on (Settings > Sour Player)
+export const useSimpleMode = () => useSourStore((state) => !!state.look.simple);
 
 export const useSourStore = createWithEqualityFn<SourStore>()(
     persist(

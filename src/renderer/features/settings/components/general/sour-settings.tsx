@@ -43,6 +43,11 @@ export const SourSettings = memo(() => {
     });
 
     const options: SettingOption[] = [
+        toggle(
+            'simple',
+            'Simple mode',
+            'Just the basics: play music, search, playlists and requests. Hides the extras, effects and social bits (turn it off any time to get them all back).',
+        ),
         {
             control: (
                 <Button onClick={openPeople} size="compact-sm" variant="default">

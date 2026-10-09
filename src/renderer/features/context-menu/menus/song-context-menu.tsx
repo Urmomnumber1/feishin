@@ -22,6 +22,7 @@ import {
     SongNoteAction,
     WhoElseLikesAction,
 } from '/@/renderer/features/sour/components/song-actions';
+import { useSimpleMode } from '/@/renderer/features/sour/store/sour.store';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import { LibraryItem, Song } from '/@/shared/types/domain-types';
 
@@ -31,6 +32,7 @@ interface SongContextMenuProps {
 }
 
 export const SongContextMenu = ({ items, type }: SongContextMenuProps) => {
+    const simple = useSimpleMode();
     const { ids } = useMemo(() => {
         const ids = items.map((item) => item.id);
         return { ids };
@@ -44,17 +46,21 @@ export const SongContextMenu = ({ items, type }: SongContextMenuProps) => {
             <PlayTrackRadioAction disabled={items.length > 1} song={items[0]} />
             <ContextMenu.Divider />
             <AddToPlaylistAction items={ids} itemType={LibraryItem.SONG} />
-            <AddToGroupAction songs={items} />
-            <AddToProfileAction songs={items} />
-            <SocialSongMenu songs={items} />
-            <ShareSongAction songs={items} />
-            <WhoElseLikesAction songs={items} />
-            <SongNoteAction songs={items} />
-            <HideFromActivityAction songs={items} />
-            <BlockArtistAction songs={items} />
+            {!simple && (
+                <>
+                    <AddToGroupAction songs={items} />
+                    <AddToProfileAction songs={items} />
+                    <SocialSongMenu songs={items} />
+                    <ShareSongAction songs={items} />
+                    <WhoElseLikesAction songs={items} />
+                    <SongNoteAction songs={items} />
+                    <HideFromActivityAction songs={items} />
+                    <BlockArtistAction songs={items} />
+                </>
+            )}
             <ContextMenu.Divider />
             <SetFavoriteAction ids={ids} itemType={LibraryItem.SONG} />
-            <SetRatingAction ids={ids} itemType={LibraryItem.SONG} />
+            {!simple && <SetRatingAction ids={ids} itemType={LibraryItem.SONG} />}
             <ContextMenu.Divider />
             <DownloadAction ids={ids} />
             <ShareAction ids={ids} itemType={LibraryItem.SONG} />
@@ -62,7 +68,7 @@ export const SongContextMenu = ({ items, type }: SongContextMenuProps) => {
             <GoToAction items={items} />
             <ShowInFileExplorerAction items={items} />
             <ContextMenu.Divider />
-            <EditMetadataAction songs={items} />
+            {!simple && <EditMetadataAction songs={items} />}
             <GetInfoAction disabled={items.length === 0} items={items} />
         </ContextMenu.Content>
     );

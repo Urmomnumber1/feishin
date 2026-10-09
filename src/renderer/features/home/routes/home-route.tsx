@@ -18,6 +18,7 @@ import {
     SOUR_HOME_ITEMS,
     SourHomeSection,
 } from '/@/renderer/features/sour/components/home-sections';
+import { useSimpleMode } from '/@/renderer/features/sour/store/sour.store';
 import {
     HomeFeatureStyle,
     HomeItem,
@@ -108,6 +109,7 @@ const HomeRoute = () => {
             uniqueId: item.id,
         }));
 
+    const simple = useSimpleMode();
     return (
         <AnimatedPage>
             <NativeScrollArea
@@ -139,6 +141,7 @@ const HomeRoute = () => {
                         {sortedItems.map((item) => {
                             // Sour Player: friend-group sections (radio, friends, requests, ...)
                             if (SOUR_HOME_ITEMS.has(item.id)) {
+                                if (simple) return null; // Simple mode: just the music
                                 return <SourHomeSection id={item.id} key={`sour-${item.id}`} />;
                             }
 

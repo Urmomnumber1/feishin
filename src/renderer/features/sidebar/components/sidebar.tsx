@@ -23,6 +23,7 @@ import {
 } from '/@/renderer/features/sidebar/components/sidebar-playlist-list';
 import { SidebarPins } from '/@/renderer/features/sour/components/look';
 import { SidebarFriends, SidebarSour } from '/@/renderer/features/sour/components/sidebar-friends';
+import { useSimpleMode } from '/@/renderer/features/sour/store/sour.store';
 import {
     useAppStore,
     useAppStoreActions,
@@ -64,6 +65,8 @@ const SidebarPlaylistSection = () => {
         </SidebarPlaylistAddDragContext.Provider>
     );
 };
+
+const SIMPLE_HIDDEN = new Set(['Artists-all', 'Folders', 'Genres', 'Radio']);
 
 export const Sidebar = () => {
     const { t } = useTranslation();
@@ -112,9 +115,17 @@ export const Sidebar = () => {
     }, [sidebarItems, translatedSidebarItemMap]);
 
     /* Library accordion: only items with a route (exclude Collections section) */
+    // Simple mode: just the places most people use
+    const simple = useSimpleMode();
     const libraryItemsWithRoute = useMemo(
-        () => sidebarItemsWithRoute.filter((item) => item.id !== 'Collections' && item.route),
-        [sidebarItemsWithRoute],
+        () =>
+            sidebarItemsWithRoute.filter(
+                (item) =>
+                    item.id !== 'Collections' &&
+                    item.route &&
+                    !(simple && SIMPLE_HIDDEN.has(String(item.id))),
+            ),
+        [simple, sidebarItemsWithRoute],
     );
 
     const isCustomWindowBar =
@@ -148,8 +159,8 @@ export const Sidebar = () => {
                     ]}
                     multiple
                 >
-                    <SidebarPins />
-                    <SidebarSour />
+                    {!simple && <SidebarPins />}
+                    {!simple && <SidebarSour />}
                     <Accordion.Item value="library">
                         <Accordion.Control>
                             <Text fw={500} variant="secondary">
@@ -171,7 +182,7 @@ export const Sidebar = () => {
                     </Accordion.Item>
                     <SidebarCollectionList />
                     {sidebarPlaylistList && <SidebarPlaylistSection />}
-                    <SidebarFriends />
+                    {!simple && <SidebarFriends />}
                 </Accordion>
             </ScrollArea>
             <AnimatePresence initial={false} mode="popLayout">
