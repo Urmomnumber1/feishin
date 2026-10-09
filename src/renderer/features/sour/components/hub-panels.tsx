@@ -14,7 +14,6 @@ import {
     tasteMatch,
     timeAgo,
 } from '/@/renderer/features/sour/api/sour-api';
-import { RequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import {
     hue,
@@ -22,6 +21,7 @@ import {
     SongCover,
     usePlaySong,
 } from '/@/renderer/features/sour/components/profile-bits';
+import { RequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import { openRecap } from '/@/renderer/features/sour/components/social';
 import { SongPicker } from '/@/renderer/features/sour/components/song-picker';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';

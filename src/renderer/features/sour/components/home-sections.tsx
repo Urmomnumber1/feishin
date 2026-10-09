@@ -258,8 +258,8 @@ const YourRequests = () => {
                 : r.status === 'ask'
                   ? 'Is this it? (answer in Request music)'
                   : r.pos
-                  ? `Queued #${r.pos}`
-                  : 'Queued';
+                    ? `Queued #${r.pos}`
+                    : 'Queued';
     return (
         <Box title="Your requests">
             {!mine.length && (

@@ -18,12 +18,12 @@ import {
     sourApi,
     type SourProfile,
 } from '/@/renderer/features/sour/api/sour-api';
-import { openRequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import {
     ProfileAvatar,
     SongCover,
     usePlaySong,
 } from '/@/renderer/features/sour/components/profile-bits';
+import { openRequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer, usePlayerSong } from '/@/renderer/store';
 import { addToQueueByData, usePlayerStoreBase } from '/@/renderer/store/player.store';

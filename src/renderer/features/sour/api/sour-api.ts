@@ -104,9 +104,9 @@ export interface ProfileStats {
 }
 
 export interface SourProfile {
+    account?: null | string;
     // a Navidrome admin (shown with a royal blue name; gets the admin extras)
     admin?: boolean;
-    account?: null | string;
     avatar: number;
     avatarHistory?: number[];
     away: string;
@@ -213,19 +213,6 @@ export const sourApi = {
         callList<{ artist: string; by: string; deezerId: number; since: string }>(
             `${base}/api/follows`,
         ),
-    unfollow: (base: string, me: Me, artist: number | string) =>
-        call<{ ok: boolean }>(`${base}/api/follows`, {
-            key: me.key,
-            profile: me.id,
-            remove: String(artist),
-        }),
-    // asks Hermes Music to check with Navidrome whether this account is an admin (for the admin extras)
-    navidromeCheck: (base: string, me: Me, credential: string) =>
-        call<{ admin: boolean; perks: string[] }>(`${base}/api/profiles/navidrome/check`, {
-            credential,
-            id: me.id,
-            key: me.key,
-        }),
     friendGroup: (base: string) => call<FriendGroup>(`${base}/api/friend-group`),
     groupTop: (base: string) => callList<GroupSong & { plays: number }>(`${base}/api/group-top`),
     inbox: (base: string, me: Me, since: number) =>
@@ -253,6 +240,13 @@ export const sourApi = {
             merged: null | string;
             profile: SourProfile;
         }>(`${base}/api/profiles/navidrome`, body),
+    // asks Hermes Music to check with Navidrome whether this account is an admin (for the admin extras)
+    navidromeCheck: (base: string, me: Me, credential: string) =>
+        call<{ admin: boolean; perks: string[] }>(`${base}/api/profiles/navidrome/check`, {
+            credential,
+            id: me.id,
+            key: me.key,
+        }),
     nickname: (base: string, me: Me, profileId: string, nick: string) =>
         call<SourProfile>(`${base}/api/profiles/${profileId}/nickname`, {
             from: me.id,
@@ -322,6 +316,12 @@ export const sourApi = {
         if (!res.ok) throw new Error(`Hermes Music returned ${res.status}`);
         return (await res.json()) as GroupSong & { plays: number };
     },
+    unfollow: (base: string, me: Me, artist: number | string) =>
+        call<{ ok: boolean }>(`${base}/api/follows`, {
+            key: me.key,
+            profile: me.id,
+            remove: String(artist),
+        }),
     update: (
         base: string,
         me: Me,

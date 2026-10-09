@@ -6,11 +6,11 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-item';
 import { type SourProfile, timeAgo } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile, ProfileAvatar, SongCover } from '/@/renderer/features/sour/components/people';
+import { nameColor } from '/@/renderer/features/sour/components/profile-bits';
 import { ProfileHover } from '/@/renderer/features/sour/components/profile-extras';
 import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
 import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
-import { nameColor } from '/@/renderer/features/sour/components/profile-bits';
 import { AppRoute } from '/@/renderer/router/routes';
 import { Accordion } from '/@/shared/components/accordion/accordion';
 import { Group } from '/@/shared/components/group/group';

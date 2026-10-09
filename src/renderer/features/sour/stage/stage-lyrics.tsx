@@ -26,7 +26,9 @@ export interface Line {
 // The song position, smooth: the player only reports it about twice a second, which made karaoke
 // words light up in jumps. In between it's worked out from the clock (about 30 times a second).
 export const useSmoothMs = (offsetMs: number) => {
-    const [ms, setMs] = useState(() => useTimestampStoreBase.getState().timestamp * 1000 + offsetMs);
+    const [ms, setMs] = useState(
+        () => useTimestampStoreBase.getState().timestamp * 1000 + offsetMs,
+    );
     useEffect(() => {
         let raw = useTimestampStoreBase.getState().timestamp;
         let at = performance.now();
@@ -96,7 +98,10 @@ export const KaraokeLine = ({
     return (
         <>
             {words.map((w, i) => {
-                const fill = Math.min(1, Math.max(0, (nowMs - w.start) / Math.max(1, w.end - w.start)));
+                const fill = Math.min(
+                    1,
+                    Math.max(0, (nowMs - w.start) / Math.max(1, w.end - w.start)),
+                );
                 return (
                     <span
                         className={styles.word}
@@ -150,10 +155,7 @@ const SingAlong = ({ song }: { song: QueueSong }) => {
         const position = useTimestampStoreBase.getState().timestamp;
         await addToQueueByData(Play.NEXT, [other]);
         usePlayerStoreBase.getState().mediaNext(false);
-        window.setTimeout(
-            () => usePlayerStoreBase.getState().mediaSeekToTimestamp(position),
-            450,
-        );
+        window.setTimeout(() => usePlayerStoreBase.getState().mediaSeekToTimestamp(position), 450);
     };
     const ask = async () => {
         try {
@@ -252,7 +254,12 @@ export const LyricsTools = ({
             >
                 +0.25s
             </button>
-            <button className={styles.textTool} onClick={find} title="Find other lyrics" type="button">
+            <button
+                className={styles.textTool}
+                onClick={find}
+                title="Find other lyrics"
+                type="button"
+            >
                 <Icon icon="search" /> Lyrics
             </button>
             {karaoke && <SingAlong song={song} />}

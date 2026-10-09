@@ -49,13 +49,6 @@ const BROKEN = [
 // the save-point star, 5x5 pixels
 const STAR = ['00100', '01110', '11111', '01110', '00100'];
 
-interface Star {
-    life: number;
-    size: number;
-    x: number;
-    y: number;
-}
-
 export interface SoulState {
     broken: number;
     flash: number;
@@ -64,6 +57,13 @@ export interface SoulState {
     scroll: number;
     stars: Star[];
     // where the SOUL is in the box (0-1 from the left / top), -1 before it's placed
+    x: number;
+    y: number;
+}
+
+interface Star {
+    life: number;
+    size: number;
     x: number;
     y: number;
 }
@@ -123,7 +123,13 @@ const clock = (seconds: number) => {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
 
-const pixels = (ctx: CanvasRenderingContext2D, rows: string[], x: number, y: number, cell: number) => {
+const pixels = (
+    ctx: CanvasRenderingContext2D,
+    rows: string[],
+    x: number,
+    y: number,
+    cell: number,
+) => {
     rows.forEach((row, r) => {
         for (let col = 0; col < row.length; col++) {
             if (row[col] === '1') ctx.fillRect(x + col * cell, y + r * cell, cell, cell);
@@ -202,7 +208,11 @@ export const drawSoul = (
         const low = bins[Math.floor((i / count) * BINS * 0.7)];
         const high = bins[Math.min(BINS - 1, Math.floor(BINS * 0.3 + (i / count) * BINS * 0.7))];
         bones.push({ reach: 0.05 + low * 0.4, top: false, x });
-        bones.push({ reach: 0.03 + high * 0.22, top: true, x: inner.x + ((x - inner.x + gap / 2) % inner.w) });
+        bones.push({
+            reach: 0.03 + high * 0.22,
+            top: true,
+            x: inner.x + ((x - inner.x + gap / 2) % inner.w),
+        });
     }
 
     // the SOUL
@@ -274,7 +284,8 @@ export const drawSoul = (
     ctx.fillStyle = '#fff';
     for (const b of bones) {
         if (b.top) bone(ctx, b.x, inner.y - width, inner.y + b.reach * inner.h, width);
-        else bone(ctx, b.x, inner.y + inner.h + width, inner.y + inner.h - b.reach * inner.h, width);
+        else
+            bone(ctx, b.x, inner.y + inner.h + width, inner.y + inner.h - b.reach * inner.h, width);
     }
     if (levels.beat && playing) soul.flash = 1;
     soul.flash *= Math.pow(0.86, dt);

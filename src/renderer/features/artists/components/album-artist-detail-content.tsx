@@ -42,6 +42,7 @@ import {
 import { usePlayButtonClick } from '/@/renderer/features/shared/hooks/use-play-button-click';
 import { searchLibraryItems } from '/@/renderer/features/shared/utils';
 import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
+import { FollowArtistButton } from '/@/renderer/features/sour/components/song-actions';
 import { useContainerQuery } from '/@/renderer/hooks';
 import { useGenreRoute } from '/@/renderer/hooks/use-genre-route';
 import { useHotkeys } from '/@/renderer/hooks/use-hotkeys';
@@ -65,7 +66,6 @@ import { sanitize } from '/@/renderer/utils/sanitize';
 import { sortAlbumList, sortSongList } from '/@/shared/api/utils';
 import { ActionIcon, ActionIconGroup } from '/@/shared/components/action-icon/action-icon';
 import { Badge } from '/@/shared/components/badge/badge';
-import { FollowArtistButton } from '/@/renderer/features/sour/components/song-actions';
 import { Button } from '/@/shared/components/button/button';
 import { Center } from '/@/shared/components/center/center';
 import { DropdownMenu } from '/@/shared/components/dropdown-menu/dropdown-menu';

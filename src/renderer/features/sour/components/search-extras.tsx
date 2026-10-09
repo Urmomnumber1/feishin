@@ -8,10 +8,7 @@ import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { openProfile } from '/@/renderer/features/sour/components/people';
-import {
-    nameColor,
-    ProfileAvatar,
-} from '/@/renderer/features/sour/components/profile-bits';
+import { nameColor, ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { leaveListenAlongFirst } from '/@/renderer/features/sour/utils/switching';
 import { Button } from '/@/shared/components/button/button';

@@ -399,15 +399,17 @@ export const useFollowToggle = (name?: string) => {
     const me = useSourStore((state) => state.me);
     const queryClient = useQueryClient();
     const follows = useFollows().data ?? [];
-    const followed = name ? follows.find((f) => followKey(f.artist) === followKey(name)) : undefined;
+    const followed = name
+        ? follows.find((f) => followKey(f.artist) === followKey(name))
+        : undefined;
     const toggle = () => {
         if (!url || !me || !name) return;
         const work = followed
-            ? sourApi
-                  .unfollow(url, me, followed.deezerId)
-                  .then(() =>
-                      toast.info({ message: `Stopped following ${followed.artist}'s new releases` }),
-                  )
+            ? sourApi.unfollow(url, me, followed.deezerId).then(() =>
+                  toast.info({
+                      message: `Stopped following ${followed.artist}'s new releases`,
+                  }),
+              )
             : sourApi.follow(url, me, name).then((r) =>
                   toast.success({
                       message: `Following ${r.artist}: new releases download by themselves`,

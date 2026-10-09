@@ -21,8 +21,8 @@ import {
     useLoop,
 } from '/@/renderer/features/sour/stage/loop';
 import { PeelOff } from '/@/renderer/features/sour/stage/peel-off';
-import { KaraokeLine, type Line, LyricsTools } from '/@/renderer/features/sour/stage/stage-lyrics';
 import { Scene, SCENES } from '/@/renderer/features/sour/stage/scenes';
+import { KaraokeLine, type Line, LyricsTools } from '/@/renderer/features/sour/stage/stage-lyrics';
 import {
     type SourLook,
     useMyProfile,
@@ -494,46 +494,46 @@ const StageView = () => {
                 </div>
 
                 <div className={styles.lyricsColumn}>
-                <LyricsTools
-                    karaoke={look.lyricStyle === 'karaoke'}
-                    offsetMs={offset}
-                    song={song}
-                />
-                <div className={clsx(styles.lyrics, styles[look.lyricStyle])} ref={lyricsBox}>
-                    {lines.length === 0 && (
-                        <div className={styles.noLyrics}>No lyrics for this song</div>
-                    )}
-                    {look.lyricStyle === 'huge' && synced ? (
-                        <div className={styles.hugeLine}>
-                            <KaraokeLine
-                                line={lines[Math.max(0, current)] ?? { startMs: 0, text: '' }}
-                                next={lines[current + 1]}
-                                offsetMs={offset}
-                            />
-                        </div>
-                    ) : (
-                        lines.map((line, i) => (
-                            <div
-                                className={clsx(styles.line, {
-                                    [styles.current]: i === current,
-                                    [styles.past]: synced && i < current,
-                                })}
-                                data-line={i}
-                                key={`${i}-${line.startMs}`}
-                            >
-                                {look.lyricStyle === 'karaoke' && i === current ? (
-                                    <KaraokeLine
-                                        line={line}
-                                        next={lines[i + 1]}
-                                        offsetMs={offset}
-                                    />
-                                ) : (
-                                    line.text || '♪'
-                                )}
+                    <LyricsTools
+                        karaoke={look.lyricStyle === 'karaoke'}
+                        offsetMs={offset}
+                        song={song}
+                    />
+                    <div className={clsx(styles.lyrics, styles[look.lyricStyle])} ref={lyricsBox}>
+                        {lines.length === 0 && (
+                            <div className={styles.noLyrics}>No lyrics for this song</div>
+                        )}
+                        {look.lyricStyle === 'huge' && synced ? (
+                            <div className={styles.hugeLine}>
+                                <KaraokeLine
+                                    line={lines[Math.max(0, current)] ?? { startMs: 0, text: '' }}
+                                    next={lines[current + 1]}
+                                    offsetMs={offset}
+                                />
                             </div>
-                        ))
-                    )}
-                </div>
+                        ) : (
+                            lines.map((line, i) => (
+                                <div
+                                    className={clsx(styles.line, {
+                                        [styles.current]: i === current,
+                                        [styles.past]: synced && i < current,
+                                    })}
+                                    data-line={i}
+                                    key={`${i}-${line.startMs}`}
+                                >
+                                    {look.lyricStyle === 'karaoke' && i === current ? (
+                                        <KaraokeLine
+                                            line={line}
+                                            next={lines[i + 1]}
+                                            offsetMs={offset}
+                                        />
+                                    ) : (
+                                        line.text || '♪'
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
 

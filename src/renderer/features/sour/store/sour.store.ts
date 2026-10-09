@@ -7,6 +7,8 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { type Me, sourApi } from '/@/renderer/features/sour/api/sour-api';
 import { type Song } from '/@/shared/types/domain-types';
 
+export type BarVisualizerStyle = 'bars' | 'glow' | 'halo' | 'pulp' | 'river';
+
 // a song played on this computer (queue history, "on repeat")
 export interface HistoryEntry {
     at: number;
@@ -61,8 +63,6 @@ export interface SourLook {
     startupSound: boolean;
     visualizer: VisualizerStyle;
 }
-
-export type BarVisualizerStyle = 'bars' | 'glow' | 'halo' | 'pulp' | 'river';
 
 export type VisualizerStyle = 'bars' | 'glow' | 'halo' | 'orbit' | 'pulp' | 'river' | 'soul';
 
