@@ -21,6 +21,7 @@ import {
     useLoop,
 } from '/@/renderer/features/sour/stage/loop';
 import { PeelOff } from '/@/renderer/features/sour/stage/peel-off';
+import { KaraokeLine, type Line, LyricsTools } from '/@/renderer/features/sour/stage/stage-lyrics';
 import { Scene, SCENES } from '/@/renderer/features/sour/stage/scenes';
 import {
     type SourLook,
@@ -55,16 +56,12 @@ import { PlayerStatus } from '/@/shared/types/types';
 
 const useStage = create<{ open: boolean }>(() => ({ open: false }));
 
+export const useStageOpen = () => useStage((s) => s.open);
+
 export const toggleStage = (open = !useStage.getState().open) => {
     useStage.setState({ open });
     document.documentElement.classList.toggle('sour-stage-open', open);
 };
-
-interface Line {
-    cues?: { endMs: number; startMs: number; text: string }[];
-    startMs: number;
-    text: string;
-}
 
 const LRC = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?]/g;
 
@@ -110,38 +107,6 @@ const toLines = (lyrics: unknown): { lines: Line[]; synced: boolean } => {
 const fmt = (s: number) => {
     const v = Math.max(0, Math.floor(s));
     return `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}`;
-};
-
-// Karaoke: words light up as they're sung (real word timings when the lyrics have them, otherwise
-// spread evenly over the line)
-const KaraokeLine = ({ line, next, nowMs }: { line: Line; next?: Line; nowMs: number }) => {
-    if (line.cues?.length) {
-        return (
-            <>
-                {line.cues.map((c, i) => (
-                    <span className={nowMs >= c.startMs ? styles.sung : undefined} key={i}>
-                        {c.text}
-                    </span>
-                ))}
-            </>
-        );
-    }
-    const words = line.text.split(/(\s+)/);
-    const end = next ? next.startMs : line.startMs + 4000;
-    const progress = Math.min(
-        1,
-        Math.max(0, (nowMs - line.startMs) / Math.max(400, end - line.startMs)),
-    );
-    const lit = Math.ceil(progress * words.length);
-    return (
-        <>
-            {words.map((w, i) => (
-                <span className={i < lit ? styles.sung : undefined} key={i}>
-                    {w}
-                </span>
-            ))}
-        </>
-    );
 };
 
 const StageView = () => {
@@ -513,6 +478,12 @@ const StageView = () => {
                     </div>
                 </div>
 
+                <div className={styles.lyricsColumn}>
+                <LyricsTools
+                    karaoke={look.lyricStyle === 'karaoke'}
+                    offsetMs={offset}
+                    song={song}
+                />
                 <div className={clsx(styles.lyrics, styles[look.lyricStyle])} ref={lyricsBox}>
                     {lines.length === 0 && (
                         <div className={styles.noLyrics}>No lyrics for this song</div>
@@ -522,7 +493,7 @@ const StageView = () => {
                             <KaraokeLine
                                 line={lines[Math.max(0, current)] ?? { startMs: 0, text: '' }}
                                 next={lines[current + 1]}
-                                nowMs={nowMs}
+                                offsetMs={offset}
                             />
                         </div>
                     ) : (
@@ -536,13 +507,18 @@ const StageView = () => {
                                 key={`${i}-${line.startMs}`}
                             >
                                 {look.lyricStyle === 'karaoke' && i === current ? (
-                                    <KaraokeLine line={line} next={lines[i + 1]} nowMs={nowMs} />
+                                    <KaraokeLine
+                                        line={line}
+                                        next={lines[i + 1]}
+                                        offsetMs={offset}
+                                    />
                                 ) : (
                                     line.text || '♪'
                                 )}
                             </div>
                         ))
                     )}
+                </div>
                 </div>
             </div>
 

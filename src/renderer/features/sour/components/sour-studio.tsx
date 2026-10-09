@@ -8,14 +8,17 @@ import { fontFamily, SOUR_FONTS } from '/@/renderer/features/sour/fonts';
 import { drawAppIcon, ICON_PACKS } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, HOLIDAY_LIST } from '/@/renderer/features/sour/skins/holidays';
 import {
+    type BarVisualizerStyle,
     type SourLook,
     useMyProfile,
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
 import {
+    BAR_STYLES,
     SourVisualizer,
     VISUALIZER_STYLES,
 } from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import { useCustomThemes } from '/@/renderer/store/custom-themes.store';
 import { useSettingsStore } from '/@/renderer/store/settings.store';
 import { THEME_DATA } from '/@/renderer/themes/use-app-theme';
 import { fontOptions } from '/@/renderer/types/fonts';
@@ -51,44 +54,76 @@ const LookSwitch = ({
     );
 };
 
-const Skins = () => {
+// every theme, in groups: Sour skins, holiday skins, Hermes, the classic Feishin themes and your own
+const SkinGrid = ({ items }: { items: { label: string; value: string }[] }) => {
     const theme = useSettingsStore((s) => s.general.theme);
     const setSettings = useSettingsStore((s) => s.actions.setSettings);
-    const skins = THEME_DATA.filter((t) => String(t.value).startsWith('sour'));
+    return (
+        <div className={styles.grid}>
+            {items.map((t) => {
+                const c = getAppTheme(t.value).colors ?? {};
+                return (
+                    <button
+                        className={clsx(styles.skin, { [styles.active]: theme === t.value })}
+                        key={t.value}
+                        onClick={() =>
+                            setSettings({
+                                general: { followSystemTheme: false, theme: t.value },
+                            })
+                        }
+                        style={{
+                            background: String(c.background),
+                            color: String(c.foreground),
+                        }}
+                        type="button"
+                    >
+                        <span className={styles.swatches}>
+                            <i style={{ background: String(c.primary) }} />
+                            <i style={{ background: String(c.surface) }} />
+                            <i style={{ background: String(c['background-alternate']) }} />
+                        </span>
+                        <span className={styles.skinName}>
+                            {t.label.replace(/^Sour /, '').replace(/ \(holiday\)$/, '')}
+                        </span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+};
+
+const Skins = () => {
+    const custom = useCustomThemes()
+        .filter((t) => !t.error)
+        .map((t) => ({ label: t.label, value: t.id }));
+    const holiday = (t: { label: string }) => t.label.endsWith('(holiday)');
+    const groups: Array<[string, { label: string; value: string }[]]> = [
+        ['Sour skins', THEME_DATA.filter((t) => t.label.startsWith('Sour ') && !holiday(t))],
+        ['Holiday skins', THEME_DATA.filter(holiday)],
+        ['Hermes', THEME_DATA.filter((t) => t.label.startsWith('Hermes '))],
+        [
+            'Classic themes',
+            THEME_DATA.filter((t) => !/^(Sour|Hermes) /.test(t.label)).sort((a, b) =>
+                a.label.localeCompare(b.label),
+            ),
+        ],
+        ['Your themes', custom],
+    ];
     return (
         <Stack gap="sm">
             <Text isMuted size="sm">
                 Click one to wear it. Holiday skins also switch on by themselves (Holidays tab).
-                Every other theme is in Settings &gt; Theme.
             </Text>
-            <div className={styles.grid}>
-                {skins.map((t) => {
-                    const c = getAppTheme(t.value).colors ?? {};
-                    return (
-                        <button
-                            className={clsx(styles.skin, { [styles.active]: theme === t.value })}
-                            key={t.value}
-                            onClick={() =>
-                                setSettings({
-                                    general: { followSystemTheme: false, theme: t.value },
-                                })
-                            }
-                            style={{
-                                background: String(c.background),
-                                color: String(c.foreground),
-                            }}
-                            type="button"
-                        >
-                            <span className={styles.swatches}>
-                                <i style={{ background: String(c.primary) }} />
-                                <i style={{ background: String(c.surface) }} />
-                                <i style={{ background: String(c['background-alternate']) }} />
-                            </span>
-                            <span className={styles.skinName}>{t.label.replace(/^Sour /, '')}</span>
-                        </button>
-                    );
-                })}
-            </div>
+            {groups
+                .filter(([, items]) => items.length)
+                .map(([title, items]) => (
+                    <Stack gap={6} key={title}>
+                        <Text fw={700} size="sm">
+                            {title}
+                        </Text>
+                        <SkinGrid items={items} />
+                    </Stack>
+                ))}
         </Stack>
     );
 };
@@ -125,6 +160,7 @@ const Holidays = () => {
 
 const Visualizers = () => {
     const current = useSourStore((s) => s.look.visualizer);
+    const barStyle = useSourStore((s) => s.look.barStyle) ?? 'bars';
     const setLook = useSourStore((s) => s.setLook);
     const perks = useMyProfile().data?.perks ?? [];
     return (
@@ -133,6 +169,11 @@ const Visualizers = () => {
                 description="A small visualizer strip next to the controls and in the mini player."
                 id="barVisualizer"
                 label="Visualizer in the player bar"
+            />
+            <SegmentedControl
+                data={BAR_STYLES.map((v) => ({ label: v.label, value: v.id }))}
+                onChange={(v) => setLook({ barStyle: v as BarVisualizerStyle })}
+                value={barStyle}
             />
             <div className={styles.grid}>
                 {VISUALIZER_STYLES.filter((v) => !v.perk || perks.includes(v.perk)).map((v) => (

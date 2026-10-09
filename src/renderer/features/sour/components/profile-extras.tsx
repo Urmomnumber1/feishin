@@ -12,6 +12,7 @@ import {
     activity,
     hue,
     ItemCover,
+    nameColor,
     ProfileAvatar,
     SongCover,
     usePlaySong,
@@ -112,7 +113,7 @@ export const ProfileHover = ({
                         <div className={styles.cardAvatar}>
                             <NowPlayingRing profile={profile} size={44} />
                         </div>
-                        <Text fw={700} size="sm">
+                        <Text fw={700} size="sm" style={{ color: nameColor(profile) }}>
                             {profile.name}
                         </Text>
                         {profile.status && (

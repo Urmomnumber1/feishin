@@ -5,11 +5,20 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 import styles from './people.module.css';
 
-import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
+import {
+    type GroupSong,
+    useGroupPlayStore,
+} from '/@/renderer/features/group-play/store/group-play.store';
 import { playsSince } from '/@/renderer/features/hermes-plays/store/play-count.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { getSongById } from '/@/renderer/features/player/utils';
-import { readPicture, sourApi, type SourProfile } from '/@/renderer/features/sour/api/sour-api';
+import {
+    readPicture,
+    type RequestGuess,
+    sourApi,
+    type SourProfile,
+} from '/@/renderer/features/sour/api/sour-api';
+import { openRequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import {
     ProfileAvatar,
     SongCover,
@@ -373,24 +382,37 @@ export const ListenAlong = () => {
     useEffect(() => {
         if (!url || !following) return undefined;
         lastSong.current = null;
+        const stop = (message: string) => {
+            setStore({ listenAlong: null, listenAlongName: null });
+            toast.info({ message });
+        };
         const tick = async () => {
+            // in Group Play now: the group decides what plays (never both at once)
+            const group = useGroupPlayStore.getState().state;
+            if (group && !group.ended) {
+                setStore({ listenAlong: null, listenAlongName: null });
+                return;
+            }
             const p = await sourApi.profile(url, following).catch(() => null);
             if (!p || !p.online || !p.listening) {
-                setStore({ listenAlong: null });
-                toast.info({ message: `${p?.name ?? 'Your friend'} stopped listening` });
+                stop(`${p?.name ?? 'Your friend'} stopped listening`);
                 return;
             }
             const elapsed = p.playing ? (Date.now() - p.positionAt) / 1000 : 0;
             const target = p.position + elapsed;
             const player = usePlayerStoreBase.getState();
-            if (
-                player.getCurrentSong()?.id !== p.listening.id &&
-                lastSong.current !== p.listening.id
-            ) {
+            const mine = player.getCurrentSong()?.id;
+            if (mine !== p.listening.id) {
+                if (lastSong.current === p.listening.id) {
+                    // you picked something else yourself (a radio, an album...): stop following
+                    stop(`Stopped listening along with ${p.name}`);
+                    return;
+                }
                 lastSong.current = p.listening.id;
                 await playSong(p.listening, target);
                 return;
             }
+            lastSong.current = p.listening.id;
             const playing = player.player.status === PlayerStatus.PLAYING;
             if (p.playing && !playing) player.mediaPlay();
             if (!p.playing && playing) player.mediaPause();
@@ -405,7 +427,7 @@ export const ListenAlong = () => {
     if (!following || !friend) return null;
     return (
         <Button
-            onClick={() => setStore({ listenAlong: null })}
+            onClick={() => setStore({ listenAlong: null, listenAlongName: null })}
             rightSection={<span>&times;</span>}
             size="compact-xs"
             variant="light"
@@ -417,6 +439,7 @@ export const ListenAlong = () => {
 
 // ---------- background: pings, wall notes, finished requests, milestones, resume ----------
 interface RequestRow {
+    ask?: RequestGuess;
     id: string;
     profile?: string;
     query: string;
@@ -518,6 +541,10 @@ export const SocialWatcher = () => {
                         }
                         if (before && before !== 'failed' && r.status === 'failed' && !isDnd()) {
                             notify('Request failed', r.title || r.query);
+                        }
+                        // Hermes Music isn't sure which song you meant: "Is this the song?"
+                        if (before !== 'ask' && r.status === 'ask' && r.ask && !isDnd()) {
+                            openRequestQuestion(r.id, r.query, r.ask);
                         }
                     }
                 })

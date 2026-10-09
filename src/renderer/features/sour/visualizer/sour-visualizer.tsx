@@ -3,7 +3,12 @@ import { useEffect, useRef } from 'react';
 
 import styles from './sour-visualizer.module.css';
 
-import { useSourStore, type VisualizerStyle } from '/@/renderer/features/sour/store/sour.store';
+import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
+import {
+    type BarVisualizerStyle,
+    useSourStore,
+    type VisualizerStyle,
+} from '/@/renderer/features/sour/store/sour.store';
 import {
     BINS,
     isPlaying,
@@ -13,6 +18,9 @@ import {
     useLevelSource,
 } from '/@/renderer/features/sour/visualizer/levels';
 import { drawSoul, makeSoul } from '/@/renderer/features/sour/visualizer/soul';
+import { useFastAverageColor } from '/@/renderer/hooks';
+import { usePlayerSong } from '/@/renderer/store';
+import { LibraryItem } from '/@/shared/types/domain-types';
 
 export interface OrbitPerson {
     color: string;
@@ -27,7 +35,7 @@ export const VISUALIZER_STYLES: { id: VisualizerStyle; label: string; perk?: str
     { id: 'river', label: 'Sour river' },
     { id: 'glow', label: 'Album glow' },
     { id: 'orbit', label: 'Group orbit' },
-    { id: 'soul', label: 'Soul (only yours)', perk: 'determination' },
+    { id: 'soul', label: 'Soul (admins)', perk: 'determination' },
 ];
 
 interface Props {
@@ -113,6 +121,7 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
             const H = canvas.height;
             const dpr = window.devicePixelRatio || 1;
             const { bins, kick } = levels;
+            const small = Math.min(W, H) < 90 * dpr;
             if (levels.beat) flash = 1;
             flash *= Math.pow(0.9, dt);
             if (src && src !== coverSrc) {
@@ -136,20 +145,20 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
             } else if (look === 'halo') {
                 const cx = W / 2;
                 const cy = H / 2;
-                const R = Math.min(W, H) * 0.26 * (1 + kick * 0.06);
-                for (let i = 0; i < BINS * 2; i++) {
-                    const v = bins[i % BINS];
-                    const a = (i / (BINS * 2)) * Math.PI * 2 - Math.PI / 2;
-                    const l = v * Math.min(W, H) * 0.2 + 2 * dpr;
+                // in the player bar's little strip: fewer, shorter rays hugging the cover
+                const rays = small ? 20 : BINS * 2;
+                const gap = (small ? 1.5 : 6) * dpr;
+                const R = Math.min(W, H) * (small ? 0.3 : 0.26) * (1 + kick * 0.06);
+                for (let i = 0; i < rays; i++) {
+                    const v = bins[Math.floor((i / rays) * BINS * 2) % BINS];
+                    const a = (i / rays) * Math.PI * 2 - Math.PI / 2;
+                    const l = v * Math.min(W, H) * (small ? 0.17 : 0.2) + (small ? 1 : 2) * dpr;
                     ctx.strokeStyle = `hsl(${48 + v * 70}, 85%, 60%)`;
-                    ctx.lineWidth = Math.max(2, (Math.PI * 2 * R) / (BINS * 2) - 2 * dpr);
+                    ctx.lineWidth = Math.max(small ? 1.5 : 2, (Math.PI * 2 * R) / rays - 2 * dpr);
                     ctx.lineCap = 'round';
                     ctx.beginPath();
-                    ctx.moveTo(cx + Math.cos(a) * (R + 6 * dpr), cy + Math.sin(a) * (R + 6 * dpr));
-                    ctx.lineTo(
-                        cx + Math.cos(a) * (R + 6 * dpr + l),
-                        cy + Math.sin(a) * (R + 6 * dpr + l),
-                    );
+                    ctx.moveTo(cx + Math.cos(a) * (R + gap), cy + Math.sin(a) * (R + gap));
+                    ctx.lineTo(cx + Math.cos(a) * (R + gap + l), cy + Math.sin(a) * (R + gap + l));
                     ctx.stroke();
                 }
                 ctx.save();
@@ -171,9 +180,9 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                 ctx.restore();
             } else if (look === 'pulp') {
                 if (levels.beat) {
-                    for (let i = 0; i < 36; i++) {
+                    for (let i = 0; i < (small ? 14 : 36); i++) {
                         const a = Math.random() * Math.PI * 2;
-                        const sp = (2 + Math.random() * 5) * dpr;
+                        const sp = (2 + Math.random() * 5) * dpr * (small ? 0.22 : 1);
                         sparks.push({
                             h: 45 + Math.random() * 50,
                             l: 1,
@@ -192,12 +201,18 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
                     p.vy *= 0.97;
                     ctx.fillStyle = `hsla(${p.h}, 85%, 60%, ${p.l})`;
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3 * dpr * p.l + 0.5, 0, Math.PI * 2);
+                    ctx.arc(p.x, p.y, (small ? 1.4 : 3) * dpr * p.l + 0.5, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 ctx.fillStyle = '#f2c14e';
                 ctx.beginPath();
-                ctx.arc(W / 2, H / 2, Math.min(W, H) * 0.08 * (1 + kick * 0.6), 0, Math.PI * 2);
+                ctx.arc(
+                    W / 2,
+                    H / 2,
+                    Math.min(W, H) * (small ? 0.16 : 0.08) * (1 + kick * 0.6),
+                    0,
+                    Math.PI * 2,
+                );
                 ctx.fill();
             } else if (look === 'river') {
                 const layers: Array<[string, number]> = [
@@ -303,14 +318,43 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, style }: P
     return <canvas aria-hidden className={clsx(styles.canvas, className)} ref={canvasRef} />;
 };
 
-// the little strip in the player bar (Sour Studio > Visualizer)
+// the little strip in the player bar and the mini player (Sour Studio > Visualizer)
+export const BAR_STYLES: { id: BarVisualizerStyle; label: string; width: number }[] = [
+    { id: 'bars', label: 'Lemon bars', width: 56 },
+    { id: 'river', label: 'Sour river', width: 56 },
+    { id: 'halo', label: 'Cover halo', width: 34 },
+    { id: 'pulp', label: 'Pulp burst', width: 44 },
+    { id: 'glow', label: 'Album glow', width: 56 },
+];
+
+export const useBarVisualizer = () => {
+    const style = useSourStore((s) => s.look.barStyle) ?? 'bars';
+    const song = usePlayerSong();
+    const cover = useItemImageUrl({
+        id: song?.imageId || undefined,
+        itemType: LibraryItem.SONG,
+        type: 'itemCard',
+    });
+    const { background } = useFastAverageColor({
+        algorithm: 'dominant',
+        src: style === 'glow' && cover ? cover : null,
+        srcLoaded: true,
+    });
+    return {
+        colors: background ? [background, '#f2c14e'] : undefined,
+        coverUrl: cover || null,
+        style,
+        width: BAR_STYLES.find((b) => b.id === style)?.width ?? 56,
+    };
+};
+
 export const PlayerBarVisualizer = () => {
     const on = useSourStore((s) => s.look.barVisualizer);
-    const style = useSourStore((s) => s.look.visualizer);
+    const { colors, coverUrl, style, width } = useBarVisualizer();
     if (!on) return null;
     return (
-        <div className={styles.bar}>
-            <SourVisualizer style={style === 'river' ? 'river' : 'bars'} />
+        <div className={styles.bar} style={{ width }}>
+            <SourVisualizer colors={colors} coverUrl={coverUrl} style={style} />
         </div>
     );
 };

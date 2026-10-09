@@ -14,6 +14,19 @@ let miniBounds: Electron.Rectangle | null = null;
 let closing = false;
 const watched = new WeakSet<BrowserWindow>();
 
+// the mini card's size: where you last left it (if it was sensibly small), else 400 x 160
+const MINI = { height: 160, width: 400 };
+const miniSize = () =>
+    miniBounds && miniBounds.width <= 700 && miniBounds.height <= 320 ? miniBounds : null;
+
+const applyMini = (win: BrowserWindow) => {
+    if (!saved || win.isDestroyed()) return;
+    if (win.isMaximized() || win.isFullScreen()) return;
+    const remembered = miniSize();
+    if (remembered) win.setBounds(remembered);
+    else win.setSize(MINI.width, MINI.height);
+};
+
 const shrink = (win: BrowserWindow) => {
     saved = {
         bounds: win.getNormalBounds(),
@@ -22,11 +35,25 @@ const shrink = (win: BrowserWindow) => {
         minimum: win.getMinimumSize(),
         onTop: win.isAlwaysOnTop(),
     };
-    if (win.isFullScreen()) win.setFullScreen(false);
-    if (win.isMaximized()) win.unmaximize();
     win.setMinimumSize(300, 120);
-    if (miniBounds) win.setBounds(miniBounds);
-    else win.setSize(400, 160);
+    win.setResizable(true);
+    // Linux window managers leave full screen / maximised a moment later and then put the old size
+    // back, which used to leave a huge "mini" player: size it again once they're done
+    if (win.isFullScreen()) {
+        win.once('leave-full-screen', () => applyMini(win));
+        win.setFullScreen(false);
+    }
+    if (win.isMaximized()) {
+        win.once('unmaximize', () => applyMini(win));
+        win.unmaximize();
+    }
+    applyMini(win);
+    for (const wait of [150, 500, 1200]) {
+        setTimeout(() => {
+            const b = !win.isDestroyed() && win.getBounds();
+            if (b && (b.width > 720 || b.height > 340)) applyMini(win);
+        }, wait);
+    }
     win.setAlwaysOnTop(true, 'floating');
 };
 
@@ -62,7 +89,8 @@ ipcMain.on('sour-mini', (event, on: boolean) => {
             });
         }
     } else if (!on && saved) {
-        miniBounds = win.getBounds();
+        const b = win.getBounds();
+        if (b.width <= 700 && b.height <= 320) miniBounds = b;
         restore(win);
     }
 });

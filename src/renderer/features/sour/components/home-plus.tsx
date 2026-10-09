@@ -14,6 +14,7 @@ import { HotSeatCard } from '/@/renderer/features/sour/components/hub-panels';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import {
     activity,
+    nameColor,
     ProfileAvatar,
     SongCover,
     usePlaySong,
@@ -269,7 +270,7 @@ export const FriendCards = () => {
                                     <ProfileAvatar online={p.online} profile={p} size={34} />
                                 </span>
                             </div>
-                            <Text fw={700} size="sm" truncate>
+                            <Text fw={700} size="sm" style={{ color: nameColor(p) }} truncate>
                                 {p.name}
                             </Text>
                             <Text isMuted size="xs" truncate>

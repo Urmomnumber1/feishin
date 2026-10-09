@@ -33,6 +33,11 @@ export const drawAppIcon = async (pack: string, emoji: null | string, pixel = fa
     if (!ctx) return null;
     const img = await load(appIcon);
     const filter = ICON_PACKS.find((p) => p.id === pack)?.filter ?? 'none';
+    // rounded corners, like the app's own icon (the holiday emoji may stick out)
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(0, 0, size, size, size * 0.225);
+    ctx.clip();
     if (pixel) {
         // pixel pack: draw tiny, then scale up without smoothing
         const small = document.createElement('canvas');
@@ -47,6 +52,7 @@ export const drawAppIcon = async (pack: string, emoji: null | string, pixel = fa
         ctx.drawImage(img, 0, 0, size, size);
     }
     ctx.filter = 'none';
+    ctx.restore();
     if (emoji) {
         await document.fonts.load('96px "Sour Emoji"', emoji).catch(() => []);
         ctx.font = '104px "Sour Emoji", sans-serif';

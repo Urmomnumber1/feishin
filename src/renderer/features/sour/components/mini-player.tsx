@@ -7,7 +7,10 @@ import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
 import { useMiniStore } from '/@/renderer/features/sour/store/mini.store';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
-import { SourVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import {
+    SourVisualizer,
+    useBarVisualizer,
+} from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { usePlayerSong, usePlayerStatus } from '/@/renderer/store/player.store';
 import { usePlayerTimestamp } from '/@/renderer/store/timestamp.store';
 import { Icon } from '/@/shared/components/icon/icon';
@@ -39,7 +42,7 @@ const MiniPlayerView = () => {
     const timestamp = usePlayerTimestamp();
     const { mediaNext, mediaPrevious, mediaSeekToTimestamp, mediaTogglePlayPause } = usePlayer();
     const showBars = useSourStore((s) => s.look.barVisualizer);
-    const style = useSourStore((s) => s.look.visualizer);
+    const bar = useBarVisualizer();
     const cover = useItemImageUrl({
         id: song?.imageId || undefined,
         itemType: LibraryItem.SONG,
@@ -135,7 +138,7 @@ const MiniPlayerView = () => {
             </div>
             {showBars && (
                 <div className={styles.viz}>
-                    <SourVisualizer style={style === 'river' ? 'river' : 'bars'} />
+                    <SourVisualizer colors={bar.colors} coverUrl={bar.coverUrl} style={bar.style} />
                 </div>
             )}
         </div>

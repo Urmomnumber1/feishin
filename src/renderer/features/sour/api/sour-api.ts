@@ -104,6 +104,8 @@ export interface ProfileStats {
 }
 
 export interface SourProfile {
+    // a Navidrome admin (shown with a royal blue name; gets the admin extras)
+    admin?: boolean;
     account?: null | string;
     avatar: number;
     avatarHistory?: number[];
@@ -206,6 +208,23 @@ export const sourApi = {
             artist,
             key: me.key,
             profile: me.id,
+        }),
+    follows: (base: string) =>
+        callList<{ artist: string; by: string; deezerId: number; since: string }>(
+            `${base}/api/follows`,
+        ),
+    unfollow: (base: string, me: Me, artist: number | string) =>
+        call<{ ok: boolean }>(`${base}/api/follows`, {
+            key: me.key,
+            profile: me.id,
+            remove: String(artist),
+        }),
+    // asks Hermes Music to check with Navidrome whether this account is an admin (for the admin extras)
+    navidromeCheck: (base: string, me: Me, credential: string) =>
+        call<{ admin: boolean; perks: string[] }>(`${base}/api/profiles/navidrome/check`, {
+            credential,
+            id: me.id,
+            key: me.key,
         }),
     friendGroup: (base: string) => call<FriendGroup>(`${base}/api/friend-group`),
     groupTop: (base: string) => callList<GroupSong & { plays: number }>(`${base}/api/group-top`),
@@ -324,7 +343,21 @@ export const sourApi = {
 };
 
 // Hermes Music request helpers used by Sour Player
+// "Is this the song?": Hermes Music's current guess for a request it wasn't sure about
+export interface RequestGuess {
+    album: string;
+    artist: string;
+    cover: string;
+    left?: number;
+    title: string;
+}
+
 export const requestApi = {
+    answer: (base: string, requestId: string, yes: boolean) =>
+        call<{ next?: null | RequestGuess; queued?: boolean }>(
+            `${base}/api/requests/${requestId}/answer`,
+            { yes },
+        ),
     screenshot: (base: string, image: string, me: Me | null, by: string) =>
         call<{ queued: number; songs: string[] }>(`${base}/api/requests/screenshot`, {
             by,

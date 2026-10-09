@@ -64,6 +64,8 @@
 }
 
 .sour-bar-floating #player-bar > div {
+    /* the bar is normally as wide as the window; floating it needs room for the margins */
+    width: auto;
     overflow: hidden;
     background: var(--theme-colors-surface);
     border: 1px solid alpha(var(--theme-colors-border), 0.8);

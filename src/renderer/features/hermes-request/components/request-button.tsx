@@ -8,7 +8,8 @@ import { useReactions } from '/@/renderer/features/group-play/components/group-r
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { openVideoWall } from '/@/renderer/features/hermes-video/components/music-video-button';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
-import { requestApi } from '/@/renderer/features/sour/api/sour-api';
+import { requestApi, type RequestGuess } from '/@/renderer/features/sour/api/sour-api';
+import { RequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { playSound } from '/@/renderer/features/sour/utils/sounds';
 import { usePlayerSong } from '/@/renderer/store';
@@ -23,6 +24,7 @@ import { toast } from '/@/shared/components/toast/toast';
 
 interface HermesRequest {
     artist?: string;
+    ask?: RequestGuess;
     by?: string;
     id: string;
     note?: string;
@@ -59,13 +61,14 @@ const SECRETS: Record<string, () => void> = {
     },
 };
 
-type RequestType = 'album' | 'artist' | 'song';
+type RequestType = 'album' | 'artist' | 'karaoke' | 'song';
 
 const statusText = (r: HermesRequest) => {
     if (r.status === 'pending') return r.pos ? `Queued #${r.pos}` : 'Queued';
     if (r.status === 'working') return 'Downloading';
     if (r.status === 'done') return 'Added';
     if (r.status === 'failed') return 'Failed';
+    if (r.status === 'ask') return 'Is this it?';
     return r.status;
 };
 
@@ -251,7 +254,9 @@ const RequestPanel = () => {
             ? 'Song and artist, e.g. mr brightside the killers'
             : type === 'album'
               ? 'Album name, e.g. hot fuss'
-              : 'Artist name, e.g. the killers';
+              : type === 'karaoke'
+                ? 'The song to sing along to, e.g. toby fox hotel (gets its instrumental)'
+                : 'Artist name, e.g. the killers';
 
     return (
         <Stack gap="md" onPaste={onPaste}>
@@ -260,6 +265,7 @@ const RequestPanel = () => {
                     { label: 'Song', value: 'song' },
                     { label: 'Album', value: 'album' },
                     { label: 'Artist', value: 'artist' },
+                    { label: 'Karaoke', value: 'karaoke' },
                 ]}
                 onChange={(value) => setType(value as RequestType)}
                 value={type}
@@ -319,6 +325,11 @@ const RequestPanel = () => {
                                 >
                                     &#9650; {r.votes ?? 0}
                                 </button>
+                            )}
+                            {r.status === 'ask' && r.ask && (
+                                <div className={styles.ask}>
+                                    <RequestQuestion ask={r.ask} id={r.id} />
+                                </div>
                             )}
                             {r.status === 'pending' && !!r.pos && r.pos > 1 && (
                                 <ActionIcon

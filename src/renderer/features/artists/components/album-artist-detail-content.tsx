@@ -65,6 +65,7 @@ import { sanitize } from '/@/renderer/utils/sanitize';
 import { sortAlbumList, sortSongList } from '/@/shared/api/utils';
 import { ActionIcon, ActionIconGroup } from '/@/shared/components/action-icon/action-icon';
 import { Badge } from '/@/shared/components/badge/badge';
+import { FollowArtistButton } from '/@/renderer/features/sour/components/song-actions';
 import { Button } from '/@/shared/components/button/button';
 import { Center } from '/@/shared/components/center/center';
 import { DropdownMenu } from '/@/shared/components/dropdown-menu/dropdown-menu';
@@ -98,12 +99,14 @@ import { ItemListKey, ListDisplayType, Play } from '/@/shared/types/types';
 
 interface AlbumArtistActionButtonsProps {
     artistDiscographyLink: string;
+    artistName?: string;
     artistSongsLink: string;
     onArtistRadio?: () => void;
 }
 
 const AlbumArtistActionButtons = ({
     artistDiscographyLink,
+    artistName,
     artistSongsLink,
     onArtistRadio,
 }: AlbumArtistActionButtonsProps) => {
@@ -149,6 +152,7 @@ const AlbumArtistActionButtons = ({
                         {String(t('player.artistRadio')).toUpperCase()}
                     </Button>
                 )}
+                <FollowArtistButton name={artistName} />
             </Group>
         </>
     );
@@ -1311,6 +1315,7 @@ export const AlbumArtistDetailContent = ({
             <div className={styles.detailContainer}>
                 <AlbumArtistActionButtons
                     artistDiscographyLink={artistDiscographyLink}
+                    artistName={detailQuery.data?.name}
                     artistSongsLink={artistSongsLink}
                     onArtistRadio={handleArtistRadio}
                 />

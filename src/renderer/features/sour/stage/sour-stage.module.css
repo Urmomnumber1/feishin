@@ -273,7 +273,72 @@
     justify-content: center;
 }
 
+/* lyrics with their tools on top (the old separate lyrics view lives here now) */
+.lyrics-column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    max-height: 100%;
+}
+
+.lyric-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+}
+
+.lyric-tools:hover {
+    opacity: 1;
+}
+
+.text-tool {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    background: rgb(255 255 255 / 10%);
+    border: 0;
+    border-radius: 999px;
+}
+
+.text-tool:hover {
+    background: rgb(255 255 255 / 22%);
+}
+
+.offset {
+    min-width: 3.4em;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: rgb(255 255 255 / 70%);
+    text-align: center;
+}
+
+/* karaoke: each word fills with colour as it's sung */
+.word {
+    color: transparent;
+    text-shadow: none;
+    background: linear-gradient(
+        90deg,
+        var(--theme-colors-primary) var(--fill, 0%),
+        rgb(255 255 255 / 55%) var(--fill, 0%)
+    );
+    background-clip: text;
+}
+
 .lyrics {
+    flex: 1;
+    min-height: 0;
     max-height: 100%;
     padding: 30vh 0;
     overflow-y: auto;
@@ -309,11 +374,7 @@
 
 .karaoke .current {
     color: rgb(255 255 255 / 45%);
-}
-
-.sung {
-    color: var(--theme-colors-primary);
-    transition: color 0.15s;
+    text-shadow: none;
 }
 
 .huge {
@@ -329,7 +390,7 @@
     font-weight: 900;
     line-height: 1.15;
     text-align: center;
-    text-shadow: 0 4px 24px rgb(0 0 0 / 50%);
+    filter: drop-shadow(0 4px 18px rgb(0 0 0 / 50%));
 }
 
 .no-lyrics {

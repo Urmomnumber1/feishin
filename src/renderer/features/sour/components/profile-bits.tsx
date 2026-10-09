@@ -127,6 +127,11 @@ export const activity = (p: SourProfile) => {
 export const isBirthday = (p: Pick<SourProfile, 'custom'>) =>
     !!p.custom?.birthday && p.custom.birthday.slice(-5) === new Date().toISOString().slice(5, 10);
 
+// Navidrome admins have a light royal blue name everywhere
+export const ADMIN_BLUE = '#7397ff';
+export const nameColor = (profile?: null | Pick<SourProfile, 'admin'>) =>
+    profile?.admin ? ADMIN_BLUE : undefined;
+
 // the name line: chosen font and effect, emoji, and the nickname friends gave them
 export const ProfileName = ({ profile, size = 22 }: { profile: SourProfile; size?: number }) => {
     const c = profile.custom || {};
@@ -140,7 +145,16 @@ export const ProfileName = ({ profile, size = 22 }: { profile: SourProfile; size
                 : undefined;
     return (
         <span className={styles.nameLine}>
-            <span className={effect} style={{ fontFamily: fontFamily(c.nameFont), fontSize: size }}>
+            <span
+                className={effect}
+                style={{
+                    // the shimmer and rainbow effects paint the letters themselves
+                    color: effect && effect !== styles.nameGlow ? undefined : nameColor(profile),
+                    fontFamily: fontFamily(c.nameFont),
+                    fontSize: size,
+                }}
+                title={profile.admin ? 'Navidrome admin' : undefined}
+            >
                 {profile.name}
             </span>
             {c.emoji && <span style={{ fontSize: size * 0.8 }}>{c.emoji}</span>}

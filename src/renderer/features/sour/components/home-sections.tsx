@@ -31,6 +31,7 @@ import {
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import {
     activity,
+    nameColor,
     ProfileAvatar,
     SongCover,
     usePlaySong,
@@ -38,6 +39,7 @@ import {
 import { LeaderboardList, useBlend } from '/@/renderer/features/sour/components/social';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { leaveListenAlongFirst, startListenAlong } from '/@/renderer/features/sour/utils/switching';
 import { HomeItem, useCurrentServer } from '/@/renderer/store';
 import { addToQueueByData } from '/@/renderer/store/player.store';
 import { Button } from '/@/shared/components/button/button';
@@ -103,6 +105,7 @@ const useJoin = () => {
     const url = useHermesUrl();
     const me = useSourStore((state) => state.me);
     return async (code: string) => {
+        if (!(await leaveListenAlongFirst())) return;
         const { actions, userName } = useGroupPlayStore.getState();
         try {
             const res = await groupApi.join(url, code, userName.trim() || 'Guest', me?.id ?? null);
@@ -170,7 +173,6 @@ const RadioCard = () => {
 
 const FriendsPlaying = () => {
     const me = useSourStore((state) => state.me);
-    const setStore = useSourStore((state) => state.set);
     const join = useJoin();
     const friends = (useSourProfiles().data ?? []).filter((p) => p.online && p.id !== me?.id);
     return (
@@ -190,7 +192,7 @@ const FriendsPlaying = () => {
                         >
                             <ProfileAvatar online profile={p} size={34} />
                             <Stack gap={0} miw={0}>
-                                <Text fw={600} size="sm" truncate>
+                                <Text fw={600} size="sm" style={{ color: nameColor(p) }} truncate>
                                     {p.name}
                                 </Text>
                                 <Text isMuted size="xs" truncate>
@@ -209,7 +211,7 @@ const FriendsPlaying = () => {
                         ) : (
                             p.listening && (
                                 <Button
-                                    onClick={() => setStore({ listenAlong: p.id })}
+                                    onClick={() => startListenAlong(p)}
                                     size="compact-xs"
                                     variant="default"
                                 >
@@ -253,7 +255,9 @@ const YourRequests = () => {
               ? 'Downloading'
               : r.status === 'failed'
                 ? 'Failed'
-                : r.pos
+                : r.status === 'ask'
+                  ? 'Is this it? (answer in Request music)'
+                  : r.pos
                   ? `Queued #${r.pos}`
                   : 'Queued';
     return (

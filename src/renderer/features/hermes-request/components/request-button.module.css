@@ -7,6 +7,7 @@
 
 .row {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     align-items: center;
     padding: 6px 8px;
@@ -80,4 +81,9 @@
 .voted {
     color: white;
     background: var(--theme-colors-primary, #6d28d9);
+}
+
+/* "Is this the song?" under a request */
+.ask {
+    flex-basis: 100%;
 }

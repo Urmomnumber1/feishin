@@ -47,7 +47,11 @@ import { PeopleButton } from '/@/renderer/features/sour/components/people';
 import { ListenAlong, SocialWatcher } from '/@/renderer/features/sour/components/social';
 import { SourPresence } from '/@/renderer/features/sour/components/sour-presence';
 import { SourStudioButton } from '/@/renderer/features/sour/components/sour-studio';
-import { SourStageButton } from '/@/renderer/features/sour/stage/sour-stage';
+import {
+    SourStageButton,
+    toggleStage,
+    useStageOpen,
+} from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { PlayerBarVisualizer } from '/@/renderer/features/sour/visualizer/sour-visualizer';
 import { useHotkeys } from '/@/renderer/hooks/use-hotkeys';
@@ -58,7 +62,6 @@ import {
     useAppStoreActions,
     useAutoDJSettings,
     useCurrentServer,
-    useFullScreenPlayerStore,
     useHotkeySettings,
     usePlaybackSettings,
     usePlaybackType,
@@ -66,7 +69,6 @@ import {
     usePlayerMuted,
     usePlayerSong,
     usePlayerVolume,
-    useSetFullScreenPlayerStore,
     useSettingsStoreActions,
     useShowFavorites,
     useShowRatings,
@@ -75,7 +77,6 @@ import {
     useVolumeWheelStep,
     useVolumeWidth,
 } from '/@/renderer/store';
-import { useFullScreenPlayerStoreActions } from '/@/renderer/store/full-screen-player.store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Button } from '/@/shared/components/button/button';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
@@ -461,34 +462,20 @@ const QueueButton = () => {
     );
 };
 
+// Lyrics live in the Sour Stage now (synced lyrics, karaoke, timing and other sources)
 const LyricsButton = () => {
-    const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
-    const activeTab = useFullScreenPlayerStore((state) => state.activeTab);
-    const { setStore } = useFullScreenPlayerStoreActions();
-    const { expanded: isFullScreenPlayerExpanded } = useFullScreenPlayerStore();
-
+    const open = useStageOpen();
     return (
         <ActionIcon
             icon="microphone"
-            iconProps={{
-                color: activeTab === 'lyrics' && isFullScreenPlayerExpanded ? 'primary' : undefined,
-                size: 'lg',
-            }}
+            iconProps={{ color: open ? 'primary' : undefined, size: 'lg' }}
             onClick={(e) => {
                 e.stopPropagation();
-                if (!isFullScreenPlayerExpanded) {
-                    setStore({ activeTab: 'lyrics' });
-                    setFullScreenPlayerStore({ expanded: true });
-                } else {
-                    setStore({ activeTab: activeTab === 'lyrics' ? '' : 'lyrics' });
-                }
+                toggleStage();
             }}
             role="button"
             size="sm"
-            tooltip={{
-                label: t('player.lyrics'),
-                openDelay: 0,
-            }}
+            tooltip={{ label: `${t('player.lyrics')} (Sour Stage)`, openDelay: 0 }}
             variant="subtle"
         />
     );

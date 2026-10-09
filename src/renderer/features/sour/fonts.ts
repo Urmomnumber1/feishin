@@ -1,6 +1,6 @@
 // Fonts for names, playlist titles and the app itself. The bundled ones live in assets/fonts/sour
 // (SIL Open Font License or Apache 2.0, see the readme there) and are loaded in src/shared/styles/sour-fonts.css as
-// "Sour <name>". Determination is a perk: only profiles Hermes Music allows can pick it.
+// "Sour <name>". Determination is a perk: only Navidrome admins (Hermes Music checks) can pick it.
 export interface SourFont {
     family: string;
     id: string;
@@ -59,6 +59,6 @@ export const fontFamily = (id?: null | string) =>
 // choices for a font picker; perk fonts only for the profiles that have them
 export const fontChoices = (perks: string[] = []) =>
     SOUR_FONTS.filter((f) => !f.perk || perks.includes(f.id)).map((f) => ({
-        label: f.perk ? `${f.label} (only yours)` : f.label,
+        label: f.perk ? `${f.label} (admins)` : f.label,
         value: f.id,
     }));

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
 import { toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
@@ -111,6 +112,20 @@ export const SourPresence = () => {
         // me?.account / me?.id are what matter; the whole object changes on every key refresh
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [account, canLink, credential, me?.account, me?.id, server?.id, url]);
+
+    // Navidrome admins get the admin extras: ask Hermes Music to check (once per start and account)
+    const queryClient = useQueryClient();
+    const checked = useRef('');
+    useEffect(() => {
+        if (!url || !me || !canLink || !me.account || me.account !== account) return;
+        const key = `${url}|${me.id}|${me.account}`;
+        if (checked.current === key) return;
+        checked.current = key;
+        sourApi
+            .navidromeCheck(url, me, credential)
+            .then(() => queryClient.invalidateQueries({ queryKey: ['sour-me', url] }))
+            .catch(() => {}); // older Hermes Music: no admin extras
+    }, [account, canLink, credential, me, queryClient, url]);
 
     useEffect(() => {
         if (!url || !me) return undefined;

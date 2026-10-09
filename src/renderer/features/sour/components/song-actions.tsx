@@ -1,5 +1,5 @@
 import { openModal } from '@mantine/modals';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { groupApi, toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
@@ -11,11 +11,16 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
 import { favoriteKind, sourApi } from '/@/renderer/features/sour/api/sour-api';
 import { ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
-import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import {
+    useMyProfile,
+    useSourProfiles,
+    useSourStore,
+} from '/@/renderer/features/sour/store/sour.store';
 import { useCurrentServer } from '/@/renderer/store';
 import { Button } from '/@/shared/components/button/button';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import { Group } from '/@/shared/components/group/group';
+import { Icon } from '/@/shared/components/icon/icon';
 import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
 import { Text } from '/@/shared/components/text/text';
@@ -29,33 +34,49 @@ import {
     type Song,
 } from '/@/shared/types/domain-types';
 
-// Adds songs, albums or artists to the favourites on your profile (skipping ones already there).
+// Adds songs, albums or artists to the favourites on your profile (skipping ones already there), or
+// takes them off again when they're all on it already.
 const AddFavoritesItem = ({ entries }: { entries: GroupSong[] }) => {
     const url = useHermesUrl();
     const me = useSourStore((state) => state.me);
     const queryClient = useQueryClient();
+    const mine = useMyProfile().data;
+    const onProfile = new Set((mine?.favorites ?? []).map((f) => f.id));
+    const allThere = !!entries.length && entries.every((entry) => onProfile.has(entry.id));
 
     const onSelect = useCallback(async () => {
         if (!url || !me) return;
         try {
-            const profile = await sourApi.profile(url, me.id);
+            const profile = await sourApi.me(url, me);
+            const ids = new Set(entries.map((entry) => entry.id));
             const have = new Set(profile.favorites.map((f) => f.id));
             const added = entries.filter((entry) => !have.has(entry.id));
-            await sourApi.update(url, me, { favorites: [...profile.favorites, ...added] });
+            if (allThere) {
+                await sourApi.update(url, me, {
+                    favorites: profile.favorites.filter((f) => !ids.has(f.id)),
+                });
+            } else {
+                await sourApi.update(url, me, { favorites: [...profile.favorites, ...added] });
+            }
             queryClient.invalidateQueries({ queryKey: ['sour-profiles', url] });
+            queryClient.invalidateQueries({ queryKey: ['sour-me', url] });
             toast.success({
-                message: added.length ? 'Added to your profile' : 'Already on your profile',
+                message: allThere
+                    ? 'Taken off your profile'
+                    : added.length
+                      ? 'Added to your profile'
+                      : 'Already on your profile',
             });
         } catch (error) {
             toast.error({ message: (error as Error).message });
         }
-    }, [entries, me, queryClient, url]);
+    }, [allThere, entries, me, queryClient, url]);
 
     if (!url || !me || !entries.length) return null;
 
     return (
-        <ContextMenu.Item leftIcon="favorite" onSelect={onSelect}>
-            Add to my profile
+        <ContextMenu.Item leftIcon={allThere ? 'x' : 'favorite'} onSelect={onSelect}>
+            {allThere ? 'Remove from my profile' : 'Add to my profile'}
         </ContextMenu.Item>
     );
 };
@@ -355,28 +376,77 @@ export const PinPlaylistToProfileAction = ({ playlist }: { playlist?: Playlist }
     );
 };
 
-// Artist right-click: new releases download by themselves (Hermes Music checks every 6 hours)
-export const FollowArtistAction = ({ artists }: { artists: (AlbumArtist | Artist)[] }) => {
+// Artists whose new releases Hermes Music downloads by itself (checked every 6 hours)
+const followKey = (name: string) =>
+    name
+        .toLowerCase()
+        .split(/,|&| feat\.? | ft\.? /)[0]
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+
+export const useFollows = () => {
+    const url = useHermesUrl();
+    return useQuery({
+        enabled: !!url,
+        queryFn: () => sourApi.follows(url),
+        queryKey: ['sour-follows', url],
+        staleTime: 30000,
+    });
+};
+
+export const useFollowToggle = (name?: string) => {
     const url = useHermesUrl();
     const me = useSourStore((state) => state.me);
-    const artist = artists[0];
-    if (!url || !me || artists.length !== 1 || !artist) return null;
+    const queryClient = useQueryClient();
+    const follows = useFollows().data ?? [];
+    const followed = name ? follows.find((f) => followKey(f.artist) === followKey(name)) : undefined;
+    const toggle = () => {
+        if (!url || !me || !name) return;
+        const work = followed
+            ? sourApi
+                  .unfollow(url, me, followed.deezerId)
+                  .then(() =>
+                      toast.info({ message: `Stopped following ${followed.artist}'s new releases` }),
+                  )
+            : sourApi.follow(url, me, name).then((r) =>
+                  toast.success({
+                      message: `Following ${r.artist}: new releases download by themselves`,
+                  }),
+              );
+        work.then(() => queryClient.invalidateQueries({ queryKey: ['sour-follows', url] })).catch(
+            (error: Error) => toast.error({ message: error.message }),
+        );
+    };
+    return { available: !!url && !!me && !!name, followed: !!followed, toggle };
+};
+
+// Artist right-click: follow (or stop following) their new releases
+export const FollowArtistAction = ({ artists }: { artists: (AlbumArtist | Artist)[] }) => {
+    const artist = artists.length === 1 ? artists[0] : undefined;
+    const { available, followed, toggle } = useFollowToggle(artist?.name);
+    if (!available) return null;
     return (
-        <ContextMenu.Item
-            leftIcon="add"
-            onSelect={() =>
-                sourApi
-                    .follow(url, me, artist.name)
-                    .then((r) =>
-                        toast.success({
-                            message: `New releases from ${r.artist} will download by themselves`,
-                        }),
-                    )
-                    .catch((error: Error) => toast.error({ message: error.message }))
-            }
-        >
-            Follow new releases
+        <ContextMenu.Item leftIcon={followed ? 'x' : 'add'} onSelect={toggle}>
+            {followed ? 'Unfollow new releases' : 'Follow new releases'}
         </ContextMenu.Item>
+    );
+};
+
+// Artist page: the same, as a button next to Artist radio
+export const FollowArtistButton = ({ name }: { name?: string }) => {
+    const { available, followed, toggle } = useFollowToggle(name);
+    if (!available) return null;
+    return (
+        <Button
+            leftSection={<Icon icon={followed ? 'check' : 'add'} size="lg" />}
+            onClick={toggle}
+            p={0}
+            size="compact-md"
+            title="Hermes Music downloads their new releases by themselves"
+            variant="transparent"
+        >
+            {followed ? 'FOLLOWING' : 'FOLLOW'}
+        </Button>
     );
 };
 

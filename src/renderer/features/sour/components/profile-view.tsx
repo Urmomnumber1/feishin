@@ -39,6 +39,7 @@ import {
 import { notify } from '/@/renderer/features/sour/components/social';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { queueGroupSongs, shuffled } from '/@/renderer/features/sour/utils/queue';
+import { startListenAlong } from '/@/renderer/features/sour/utils/switching';
 import { AppRoute } from '/@/renderer/router/routes';
 import { useCurrentServer, usePlayerSong } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
@@ -164,25 +165,53 @@ export const ProfileView = ({
         </div>
     );
 
-    const tiles = (entries: GroupSong[], round?: boolean) => (
+    // your own favourites can be taken off your profile right here
+    const canEdit = isMe && !preview && !!me;
+    const removeFavorite = (entry: GroupSong) =>
+        me &&
+        act(async () => {
+            const fresh = await sourApi.me(url, me);
+            await sourApi.update(url, me, {
+                favorites: fresh.favorites.filter((f) => f.id !== entry.id),
+            });
+            await queryClient.invalidateQueries({ queryKey: ['sour-me', url] });
+        }, `${entry.title} is off your profile`);
+    const removeButton = (entry: GroupSong, className?: string) =>
+        canEdit && (
+            <ActionIcon
+                className={className}
+                icon="x"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    removeFavorite(entry);
+                }}
+                size="sm"
+                tooltip={{ label: 'Remove from my profile' }}
+                variant="subtle"
+            />
+        );
+
+    const tiles = (entries: GroupSong[], round?: boolean, removable?: boolean) => (
         <div className={styles.tiles}>
             {entries.map((entry) => (
-                <button
-                    className={styles.tileButton}
-                    key={entry.id}
-                    onClick={() => openItem(entry)}
-                    type="button"
-                >
-                    <ItemCover entry={entry} round={round} />
-                    <Text fw={600} size="sm" ta={round ? 'center' : undefined} truncate>
-                        {entry.title}
-                    </Text>
-                    {!round && (
-                        <Text isMuted size="xs" truncate>
-                            {entry.artist}
+                <div className={styles.tile} key={entry.id}>
+                    <button
+                        className={styles.tileButton}
+                        onClick={() => openItem(entry)}
+                        type="button"
+                    >
+                        <ItemCover entry={entry} round={round} />
+                        <Text fw={600} size="sm" ta={round ? 'center' : undefined} truncate>
+                            {entry.title}
                         </Text>
-                    )}
-                </button>
+                        {!round && (
+                            <Text isMuted size="xs" truncate>
+                                {entry.artist}
+                            </Text>
+                        )}
+                    </button>
+                    {removable && removeButton(entry, styles.tileRemove)}
+                </div>
             ))}
         </div>
     );
@@ -204,7 +233,11 @@ export const ProfileView = ({
         era: <EraSection profile={profile} />,
         favoriteAlbums: favorites.some((f) => favoriteKind(f) === 'album') && (
             <Section title="Favourite albums">
-                {tiles(favorites.filter((f) => favoriteKind(f) === 'album'))}
+                {tiles(
+                    favorites.filter((f) => favoriteKind(f) === 'album'),
+                    false,
+                    true,
+                )}
             </Section>
         ),
         favoriteArtists: favorites.some((f) => favoriteKind(f) === 'artist') && (
@@ -212,12 +245,15 @@ export const ProfileView = ({
                 {tiles(
                     favorites.filter((f) => favoriteKind(f) === 'artist'),
                     true,
+                    true,
                 )}
             </Section>
         ),
         favoriteSongs: favorites.some((f) => favoriteKind(f) === 'song') && (
             <Section title="Favourite songs">
-                {favorites.filter((f) => favoriteKind(f) === 'song').map((s) => songRow(s))}
+                {favorites
+                    .filter((f) => favoriteKind(f) === 'song')
+                    .map((s) => songRow(s, removeButton(s)))}
             </Section>
         ),
         genres: !!c.genres?.length && (
@@ -544,12 +580,15 @@ export const ProfileView = ({
                         <Group gap="xs" pb="md" px="md">
                             {profile.online && profile.listening && (
                                 <Button
-                                    onClick={() => {
-                                        setStore({ listenAlong: profile.id });
-                                        toast.info({
-                                            message: `Listening along with ${profile.name}`,
-                                        });
-                                    }}
+                                    onClick={() =>
+                                        startListenAlong(profile).then(
+                                            (started) =>
+                                                started &&
+                                                toast.info({
+                                                    message: `Listening along with ${profile.name}`,
+                                                }),
+                                        )
+                                    }
                                     size="xs"
                                     variant="filled"
                                 >

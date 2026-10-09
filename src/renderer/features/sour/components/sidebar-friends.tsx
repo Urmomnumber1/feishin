@@ -10,6 +10,7 @@ import { ProfileHover } from '/@/renderer/features/sour/components/profile-extra
 import { openSourStudio } from '/@/renderer/features/sour/components/sour-studio';
 import { toggleStage } from '/@/renderer/features/sour/stage/sour-stage';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { nameColor } from '/@/renderer/features/sour/components/profile-bits';
 import { AppRoute } from '/@/renderer/router/routes';
 import { Accordion } from '/@/shared/components/accordion/accordion';
 import { Group } from '/@/shared/components/group/group';
@@ -39,7 +40,7 @@ export const SidebarFriends = () => {
             >
                 <ProfileAvatar online={p.online} profile={p} size={32} />
                 <div className={styles.text}>
-                    <Text fw={600} size="sm" truncate>
+                    <Text fw={600} size="sm" style={{ color: nameColor(p) }} truncate>
                         {p.name}
                     </Text>
                     {p.online && p.listening ? (

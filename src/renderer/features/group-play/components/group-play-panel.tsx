@@ -37,6 +37,7 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 import { avatarUrl, readPicture, sourApi } from '/@/renderer/features/sour/api/sour-api';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { leaveListenAlongFirst } from '/@/renderer/features/sour/utils/switching';
 import { useCurrentServer } from '/@/renderer/store';
 import { usePlayerStoreBase } from '/@/renderer/store/player.store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
@@ -169,6 +170,8 @@ export const GroupPlayPanel = () => {
     }
 
     const run = async (work: () => Promise<void>) => {
+        // creating or joining a group while listening along with someone: ask first
+        if (!useGroupPlayStore.getState().code && !(await leaveListenAlongFirst())) return;
         setBusy(true);
         try {
             await work();

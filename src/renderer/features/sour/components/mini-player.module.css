@@ -145,3 +145,17 @@
     height: 26px;
     opacity: 0.85;
 }
+
+/* a window that couldn't be made small (some Linux window managers): a tidy card in the middle */
+@media (height > 260px) {
+    .mini {
+        grid-template-rows: auto auto;
+        grid-template-columns: auto minmax(0, 440px);
+        align-content: center;
+        justify-content: center;
+    }
+
+    .cover {
+        height: 140px;
+    }
+}

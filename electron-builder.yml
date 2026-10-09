@@ -63,6 +63,11 @@ linux:
         - tar.xz
     category: AudioVideo;Audio;Player
     icon: assets/icons/icon.png
+    # the window class Electron gives the app (its package.json name), so taskbars match the window to
+    # this launcher (pinning works, the right icon shows)
+    desktop:
+        entry:
+            StartupWMClass: sour-player
     artifactName: Sour-Player-${os}-${arch}.${ext}
 
 toolsets:

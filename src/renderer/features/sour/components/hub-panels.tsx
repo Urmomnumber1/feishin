@@ -8,7 +8,13 @@ import { saveAsPlaylist } from '/@/renderer/features/group-play/components/group
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { type Duel, socialApi } from '/@/renderer/features/sour/api/social-api';
-import { avatarUrl, tasteMatch, timeAgo } from '/@/renderer/features/sour/api/sour-api';
+import {
+    avatarUrl,
+    type RequestGuess,
+    tasteMatch,
+    timeAgo,
+} from '/@/renderer/features/sour/api/sour-api';
+import { RequestQuestion } from '/@/renderer/features/sour/components/request-question';
 import { openProfile } from '/@/renderer/features/sour/components/people';
 import {
     hue,
@@ -977,6 +983,7 @@ export const TasteMap = () => {
 // ---------- requests: live progress and who added the most ----------
 interface RequestRow {
     artist?: string;
+    ask?: RequestGuess;
     by?: string;
     created?: string;
     id: string;
@@ -1033,13 +1040,18 @@ export const RequestsPanel = () => {
                                     {r.type !== 'song' ? `${r.type} - ` : ''}
                                     {r.status === 'failed'
                                         ? `couldn't get it${r.note ? `: ${r.note}` : ''}`
-                                        : r.status}
+                                        : r.status === 'ask'
+                                          ? 'Hermes Music needs your answer'
+                                          : r.status}
                                     {r.progress && r.progress.total
                                         ? ` - ${r.progress.done} of ${r.progress.total}`
                                         : ''}
                                     {r.by ? ` - asked by ${r.by}` : ''}
                                 </span>
-                                {r.status !== 'failed' && (
+                                {r.status === 'ask' && r.ask && (
+                                    <RequestQuestion ask={r.ask} id={r.id} />
+                                )}
+                                {r.status !== 'failed' && r.status !== 'ask' && (
                                     <div className={styles.progress}>
                                         <div
                                             style={{

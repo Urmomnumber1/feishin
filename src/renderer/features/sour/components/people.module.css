@@ -151,6 +151,13 @@
     min-width: 0;
 }
 
+.tile-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgb(0 0 0 / 55%) !important;
+}
+
 .tile-button {
     display: flex;
     flex-direction: column;

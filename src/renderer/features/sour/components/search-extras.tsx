@@ -8,8 +8,12 @@ import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { openProfile } from '/@/renderer/features/sour/components/people';
-import { ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
+import {
+    nameColor,
+    ProfileAvatar,
+} from '/@/renderer/features/sour/components/profile-bits';
 import { useSourProfiles, useSourStore } from '/@/renderer/features/sour/store/sour.store';
+import { leaveListenAlongFirst } from '/@/renderer/features/sour/utils/switching';
 import { Button } from '/@/shared/components/button/button';
 import { Group } from '/@/shared/components/group/group';
 import { Text } from '/@/shared/components/text/text';
@@ -56,6 +60,7 @@ export const SearchExtras = () => {
     };
 
     const join = async (code: string) => {
+        if (!(await leaveListenAlongFirst())) return;
         const { actions, userName } = useGroupPlayStore.getState();
         try {
             const res = await groupApi.join(url, code, userName || 'Guest', me?.id ?? null);
@@ -93,7 +98,9 @@ export const SearchExtras = () => {
                             type="button"
                         >
                             <ProfileAvatar online={p.online} profile={p} size={22} />
-                            <Text size="sm">{p.name}</Text>
+                            <Text size="sm" style={{ color: nameColor(p) }}>
+                                {p.name}
+                            </Text>
                         </button>
                     ))}
                 </Group>

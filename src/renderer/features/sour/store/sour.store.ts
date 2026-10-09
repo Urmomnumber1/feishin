@@ -33,6 +33,8 @@ export interface SourLook {
     animatedBackground: boolean;
     autoVideo: boolean;
     barLayout: 'classic' | 'floating';
+    // the look of the small visualizer in the player bar and the mini player
+    barStyle: BarVisualizerStyle;
     barVisualizer: boolean;
     corners: 'normal' | 'round' | 'sharp';
     cursor: boolean;
@@ -58,6 +60,8 @@ export interface SourLook {
     visualizer: VisualizerStyle;
 }
 
+export type BarVisualizerStyle = 'bars' | 'glow' | 'halo' | 'pulp' | 'river';
+
 export type VisualizerStyle = 'bars' | 'glow' | 'halo' | 'orbit' | 'pulp' | 'river' | 'soul';
 
 export const DEFAULT_LOOK: SourLook = {
@@ -65,6 +69,7 @@ export const DEFAULT_LOOK: SourLook = {
     animatedBackground: false,
     autoVideo: false,
     barLayout: 'classic',
+    barStyle: 'bars',
     barVisualizer: true,
     corners: 'normal',
     cursor: false,
@@ -107,6 +112,7 @@ interface SourStore {
     lastInbox: number;
     lastSocial: number;
     listenAlong: null | string;
+    listenAlongName?: null | string;
     look: SourLook;
     me: Me | null;
     notes: Record<string, string>;
@@ -137,6 +143,7 @@ export const useSourStore = createWithEqualityFn<SourStore>()(
             lastInbox: 0,
             lastSocial: 0,
             listenAlong: null,
+            listenAlongName: null,
             look: DEFAULT_LOOK,
             me: null,
             notes: {},
