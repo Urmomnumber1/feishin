@@ -3,7 +3,7 @@ import { ipcMain } from 'electron';
 
 import log from '/@/main/logger';
 
-const FEISHIN_DISCORD_APPLICATION_ID = '1165957668758900787';
+const FEISHIN_DISCORD_APPLICATION_ID = '1558346284539318332'; // Sour Player's Discord application
 
 let client: Client | null = null;
 

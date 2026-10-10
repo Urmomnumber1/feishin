@@ -48,6 +48,14 @@ const SPACING: Array<[string, number]> = [
 // The look switches from the Sour Studio, as classes and variables on <html>
 const LookSwitches = () => {
     const look = useSourStore((s) => s.look);
+    // Discord status: installs from before 0.5.3 still point at Feishin's Discord application
+    // (which showed "Feishin" and its icon); move them to Sour Player's
+    useEffect(() => {
+        const settings = useSettingsStore.getState();
+        if (settings.discord.clientId === '1165957668758900787') {
+            settings.actions.setSettings({ discord: { clientId: '1558346284539318332' } });
+        }
+    }, []);
     useEffect(() => {
         const root = document.documentElement;
         root.classList.toggle('sour-corners-sharp', look.corners === 'sharp');

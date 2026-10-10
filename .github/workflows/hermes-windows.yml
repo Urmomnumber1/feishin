@@ -152,6 +152,8 @@ jobs:
                   body: |
                       Sour Player: the music player for Hermes Music (built on Feishin).
 
+                      **New in 0.5.3:** the Discord status says Sour Player, with its own icon.
+
                       **New in 0.5.2:** karaoke instrumentals stay in step with the song (with a "music -/+"
                       nudge per song) at the same loudness as the song (needs Hermes Music 3.4.1); the heart button for playing as the SOUL is back; the mini player's loop
                       icon shows.

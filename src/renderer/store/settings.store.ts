@@ -1375,7 +1375,7 @@ const initialState: SettingsState = {
         enabled: false,
     },
     discord: {
-        clientId: '1165957668758900787',
+        clientId: '1558346284539318332', // the Sour Player Discord application
         displayType: DiscordDisplayType.SONG_NAME,
         enabled: false,
         linkType: DiscordLinkType.NONE,
