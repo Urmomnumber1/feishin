@@ -92,20 +92,10 @@ const KEYS: Record<string, [number, number]> = {
 };
 const typing = (e: KeyboardEvent) =>
     e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
-// when you last steered (keys or mouse); the SOUL dodges by itself again a few seconds later
-let lastKey = -1e9;
-const aim = { at: -1e9, x: 0, y: 0 };
-// the mouse, in canvas pixels (the visualizer reports it while the pointer is over the canvas)
-export const aimSoul = (x: number, y: number) => {
-    aim.x = x;
-    aim.y = y;
-    aim.at = performance.now();
-};
 const onDown = (e: KeyboardEvent) => {
     const key = e.key.toLowerCase();
     if (!KEYS[key] || typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
     held.add(key);
-    lastKey = performance.now();
     e.preventDefault();
     e.stopPropagation();
 };
@@ -235,12 +225,8 @@ export const drawSoul = (
         soul.y = 0.5 - fy / 2;
     }
     soul.broken += ((playing ? 0 : 1) - soul.broken) * Math.min(1, 0.12 * dt);
-    const clockNow = performance.now();
-    if (held.size) lastKey = clockNow;
-    const byKeys = play && clockNow - lastKey < 4000;
-    const byMouse = play && !byKeys && clockNow - aim.at < 2500;
     if (playing) {
-        if (byKeys) {
+        if (play) {
             // you steer: a calm pace, like the real thing
             let mx = 0;
             let my = 0;
@@ -250,12 +236,6 @@ export const drawSoul = (
             }
             soul.x += Math.sign(mx) * 0.009 * dt;
             soul.y += Math.sign(my) * 0.02 * dt;
-        } else if (byMouse) {
-            // ...or it follows the mouse
-            const tx = (aim.x - inner.x) / inner.w - fx / 2;
-            const ty = (aim.y - inner.y) / inner.h - fy / 2;
-            soul.x += Math.max(-0.012 * dt, Math.min(0.012 * dt, tx - soul.x));
-            soul.y += Math.max(-0.028 * dt, Math.min(0.028 * dt, ty - soul.y));
         } else {
             // it dodges by itself: drift along, and head for the middle of the gap the bones leave
             // just ahead of it
@@ -377,10 +357,6 @@ export const drawSoul = (
         ctx.font = `${Math.max(7, Math.round(font * 0.7))}px Determination, monospace`;
         ctx.fillStyle = 'rgb(255 255 255 / 60%)';
         ctx.textAlign = 'center';
-        ctx.fillText(
-            byKeys || byMouse ? 'you have the SOUL' : 'arrow keys, WASD or the mouse to steer',
-            cx,
-            by - font * 0.7,
-        );
+        ctx.fillText('arrow keys or WASD', cx, by - font * 0.7);
     }
 };

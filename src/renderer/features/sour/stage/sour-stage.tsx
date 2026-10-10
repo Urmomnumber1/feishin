@@ -151,6 +151,7 @@ const StageView = () => {
     const group = useGroupPlayStore((s) => s.state);
     const loop = useLoop();
     const [flipped, setFlipped] = useState(false);
+    const [soulPlay, setSoulPlay] = useState(false);
     // playing from a playlist with its own background picture (playlist Theme): that picture is
     // the Stage's backdrop instead of the blurred cover
     const contextPlaylist = usePlayContext((s) => s.playlistId);
@@ -341,6 +342,20 @@ const StageView = () => {
                     size="xs"
                     value={look.lyricStyle}
                 />
+                {visualizer === 'soul' && (
+                    <button
+                        className={clsx(styles.tool, { [styles.on]: soulPlay })}
+                        onClick={() => setSoulPlay((on) => !on)}
+                        title={
+                            soulPlay
+                                ? 'Let the SOUL dodge by itself'
+                                : 'Play as the SOUL (arrow keys or WASD; hits do nothing)'
+                        }
+                        type="button"
+                    >
+                        <Icon icon="favorite" />
+                    </button>
+                )}
                 <button
                     className={clsx(styles.tool, { [styles.on]: look.stageVinyl })}
                     onClick={() => setLook({ stageVinyl: !look.stageVinyl })}
@@ -580,7 +595,7 @@ const StageView = () => {
                         colors={[color]}
                         coverUrl={cover}
                         people={orbit}
-                        soulPlay
+                        soulPlay={soulPlay}
                         style={visualizer}
                     />
                 </div>
