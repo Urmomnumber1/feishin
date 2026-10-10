@@ -65,7 +65,7 @@ export const SourSettings = memo(() => {
                 </Button>
             ),
             description:
-                "Fix a friend's name, bio, pictures or colours for them. Only you have this.",
+                "Fix a friend's name, bio, pictures or colours for them. Only Navidrome admins have this.",
             isHidden: !admin,
             title: "Edit someone's profile",
         },
