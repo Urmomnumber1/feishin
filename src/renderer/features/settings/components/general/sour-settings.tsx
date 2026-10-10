@@ -1,3 +1,4 @@
+import isElectron from 'is-electron';
 import { memo } from 'react';
 
 import {
@@ -11,6 +12,11 @@ import {
     useMyProfile,
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
+import {
+    DiscordDisplayType,
+    useDiscordSettings,
+    useSettingsStoreActions,
+} from '/@/renderer/store/settings.store';
 import { Button } from '/@/shared/components/button/button';
 import { Switch } from '/@/shared/components/switch/switch';
 
@@ -28,6 +34,8 @@ const BUTTONS: Array<[string, string]> = [
 export const SourSettings = memo(() => {
     const look = useSourStore((state) => state.look);
     const setLook = useSourStore((state) => state.setLook);
+    const discord = useDiscordSettings();
+    const { setSettings } = useSettingsStoreActions();
     const hiddenPlaylists = useSourStore((state) => state.hiddenPlaylists) ?? [];
     const setStore = useSourStore((state) => state.set);
     const admin = !!useMyProfile().data?.perks?.includes('admin');
@@ -45,6 +53,30 @@ export const SourSettings = memo(() => {
     });
 
     const options: SettingOption[] = [
+        {
+            control: (
+                <Switch
+                    aria-label="Discord status"
+                    checked={discord.enabled}
+                    onChange={(e) =>
+                        setSettings({
+                            discord: e.currentTarget.checked
+                                ? {
+                                      displayType: DiscordDisplayType.SONG_NAME,
+                                      enabled: true,
+                                      showAsListening: true,
+                                      showPaused: false,
+                                  }
+                                : { enabled: false },
+                        })
+                    }
+                />
+            ),
+            description:
+                'Shows "Listening to" with the song and artist on your Discord profile, like Spotify does (the Discord app has to be running; more options under Settings > Window > Discord).',
+            isHidden: !isElectron(),
+            title: 'Discord status',
+        },
         toggle(
             'simple',
             'Simple mode',
