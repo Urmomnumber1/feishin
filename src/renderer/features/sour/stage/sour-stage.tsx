@@ -302,7 +302,10 @@ const StageView = () => {
     return (
         <div className={styles.stage} style={{ '--stage-color': color } as CSSProperties}>
             {backdrop ? (
-                <div className={styles.backdrop} style={{ backgroundImage: `url("${backdrop}")` }} />
+                <div
+                    className={styles.backdrop}
+                    style={{ backgroundImage: `url("${backdrop}")` }}
+                />
             ) : (
                 cover && (
                     <div className={styles.blur} style={{ backgroundImage: `url("${cover}")` }} />

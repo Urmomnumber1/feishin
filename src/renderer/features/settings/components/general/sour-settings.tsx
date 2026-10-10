@@ -28,6 +28,8 @@ const BUTTONS: Array<[string, string]> = [
 export const SourSettings = memo(() => {
     const look = useSourStore((state) => state.look);
     const setLook = useSourStore((state) => state.setLook);
+    const hiddenPlaylists = useSourStore((state) => state.hiddenPlaylists) ?? [];
+    const setStore = useSourStore((state) => state.set);
     const admin = !!useMyProfile().data?.perks?.includes('admin');
 
     const toggle = (key: keyof SourLook, title: string, description: string): SettingOption => ({
@@ -119,6 +121,22 @@ export const SourSettings = memo(() => {
             title: `Player bar: ${label}`,
         })),
     ];
+
+    if (hiddenPlaylists.length) {
+        options.push({
+            control: (
+                <Button
+                    onClick={() => setStore({ hiddenPlaylists: [] })}
+                    size="compact-sm"
+                    variant="default"
+                >
+                    Show them all again
+                </Button>
+            ),
+            description: `Hidden from the sidebar: ${hiddenPlaylists.map((h) => h.name).join(', ')}. Right-click a playlist on the Playlists page to show just that one.`,
+            title: 'Hidden playlists',
+        });
+    }
 
     options.push({
         control: <></>,

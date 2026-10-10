@@ -92,7 +92,11 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
                 if (playerState === YT_PLAYING && yt.current.state !== YT_PLAYING) {
                     for (const module of ['captions', 'cc']) {
                         frame.current?.contentWindow?.postMessage(
-                            JSON.stringify({ args: [module], event: 'command', func: 'unloadModule' }),
+                            JSON.stringify({
+                                args: [module],
+                                event: 'command',
+                                func: 'unloadModule',
+                            }),
                             '*',
                         );
                     }

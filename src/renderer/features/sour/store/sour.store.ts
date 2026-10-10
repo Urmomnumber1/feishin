@@ -110,6 +110,8 @@ interface SourStore {
     blocked: BlockedArtist[];
     crossfade: Record<string, number>;
     greeted: string;
+    // playlists hidden from this computer's sidebar (right-click a playlist > Hide)
+    hiddenPlaylists?: { id: string; name: string }[];
     history: HistoryEntry[];
     holidayRestore: null | { holiday: string; theme: string };
     lastInbox: number;
@@ -144,6 +146,7 @@ export const useSourStore = createWithEqualityFn<SourStore>()(
             blocked: [],
             crossfade: {},
             greeted: '',
+            hiddenPlaylists: [],
             history: [],
             holidayRestore: null,
             lastInbox: 0,

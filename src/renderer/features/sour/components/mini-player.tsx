@@ -142,7 +142,9 @@ const MiniPlayerView = () => {
                         }
                         type="button"
                     >
-                        <Icon icon={repeat === PlayerRepeat.ONE ? 'mediaRepeatOne' : 'mediaRepeat'} />
+                        <Icon
+                            icon={repeat === PlayerRepeat.ONE ? 'mediaRepeatOne' : 'mediaRepeat'}
+                        />
                     </button>
                     <button
                         aria-label="Volume"
@@ -164,7 +166,9 @@ const MiniPlayerView = () => {
                             max={100}
                             min={0}
                             onChange={(e) =>
-                                usePlayerStoreBase.getState().setVolume(Number(e.currentTarget.value))
+                                usePlayerStoreBase
+                                    .getState()
+                                    .setVolume(Number(e.currentTarget.value))
                             }
                             type="range"
                             value={volume}

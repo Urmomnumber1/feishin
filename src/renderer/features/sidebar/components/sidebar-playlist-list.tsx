@@ -31,6 +31,7 @@ import {
     usePlaylistFolderViewState,
     usePlaylistNavigationState,
 } from '/@/renderer/features/sidebar/components/playlist-folder-tree';
+import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useDragDrop } from '/@/renderer/hooks/use-drag-drop';
 import { useDragMonitor } from '/@/renderer/hooks/use-drag-monitor';
 import { AppRoute } from '/@/renderer/router/routes';
@@ -461,6 +462,11 @@ const useSidebarPlaylistItems = (scope: 'owned' | 'shared') => {
         key: getPlaylistOrderKey(server.id, scope),
     });
 
+    const hiddenPlaylists = useSourStore((state) => state.hiddenPlaylists);
+    const hiddenIds = useMemo(
+        () => new Set((hiddenPlaylists ?? []).map((h) => h.id)),
+        [hiddenPlaylists],
+    );
     const items = useMemo(() => {
         if (!server?.type || !server?.username || !playlistsQuery.data?.items) {
             return playlistsQuery.data?.items;
@@ -478,6 +484,7 @@ const useSidebarPlaylistItems = (scope: 'owned' | 'shared') => {
         const scopedPlaylistItems: Array<Playlist> = [];
 
         for (const playlist of playlistsQuery.data?.items ?? []) {
+            if (hiddenIds.has(playlist.id)) continue; // hidden with right-click > Hide playlist
             const isOwned = !playlist.owner || playlist.owner === server.username;
             if (isOwned === (scope === 'owned')) {
                 // Filter out playlists that match the regex
@@ -509,6 +516,7 @@ const useSidebarPlaylistItems = (scope: 'owned' | 'shared') => {
         sidebarPlaylistSorting,
         playlistOrder,
         filterRegex,
+        hiddenIds,
     ]);
 
     const handleReorder = (

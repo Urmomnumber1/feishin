@@ -247,7 +247,8 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
             title="Ask Hermes Music for this song's instrumental, so karaoke can drop the vocals"
             type="button"
         >
-            <Icon icon="download" /> {asked ? 'Getting the instrumental...' : 'Get the instrumental'}
+            <Icon icon="download" />{' '}
+            {asked ? 'Getting the instrumental...' : 'Get the instrumental'}
         </button>
     );
 };

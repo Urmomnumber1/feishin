@@ -313,6 +313,33 @@ export const ShareSongAction = ({ songs }: { songs: Song[] }) => {
     );
 };
 
+// Playlist right-click: hide it from this computer's sidebar (Settings > Sour Player brings it back)
+export const HidePlaylistAction = ({ playlist }: { playlist?: Playlist }) => {
+    const hidden = useSourStore((state) => state.hiddenPlaylists) ?? [];
+    const set = useSourStore((state) => state.set);
+    if (!playlist) return null;
+    const isHidden = hidden.some((h) => h.id === playlist.id);
+    return (
+        <ContextMenu.Item
+            leftIcon={isHidden ? 'add' : 'x'}
+            onSelect={() => {
+                set({
+                    hiddenPlaylists: isHidden
+                        ? hidden.filter((h) => h.id !== playlist.id)
+                        : [...hidden, { id: playlist.id, name: playlist.name }],
+                });
+                toast.info({
+                    message: isHidden
+                        ? `${playlist.name} is back in the sidebar`
+                        : `${playlist.name} is hidden (Settings > Sour Player to bring it back)`,
+                });
+            }}
+        >
+            {isHidden ? 'Show in the sidebar again' : 'Hide playlist'}
+        </ContextMenu.Item>
+    );
+};
+
 // Album / playlist right-click: pin it to the top of the sidebar
 export const PinAction = ({
     item,
