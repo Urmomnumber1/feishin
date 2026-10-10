@@ -170,7 +170,7 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
         queryFn: async () => {
             const res = await fetch(`${url}/api/karaoke?${query}`);
             if (!res.ok) return { available: false };
-            return (await res.json()) as { available: boolean };
+            return (await res.json()) as { available: boolean; gain?: number };
         },
         queryKey: ['sour-karaoke', url, query],
         // once asked for, keep looking until Hermes Music has it
@@ -178,6 +178,9 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
         retry: false,
     });
     const available = !!check.data?.available;
+    // how much quieter (or louder) the instrumental has to play to match the song (Hermes Music
+    // measures both)
+    const gain = check.data?.gain && check.data.gain > 0 ? check.data.gain : 1;
 
     useEffect(() => {
         if (!available || !url) return undefined;
@@ -216,8 +219,7 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
                     audio.playbackRate = rate;
                 } else {
                     // a little off: catch up (or wait) by playing 3% faster or slower, no jump
-                    audio.playbackRate =
-                        rate * (drift > 0.03 ? 0.97 : drift < -0.03 ? 1.03 : 1);
+                    audio.playbackRate = rate * (drift > 0.03 ? 0.97 : drift < -0.03 ? 1.03 : 1);
                 }
             }
             if (playing && audio.paused) audio.play().catch(() => {});
@@ -227,7 +229,7 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
             const target = stopped || !ready ? 0 : 1;
             if (level !== target) {
                 level = Math.max(0, Math.min(1, level + (target > level ? 0.06 : -0.06)));
-                audio.volume = Math.min(1, (original / 100) * level);
+                audio.volume = Math.min(1, (original / 100) * level * gain);
                 player().setVolume(Math.round(original * (1 - level)));
                 setOn(level > 0.5);
             }
@@ -245,7 +247,7 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
                 // nothing saved
             }
         };
-    }, [available, query, url]);
+    }, [available, gain, query, url]);
 
     const ask = async () => {
         try {
