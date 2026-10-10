@@ -66,7 +66,10 @@ export const SourPresence = () => {
                     profile: before?.id,
                 })
                 .then((res) => {
-                    if (stopped) return;
+                    // The app can start this twice while it's loading; an answer is still good as
+                    // long as nobody else signed in meanwhile (it used to be thrown away, which
+                    // could leave Sour features signed out until the next restart)
+                    if (useSourStore.getState().me !== before) return;
                     useSourStore
                         .getState()
                         .setMe({ account: res.account, id: res.id, key: res.key });
