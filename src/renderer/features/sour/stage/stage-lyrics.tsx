@@ -7,15 +7,13 @@ import { queryKeys } from '/@/renderer/api/query-keys';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { type LyricsQueryResult } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { openLyricSearchModal } from '/@/renderer/features/lyrics/components/lyrics-search-form';
-import { searchQueries } from '/@/renderer/features/search/api/search-api';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
-import { useCurrentServer } from '/@/renderer/store';
-import { addToQueueByData, usePlayerStoreBase } from '/@/renderer/store/player.store';
+import { usePlayerStoreBase } from '/@/renderer/store/player.store';
 import { useTimestampStoreBase } from '/@/renderer/store/timestamp.store';
 import { Icon } from '/@/shared/components/icon/icon';
 import { toast } from '/@/shared/components/toast/toast';
-import { type LyricsOverride, type QueueSong, type Song } from '/@/shared/types/domain-types';
-import { Play, PlayerStatus } from '/@/shared/types/types';
+import { type LyricsOverride, type QueueSong } from '/@/shared/types/domain-types';
+import { PlayerStatus } from '/@/shared/types/types';
 
 export interface Line {
     cues?: { endMs: number; startMs: number; text: string }[];
@@ -73,10 +71,14 @@ const timedWords = (line: Line, next?: Line) => {
     // people finish a line a little before the next one starts
     const length = Math.min(9000, Math.max(700, gap * 0.88));
     const tokens = line.text.split(/(\s+)/).filter((t) => t.length);
-    const letters = tokens.reduce((n, t) => n + (t.trim() ? t.length : 0), 0) || 1;
+    // a word takes about as long as it has syllables (plus a breath), which tracks singing much
+    // better than counting letters
+    const weight = (t: string) =>
+        t.trim() ? (t.toLowerCase().match(/[aeiouy]+/g)?.length || 1) + 0.6 : 0;
+    const total = tokens.reduce((n, t) => n + weight(t), 0) || 1;
     let at = line.startMs;
     return tokens.map((text) => {
-        const span = text.trim() ? (text.length / letters) * length : 0;
+        const span = (weight(text) / total) * length;
         const word = { end: at + span, start: at, text };
         at += span;
         return word;
@@ -118,50 +120,99 @@ export const KaraokeLine = ({
 
 const plainTitle = (name: string) =>
     name.replace(/\s*[([](instrumental|karaoke|off vocal)[^)\]]*[)\]]/i, '').trim();
-const simple = (s: string) =>
-    s
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, ' ')
-        .trim();
+// The volume the player had before karaoke turned it down (kept so a restart mid-song can't leave
+// the app silent)
+const SAVED_VOLUME = 'sour-karaoke-volume';
+export const restoreKaraokeVolume = () => {
+    try {
+        const saved = localStorage.getItem(SAVED_VOLUME);
+        if (saved === null) return;
+        localStorage.removeItem(SAVED_VOLUME);
+        usePlayerStoreBase.getState().setVolume(Number(saved) || 50);
+    } catch {
+        // no storage: nothing was saved either
+    }
+};
 
-// Karaoke mode: switch to the song's instrumental (from Hermes Music's /karaoke) at the same spot, or
-// ask Hermes Music to get it
-const SingAlong = ({ song }: { song: QueueSong }) => {
+// Karaoke: the vocals fade out. The song's instrumental (Hermes Music's /karaoke keeps them in a
+// hidden folder, they never show up as songs) plays from Hermes Music in step with the song while
+// the song itself is turned all the way down; leaving karaoke fades the song back in.
+const KaraokeBacking = ({ song }: { song: QueueSong }) => {
     const url = useHermesUrl();
     const me = useSourStore((state) => state.me);
-    const serverId = useCurrentServer()?.id;
     const title = plainTitle(song.name);
-    const instrumentalNow = title !== song.name;
-    const found = useQuery(
-        searchQueries.search({
-            options: { enabled: !!serverId && !!title, staleTime: 5 * 60000 },
-            query: { albumArtistLimit: 0, albumLimit: 0, query: title, songLimit: 40 },
-            serverId: serverId || '',
-        }),
-    );
-    const artist = simple(song.artistName || '');
-    const sameArtist = (s: Song) =>
-        !artist || simple(s.artistName || '').includes(artist.split(' ')[0]);
-    const other = (found.data?.songs ?? []).find(
-        (s) =>
-            s.id !== song.id &&
-            sameArtist(s) &&
-            simple(plainTitle(s.name)) === simple(title) &&
-            (instrumentalNow ? plainTitle(s.name) === s.name : plainTitle(s.name) !== s.name),
-    );
+    const query = `artist=${encodeURIComponent(song.artistName || '')}&title=${encodeURIComponent(title)}`;
+    const [asked, setAsked] = useState(false);
+    const [on, setOn] = useState(false);
+    const check = useQuery({
+        enabled: !!url,
+        queryFn: async () => {
+            const res = await fetch(`${url}/api/karaoke?${query}`);
+            if (!res.ok) return { available: false };
+            return (await res.json()) as { available: boolean };
+        },
+        queryKey: ['sour-karaoke', url, query],
+        // once asked for, keep looking until Hermes Music has it
+        refetchInterval: (q) => (asked && !q.state.data?.available ? 15000 : false),
+        retry: false,
+    });
+    const available = !!check.data?.available;
 
-    const swap = async () => {
-        if (!other) return;
-        const position = useTimestampStoreBase.getState().timestamp;
-        await addToQueueByData(Play.NEXT, [other]);
-        usePlayerStoreBase.getState().mediaNext(false);
-        window.setTimeout(() => usePlayerStoreBase.getState().mediaSeekToTimestamp(position), 450);
-    };
+    useEffect(() => {
+        if (!available || !url) return undefined;
+        const audio = new Audio(`${url}/api/karaoke/file?${query}`);
+        audio.preload = 'auto';
+        audio.volume = 0;
+        const player = () => usePlayerStoreBase.getState();
+        const original = player().player.volume;
+        try {
+            if (localStorage.getItem(SAVED_VOLUME) === null) {
+                localStorage.setItem(SAVED_VOLUME, String(original));
+            }
+        } catch {
+            // fine without the safety net
+        }
+        let level = 0; // 0 = the song, 1 = the instrumental
+        let stopped = false;
+        const timer = window.setInterval(() => {
+            const state = player().player;
+            const playing = state.status === PlayerStatus.PLAYING;
+            const at = useTimestampStoreBase.getState().timestamp;
+            if (Math.abs(audio.currentTime - at) > 0.35 && audio.readyState >= 1) {
+                audio.currentTime = at;
+            }
+            audio.playbackRate = state.speed > 0 ? state.speed : 1;
+            if (playing && audio.paused) audio.play().catch(() => {});
+            if (!playing && !audio.paused) audio.pause();
+            // the crossfade (about a second), only once the instrumental can actually play
+            const ready = audio.readyState >= 3;
+            const target = stopped || !ready ? 0 : 1;
+            if (level !== target) {
+                level = Math.max(0, Math.min(1, level + (target > level ? 0.12 : -0.12)));
+                audio.volume = Math.min(1, (original / 100) * level);
+                player().setVolume(Math.round(original * (1 - level)));
+                setOn(level > 0.5);
+            }
+        }, 100);
+        return () => {
+            stopped = true;
+            window.clearInterval(timer);
+            audio.pause();
+            audio.removeAttribute('src');
+            // the song comes straight back
+            player().setVolume(original);
+            try {
+                localStorage.removeItem(SAVED_VOLUME);
+            } catch {
+                // nothing saved
+            }
+        };
+    }, [available, query, url]);
+
     const ask = async () => {
         try {
             const res = await fetch(`${url}/api/requests`, {
                 body: JSON.stringify({
-                    by: undefined,
                     profile: me?.id,
                     query: `${song.artistName} - ${title}`,
                     type: 'karaoke',
@@ -171,35 +222,32 @@ const SingAlong = ({ song }: { song: QueueSong }) => {
             });
             const json = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(json.error || `Hermes Music returned ${res.status}`);
+            setAsked(true);
             toast.success({
-                message: `Hermes Music is getting the instrumental of ${title} - it's here after the next library scan`,
+                message: `Hermes Music is getting the instrumental of ${title} - the vocals fade out as soon as it's here`,
             });
         } catch (error) {
             toast.error({ message: (error as Error).message });
         }
     };
 
-    if (other) {
+    if (!url || !check.isFetched) return null;
+    if (available) {
         return (
-            <button
-                className={styles.textTool}
-                onClick={swap}
-                title={instrumentalNow ? 'Back to the song with vocals' : 'Play the instrumental'}
-                type="button"
-            >
-                <Icon icon="microphone" /> {instrumentalNow ? 'With vocals' : 'Sing it'}
-            </button>
+            <span className={styles.offset} title="The instrumental is playing instead of the song">
+                <Icon icon="microphone" /> {on ? 'Vocals off' : 'Fading...'}
+            </span>
         );
     }
-    if (instrumentalNow || !url || !found.isFetched) return null;
     return (
         <button
             className={styles.textTool}
+            disabled={asked}
             onClick={ask}
-            title="Ask Hermes Music for this song's instrumental"
+            title="Ask Hermes Music for this song's instrumental, so karaoke can drop the vocals"
             type="button"
         >
-            <Icon icon="download" /> Get the instrumental
+            <Icon icon="download" /> {asked ? 'Getting the instrumental...' : 'Get the instrumental'}
         </button>
     );
 };
@@ -262,7 +310,7 @@ export const LyricsTools = ({
             >
                 <Icon icon="search" /> Lyrics
             </button>
-            {karaoke && <SingAlong song={song} />}
+            {karaoke && <KaraokeBacking key={song.id} song={song} />}
         </div>
     );
 };

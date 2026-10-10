@@ -87,7 +87,18 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
                 yt.current.at = performance.now();
             }
             if (typeof duration === 'number') yt.current.duration = duration;
-            if (typeof playerState === 'number') yt.current.state = playerState;
+            if (typeof playerState === 'number') {
+                // a video that just started may switch its subtitles on: off again
+                if (playerState === YT_PLAYING && yt.current.state !== YT_PLAYING) {
+                    for (const module of ['captions', 'cc']) {
+                        frame.current?.contentWindow?.postMessage(
+                            JSON.stringify({ args: [module], event: 'command', func: 'unloadModule' }),
+                            '*',
+                        );
+                    }
+                }
+                yt.current.state = playerState;
+            }
         };
         window.addEventListener('message', onMessage);
 
@@ -110,6 +121,9 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
             if (now - v.heard > 2000 && now - lastCommand > 1000) {
                 send({ channel: 'widget', event: 'listening', id: 'hermes-video' });
                 command('mute');
+                // no subtitles over a music video
+                command('unloadModule', ['captions']);
+                command('unloadModule', ['cc']);
                 lastCommand = now;
                 // a (re)loaded player starts at normal speed
                 rate = 1;
@@ -239,7 +253,7 @@ const SyncedVideo = ({ artist, compact, title, video: saved }: SyncedVideoProps)
         }
     };
 
-    const params = `enablejsapi=1&mute=1&autoplay=1&controls=0&rel=0&playsinline=1&disablekb=1&start=${start}`;
+    const params = `enablejsapi=1&mute=1&autoplay=1&controls=0&rel=0&playsinline=1&disablekb=1&cc_load_policy=0&iv_load_policy=3&start=${start}`;
 
     return (
         <>
@@ -379,7 +393,7 @@ export const FloatingVideo = () => {
                         allow="autoplay; encrypted-media; fullscreen"
                         allowFullScreen
                         referrerPolicy="strict-origin-when-cross-origin"
-                        src={`https://www.youtube-nocookie.com/embed/${watch.videoId}?autoplay=1&rel=0&playsinline=1`}
+                        src={`https://www.youtube-nocookie.com/embed/${watch.videoId}?autoplay=1&rel=0&playsinline=1&cc_load_policy=0&iv_load_policy=3`}
                         title={watch.title}
                     />
                 </div>

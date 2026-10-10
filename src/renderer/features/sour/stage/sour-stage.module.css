@@ -23,6 +23,16 @@
     filter: blur(60px) saturate(1.5);
 }
 
+/* a themed playlist's own picture, shown sharp with a soft dark veil so the lyrics stay readable */
+.backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-position: center;
+    background-size: cover;
+    filter: brightness(0.55);
+}
+
 .scene {
     position: absolute;
     inset: 0;

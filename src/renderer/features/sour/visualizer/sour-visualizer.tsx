@@ -17,7 +17,12 @@ import {
     readLevels,
     useLevelSource,
 } from '/@/renderer/features/sour/visualizer/levels';
-import { drawSoul, makeSoul, steerSoul } from '/@/renderer/features/sour/visualizer/soul';
+import {
+    aimSoul,
+    drawSoul,
+    makeSoul,
+    steerSoul,
+} from '/@/renderer/features/sour/visualizer/soul';
 import { useFastAverageColor } from '/@/renderer/hooks';
 import { usePlayerSong } from '/@/renderer/store';
 import { LibraryItem } from '/@/shared/types/domain-types';
@@ -78,7 +83,21 @@ export const SourVisualizer = ({ className, colors, coverUrl, people, soulPlay, 
     useEffect(() => {
         if (!steering) return undefined;
         steerSoul(true);
-        return () => steerSoul(false);
+        // the mouse steers too, while it's over the visualizer
+        const onMove = (e: MouseEvent) => {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            const r = canvas.getBoundingClientRect();
+            if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)
+                return;
+            const dpr = window.devicePixelRatio || 1;
+            aimSoul((e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr);
+        };
+        window.addEventListener('mousemove', onMove);
+        return () => {
+            steerSoul(false);
+            window.removeEventListener('mousemove', onMove);
+        };
     }, [steering]);
 
     useEffect(() => {

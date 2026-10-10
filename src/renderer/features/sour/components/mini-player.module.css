@@ -146,6 +146,18 @@
     opacity: 0.85;
 }
 
+.icon-on {
+    composes: icon;
+    color: var(--theme-colors-primary);
+}
+
+.volume {
+    width: 70px;
+    min-width: 40px;
+    accent-color: var(--theme-colors-primary);
+    -webkit-app-region: no-drag;
+}
+
 /* a window that couldn't be made small (some Linux window managers): a tidy card in the middle */
 @media (height > 260px) {
     .mini {

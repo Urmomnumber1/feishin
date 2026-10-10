@@ -157,6 +157,7 @@ export const RightControls = () => {
                 {!simple && <AutoDJButton />}
             </Group>
             <Group align="center" gap="xs" justify="flex-end" wrap="nowrap">
+                <ListenAlong />
                 {!simple && <NextUpHint />}
                 <PlayerBarVisualizer />
                 {!simple && <FriendChips />}
@@ -184,7 +185,6 @@ const SourWatchers = () => (
         <FloatingVideo />
         <FloatingReactions />
         <GroupPlayDrawer />
-        <ListenAlong />
     </>
 );
 

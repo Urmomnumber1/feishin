@@ -1,5 +1,5 @@
 import isElectron from 'is-electron';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from './mini-player.module.css';
 
@@ -11,11 +11,18 @@ import {
     SourVisualizer,
     useBarVisualizer,
 } from '/@/renderer/features/sour/visualizer/sour-visualizer';
-import { usePlayerSong, usePlayerStatus } from '/@/renderer/store/player.store';
+import {
+    usePlayerMuted,
+    usePlayerRepeat,
+    usePlayerSong,
+    usePlayerStatus,
+    usePlayerStoreBase,
+    usePlayerVolume,
+} from '/@/renderer/store/player.store';
 import { usePlayerTimestamp } from '/@/renderer/store/timestamp.store';
 import { Icon } from '/@/shared/components/icon/icon';
 import { LibraryItem } from '/@/shared/types/domain-types';
-import { PlayerStatus } from '/@/shared/types/types';
+import { PlayerRepeat, PlayerStatus } from '/@/shared/types/types';
 
 const useMini = useMiniStore;
 
@@ -51,6 +58,10 @@ const MiniPlayerView = () => {
     const duration = (song?.duration || 0) / 1000;
     const progress = duration ? Math.min(1, timestamp / duration) : 0;
     const playing = status === PlayerStatus.PLAYING;
+    const repeat = usePlayerRepeat();
+    const volume = usePlayerVolume();
+    const muted = usePlayerMuted();
+    const [showVolume, setShowVolume] = useState(false);
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -118,6 +129,47 @@ const MiniPlayerView = () => {
                     <span className={styles.time}>
                         {time(timestamp)} / {time(duration)}
                     </span>
+                    <button
+                        aria-label="Loop"
+                        className={repeat === PlayerRepeat.NONE ? styles.icon : styles.iconOn}
+                        onClick={() => usePlayerStoreBase.getState().toggleRepeat()}
+                        title={
+                            repeat === PlayerRepeat.ONE
+                                ? 'Looping this song'
+                                : repeat === PlayerRepeat.ALL
+                                  ? 'Looping the queue'
+                                  : 'Loop'
+                        }
+                        type="button"
+                    >
+                        <Icon icon={repeat === PlayerRepeat.ONE ? 'mediaRepeatOne' : 'mediaRepeat'} />
+                    </button>
+                    <button
+                        aria-label="Volume"
+                        className={showVolume ? styles.iconOn : styles.icon}
+                        onClick={() => setShowVolume((on) => !on)}
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            usePlayerStoreBase.getState().mediaToggleMute();
+                        }}
+                        title="Volume (right-click to mute)"
+                        type="button"
+                    >
+                        <Icon icon={muted || volume === 0 ? 'volumeMute' : 'volumeMax'} />
+                    </button>
+                    {showVolume && (
+                        <input
+                            aria-label="Volume"
+                            className={styles.volume}
+                            max={100}
+                            min={0}
+                            onChange={(e) =>
+                                usePlayerStoreBase.getState().setVolume(Number(e.currentTarget.value))
+                            }
+                            type="range"
+                            value={volume}
+                        />
+                    )}
                 </div>
                 <div
                     aria-label="Seek"

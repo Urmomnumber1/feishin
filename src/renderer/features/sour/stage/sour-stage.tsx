@@ -22,7 +22,12 @@ import {
 } from '/@/renderer/features/sour/stage/loop';
 import { PeelOff } from '/@/renderer/features/sour/stage/peel-off';
 import { Scene, SCENES } from '/@/renderer/features/sour/stage/scenes';
-import { KaraokeLine, type Line, LyricsTools } from '/@/renderer/features/sour/stage/stage-lyrics';
+import {
+    KaraokeLine,
+    type Line,
+    LyricsTools,
+    restoreKaraokeVolume,
+} from '/@/renderer/features/sour/stage/stage-lyrics';
 import {
     type SourLook,
     useMyProfile,
@@ -57,6 +62,24 @@ import { PlayerStatus } from '/@/shared/types/types';
 const useStage = create<{ open: boolean }>(() => ({ open: false }));
 
 export const useStageOpen = () => useStage((s) => s.open);
+
+// Which playlist the queue was started from (worked out when a new queue starts while a playlist
+// page is open), for the Stage's backdrop
+const usePlayContext = create<{ playlistId: null | string }>(() => ({ playlistId: null }));
+const PlayContextWatcher = () => {
+    const song = usePlayerSong();
+    const last = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        const before = last.current;
+        last.current = song?._uniqueId;
+        if (!song) return;
+        const queue = usePlayerStoreBase.getState().getQueue().items;
+        if (before && queue.some((q) => q._uniqueId === before)) return; // same queue as before
+        const match = window.location.hash.match(/\/playlists\/([^/?#]+)/);
+        usePlayContext.setState({ playlistId: match ? decodeURIComponent(match[1]) : null });
+    }, [song]);
+    return null;
+};
 
 export const toggleStage = (open = !useStage.getState().open) => {
     useStage.setState({ open });
@@ -128,7 +151,24 @@ const StageView = () => {
     const group = useGroupPlayStore((s) => s.state);
     const loop = useLoop();
     const [flipped, setFlipped] = useState(false);
-    const [soulPlay, setSoulPlay] = useState(false);
+    // playing from a playlist with its own background picture (playlist Theme): that picture is
+    // the Stage's backdrop instead of the blurred cover
+    const contextPlaylist = usePlayContext((s) => s.playlistId);
+    const themes = useQuery({
+        enabled: !!hermes && !!contextPlaylist,
+        queryFn: async () => {
+            const res = await fetch(`${hermes}/api/playlist-themes`);
+            const json = res.ok ? await res.json() : [];
+            return (Array.isArray(json) ? json : []) as { id: string; image: number }[];
+        },
+        queryKey: ['sour-playlist-themes', hermes],
+        retry: false,
+        staleTime: 60000,
+    }).data;
+    const themed = themes?.find((t) => t.id === contextPlaylist && t.image);
+    const backdrop = themed
+        ? `${hermes}/api/playlist-themes/${encodeURIComponent(themed.id)}/image?v=${themed.image}`
+        : null;
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const coverWrap = useRef<HTMLDivElement>(null);
     const lyricsBox = useRef<HTMLDivElement>(null);
@@ -261,8 +301,12 @@ const StageView = () => {
 
     return (
         <div className={styles.stage} style={{ '--stage-color': color } as CSSProperties}>
-            {cover && (
-                <div className={styles.blur} style={{ backgroundImage: `url("${cover}")` }} />
+            {backdrop ? (
+                <div className={styles.backdrop} style={{ backgroundImage: `url("${backdrop}")` }} />
+            ) : (
+                cover && (
+                    <div className={styles.blur} style={{ backgroundImage: `url("${cover}")` }} />
+                )
             )}
             <Scene className={styles.scene} scene={look.stageScene} />
             <div className={styles.toolbar}>
@@ -294,20 +338,6 @@ const StageView = () => {
                     size="xs"
                     value={look.lyricStyle}
                 />
-                {visualizer === 'soul' && (
-                    <button
-                        className={clsx(styles.tool, { [styles.on]: soulPlay })}
-                        onClick={() => setSoulPlay((on) => !on)}
-                        title={
-                            soulPlay
-                                ? 'Let the SOUL dodge by itself'
-                                : 'Play as the SOUL (arrow keys or WASD; hits do nothing)'
-                        }
-                        type="button"
-                    >
-                        <Icon icon="favorite" />
-                    </button>
-                )}
                 <button
                     className={clsx(styles.tool, { [styles.on]: look.stageVinyl })}
                     onClick={() => setLook({ stageVinyl: !look.stageVinyl })}
@@ -521,7 +551,7 @@ const StageView = () => {
                                     data-line={i}
                                     key={`${i}-${line.startMs}`}
                                 >
-                                    {look.lyricStyle === 'karaoke' && i === current ? (
+                                    {synced && i === current ? (
                                         <KaraokeLine
                                             line={line}
                                             next={lines[i + 1]}
@@ -547,7 +577,7 @@ const StageView = () => {
                         colors={[color]}
                         coverUrl={cover}
                         people={orbit}
-                        soulPlay={soulPlay}
+                        soulPlay
                         style={visualizer}
                     />
                 </div>
@@ -581,7 +611,15 @@ const StageView = () => {
 
 export const SourStage = () => {
     const open = useStage((s) => s.open);
-    return open ? <StageView /> : null;
+    useEffect(() => {
+        restoreKaraokeVolume(); // in case the app was closed in the middle of karaoke
+    }, []);
+    return (
+        <>
+            <PlayContextWatcher />
+            {open && <StageView />}
+        </>
+    );
 };
 
 export const SourStageButton = () => (
