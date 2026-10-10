@@ -152,6 +152,10 @@ jobs:
                   body: |
                       Sour Player: the music player for Hermes Music (built on Feishin).
 
+                      **New in 0.5.2:** karaoke instrumentals stay in step with the song (with a "music -/+"
+                      nudge per song); the heart button for playing as the SOUL is back; the mini player's loop
+                      icon shows.
+
                       **New in 0.5.1:** karaoke fades the vocals out (the instrumental plays in step with
                       the song, and instrumentals no longer show up as songs in the library); the sung line
                       fills word by word in every lyric style; the mini player has loop and volume; a themed

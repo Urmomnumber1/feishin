@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { type CSSProperties, useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 
 import styles from './sour-stage.module.css';
 
@@ -144,6 +144,27 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
     const query = `artist=${encodeURIComponent(song.artistName || '')}&title=${encodeURIComponent(title)}`;
     const [asked, setAsked] = useState(false);
     const [on, setOn] = useState(false);
+    // instrumentals often start a touch earlier or later than the album version: your nudge for
+    // this song (seconds), remembered
+    const nudgeKey = `sour-karaoke-nudge:${song.id}`;
+    const [nudge, setNudge] = useState(() => {
+        try {
+            return Number(localStorage.getItem(nudgeKey)) || 0;
+        } catch {
+            return 0;
+        }
+    });
+    const nudgeRef = useRef(nudge);
+    const shift = (by: number) => {
+        const next = Math.round((nudgeRef.current + by) * 100) / 100;
+        nudgeRef.current = next;
+        setNudge(next);
+        try {
+            localStorage.setItem(nudgeKey, String(next));
+        } catch {
+            // not remembered then
+        }
+    };
     const check = useQuery({
         enabled: !!url,
         queryFn: async () => {
@@ -173,27 +194,44 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
             // fine without the safety net
         }
         let level = 0; // 0 = the song, 1 = the instrumental
+        let lastRaw = -1;
+        let lastAt = 0;
         let stopped = false;
         const timer = window.setInterval(() => {
             const state = player().player;
             const playing = state.status === PlayerStatus.PLAYING;
-            const at = useTimestampStoreBase.getState().timestamp;
-            if (Math.abs(audio.currentTime - at) > 0.35 && audio.readyState >= 1) {
-                audio.currentTime = at;
+            const rate = state.speed > 0 ? state.speed : 1;
+            // the player reports its position about twice a second: work out where it is now
+            const raw = useTimestampStoreBase.getState().timestamp;
+            const clock = performance.now();
+            if (raw !== lastRaw) {
+                lastRaw = raw;
+                lastAt = clock;
             }
-            audio.playbackRate = state.speed > 0 ? state.speed : 1;
+            const at = raw + (playing ? ((clock - lastAt) / 1000) * rate : 0) + nudgeRef.current;
+            const drift = audio.currentTime - at;
+            if (audio.readyState >= 1 && at >= 0) {
+                if (Math.abs(drift) > 0.25) {
+                    audio.currentTime = at; // far off (a seek, or just started): jump
+                    audio.playbackRate = rate;
+                } else {
+                    // a little off: catch up (or wait) by playing 3% faster or slower, no jump
+                    audio.playbackRate =
+                        rate * (drift > 0.03 ? 0.97 : drift < -0.03 ? 1.03 : 1);
+                }
+            }
             if (playing && audio.paused) audio.play().catch(() => {});
             if (!playing && !audio.paused) audio.pause();
             // the crossfade (about a second), only once the instrumental can actually play
             const ready = audio.readyState >= 3;
             const target = stopped || !ready ? 0 : 1;
             if (level !== target) {
-                level = Math.max(0, Math.min(1, level + (target > level ? 0.12 : -0.12)));
+                level = Math.max(0, Math.min(1, level + (target > level ? 0.06 : -0.06)));
                 audio.volume = Math.min(1, (original / 100) * level);
                 player().setVolume(Math.round(original * (1 - level)));
                 setOn(level > 0.5);
             }
-        }, 100);
+        }, 50);
         return () => {
             stopped = true;
             window.clearInterval(timer);
@@ -234,9 +272,34 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
     if (!url || !check.isFetched) return null;
     if (available) {
         return (
-            <span className={styles.offset} title="The instrumental is playing instead of the song">
-                <Icon icon="microphone" /> {on ? 'Vocals off' : 'Fading...'}
-            </span>
+            <>
+                <span
+                    className={styles.offset}
+                    title="The instrumental is playing instead of the song"
+                >
+                    <Icon icon="microphone" /> {on ? 'Vocals off' : 'Fading...'}
+                </span>
+                <button
+                    className={styles.textTool}
+                    onClick={() => shift(-0.05)}
+                    title="Music ahead of the lyrics or the beat? Pull the instrumental back"
+                    type="button"
+                >
+                    music -
+                </button>
+                <span className={styles.offset} title="Instrumental timing for this song">
+                    {nudge > 0 ? '+' : ''}
+                    {nudge.toFixed(2)}s
+                </span>
+                <button
+                    className={styles.textTool}
+                    onClick={() => shift(0.05)}
+                    title="Music behind? Push the instrumental forward"
+                    type="button"
+                >
+                    music +
+                </button>
+            </>
         );
     }
     return (

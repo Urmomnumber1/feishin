@@ -142,9 +142,23 @@ const MiniPlayerView = () => {
                         }
                         type="button"
                     >
-                        <Icon
-                            icon={repeat === PlayerRepeat.ONE ? 'mediaRepeatOne' : 'mediaRepeat'}
-                        />
+                        <svg
+                            aria-hidden
+                            fill="none"
+                            height="16"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            width="16"
+                        >
+                            <path d="m17 2 4 4-4 4" />
+                            <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                            <path d="m7 22-4-4 4-4" />
+                            <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                            {repeat === PlayerRepeat.ONE && <path d="M11 10h1v4" />}
+                        </svg>
                     </button>
                     <button
                         aria-label="Volume"
