@@ -27,6 +27,19 @@ const applyMini = (win: BrowserWindow) => {
     else win.setSize(MINI.width, MINI.height);
 };
 
+const keepOnTop = (win: BrowserWindow) => {
+    if (win.isDestroyed()) return;
+    if (process.platform === 'linux') {
+        // X11 ignores the "floating" level; plain always-on-top plus "on every workspace" is what
+        // most Linux desktops honour
+        win.setAlwaysOnTop(true);
+        win.setVisibleOnAllWorkspaces(true);
+        win.moveTop();
+    } else {
+        win.setAlwaysOnTop(true, 'floating');
+    }
+};
+
 const shrink = (win: BrowserWindow) => {
     saved = {
         bounds: win.getNormalBounds(),
@@ -54,7 +67,9 @@ const shrink = (win: BrowserWindow) => {
             if (b && (b.width > 720 || b.height > 340)) applyMini(win);
         }, wait);
     }
-    win.setAlwaysOnTop(true, 'floating');
+    keepOnTop(win);
+    // some Linux window managers drop "on top" when the window changes size or loses focus
+    for (const wait of [200, 800]) setTimeout(() => saved && keepOnTop(win), wait);
 };
 
 const restore = (win: BrowserWindow) => {
@@ -62,6 +77,7 @@ const restore = (win: BrowserWindow) => {
     const { bounds, fullScreen, maximized, minimum, onTop } = saved;
     saved = null;
     win.setAlwaysOnTop(onTop);
+    if (process.platform === 'linux') win.setVisibleOnAllWorkspaces(false);
     win.setMinimumSize(minimum[0], minimum[1]);
     win.setBounds(bounds);
     if (maximized) win.maximize();
@@ -75,6 +91,10 @@ ipcMain.on('sour-mini', (event, on: boolean) => {
         shrink(win);
         if (!watched.has(win)) {
             watched.add(win);
+            // losing focus (clicking another window or tab) must not send the mini player behind
+            win.on('blur', () => {
+                if (saved && process.platform === 'linux') keepOnTop(win);
+            });
             // closing the app while it's small: put the full window back first, so the size the app
             // remembers for next time is the full one (this runs before the app saves it)
             win.prependListener('close', () => {
