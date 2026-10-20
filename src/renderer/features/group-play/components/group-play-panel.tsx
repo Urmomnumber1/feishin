@@ -759,12 +759,14 @@ export const GroupPlayPanel = () => {
                         label="Let guests control playback"
                         onChange={(e) => setGuestControl(e.currentTarget.checked)}
                     />
-                    <Switch
-                        checked={!!state?.listed}
-                        description="Anyone with Sour Player can see it under Groups playing now and join. Turn off to need the code."
-                        label="Show in the group list"
-                        onChange={(e) => setListed(e.currentTarget.checked)}
-                    />
+                    {!state?.tv && (
+                        <Switch
+                            checked={!!state?.listed}
+                            description="Anyone with Sour Player can see it under Groups playing now and join. Turn off to need the code."
+                            label="Show in the group list"
+                            onChange={(e) => setListed(e.currentTarget.checked)}
+                        />
+                    )}
                     {!!members.length && (
                         <Group gap="xs">
                             {members.map((m) => (
