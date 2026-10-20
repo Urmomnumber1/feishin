@@ -41,6 +41,33 @@
           "minOSVersion": "15.0"
         }
       ]
+    },
+    {
+      "name": "Sour Player TV",
+      "bundleIdentifier": "com.anjalo.sourplayertv",
+      "developerName": "Anjalo",
+      "subtitle": "Run the party on the TV (admins)",
+      "localizedDescription": "For Hermes Music admins: your iPhone runs an event's Group Play and plays the music; with Screen Mirroring the TV shows the party big (cover, lyrics, up next, chat and reactions) without the buttons. People you add can queue songs from their own Sour Player.",
+      "iconURL": "https://raw.githubusercontent.com/Urmomnumber1/feishin/hermes-music-video/assets/icons/ios-1024.png",
+      "tintColor": "#5058CC",
+      "category": "entertainment",
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {
+          "NSLocalNetworkUsageDescription": "Sour Player TV connects to Hermes Music on your home network."
+        }
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "buildVersion": "1",
+          "date": "2026-10-20",
+          "localizedDescription": "First version: the party on your phone, a clean picture of it on the mirrored TV. Needs Hermes Music 3.8.3.",
+          "downloadURL": "https://github.com/Urmomnumber1/feishin/releases/download/tv-ios-v0.1.0/Sour-Player-TV-0.1.0.ipa",
+          "size": 1509943,
+          "minOSVersion": "16.0"
+        }
+      ]
     }
   ],
   "news": []
