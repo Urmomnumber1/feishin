@@ -59,6 +59,15 @@
       },
       "versions": [
         {
+          "version": "0.1.2",
+          "buildVersion": "3",
+          "date": "2026-10-20",
+          "localizedDescription": "Fixes \"Can't reach Hermes Music\" when its address is an IP (like 100.69.236.80:3340).",
+          "downloadURL": "https://github.com/Urmomnumber1/feishin/releases/download/tv-ios-v0.1.2/Sour-Player-TV-0.1.2.ipa",
+          "size": 1510386,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.1.1",
           "buildVersion": "2",
           "date": "2026-10-20",
