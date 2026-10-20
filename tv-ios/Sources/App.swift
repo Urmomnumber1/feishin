@@ -22,6 +22,9 @@ enum Shared {
         set { UserDefaults.standard.set(newValue?.absoluteString, forKey: addressKey) }
     }
 
+    // the phone's music server sign-in, for the TV picture's covers and lyrics (stays in the app)
+    static var partyAuth: String?
+
     // the party the phone is running (nil: none yet)
     static var partyCode: String? {
         didSet { NotificationCenter.default.post(name: .sourPartyChanged, object: nil) }

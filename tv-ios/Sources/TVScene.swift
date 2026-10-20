@@ -35,7 +35,12 @@ class TVSceneDelegate: UIResponder, UIWindowSceneDelegate {
             let code = Shared.partyCode ?? "none"
             if code == self.shown { return }
             self.shown = code
-            if let url = URL(string: base.absoluteString + "/tv/?screen=" + code) {
+            var address = base.absoluteString + "/tv/?screen=" + code
+            if let auth = Shared.partyAuth, !auth.isEmpty,
+               let a = auth.addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
+                address += "&a=" + a
+            }
+            if let url = URL(string: address) {
                 self.web?.load(URLRequest(url: url))
             }
         }

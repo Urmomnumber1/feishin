@@ -77,6 +77,7 @@ class PhoneViewController: UIViewController, WKScriptMessageHandler, WKNavigatio
     // the page says which party is on (or none)
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         let body = message.body as? [String: Any]
+        Shared.partyAuth = body?["auth"] as? String
         Shared.partyCode = body?["code"] as? String
     }
 
