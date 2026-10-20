@@ -13,7 +13,7 @@ import {
     useDailyColorStore,
 } from '/@/renderer/features/sour/components/social-watchers';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
-import { SourTvScreen, TvInvite } from '/@/renderer/features/sour/components/sour-tv';
+import { ResumeTv, SourTvScreen, TvInvite } from '/@/renderer/features/sour/components/sour-tv';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';
 import { LoopWatcher } from '/@/renderer/features/sour/stage/loop';
@@ -168,6 +168,7 @@ export const SourRoot = () => (
         <SourSafe name="sour tv">
             <SourTvScreen />
             <TvInvite />
+            <ResumeTv />
         </SourSafe>
         <SourSafe name="stage">
             <SourStage />

@@ -76,6 +76,7 @@ const StartTv = () => {
             const { actions } = useGroupPlayStore.getState();
             actions.setSession({ code: res.code, hostKey: res.hostKey, role: 'host' });
             actions.setState(res.state);
+            saveTvSession({ code: res.code, hostKey: res.hostKey });
             closeAllModals();
             useSourTv.setState({ open: true });
         } catch (error) {
@@ -108,6 +109,45 @@ const StartTv = () => {
             </Button>
         </Stack>
     );
+};
+
+// the party is remembered on this phone, so closing or reloading the app doesn't lose it
+const TV_SESSION = 'sour-tv-session';
+const saveTvSession = (session: null | { code: string; hostKey: string }) => {
+    try {
+        if (session) localStorage.setItem(TV_SESSION, JSON.stringify(session));
+        else localStorage.removeItem(TV_SESSION);
+    } catch {
+        // private mode: the party just isn't remembered
+    }
+};
+
+export const ResumeTv = () => {
+    const url = useHermesUrl();
+    useEffect(() => {
+        if (!url || useGroupPlayStore.getState().code) return;
+        let saved: null | { code: string; hostKey: string } = null;
+        try {
+            saved = JSON.parse(localStorage.getItem(TV_SESSION) || 'null');
+        } catch {
+            saved = null;
+        }
+        if (!saved?.code || !saved.hostKey) return;
+        const { code, hostKey } = saved;
+        groupApi
+            .resume(url, code, hostKey)
+            .then((res) => {
+                if (!res.state.tv || res.state.ended) return saveTvSession(null);
+                const { actions } = useGroupPlayStore.getState();
+                actions.setSession({ code, hostKey, role: 'host' });
+                actions.setState(res.state);
+                useSourTv.setState({ open: true });
+                toast.info({ message: `Back on ${res.state.tv.event}` });
+                return undefined;
+            })
+            .catch(() => saveTvSession(null)); // the party ended while the app was closed
+    }, [url]);
+    return null;
 };
 
 export const openSourTv = () => {
@@ -191,6 +231,7 @@ const endParty = async () => {
     );
     if (!yes) return;
     await groupApi.end(useHermesVideoStore.getState().url, code, hostKey).catch(() => {});
+    saveTvSession(null);
     useGroupPlayStore.getState().actions.leave();
     useSourTv.setState({ open: false });
 };

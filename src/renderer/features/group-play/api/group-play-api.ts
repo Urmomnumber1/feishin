@@ -135,6 +135,9 @@ export const groupApi = {
         post<{ ok: boolean }>(`${base}/api/group/${code}/react`, { emoji, position, ...who }),
     report: (base: string, code: string, body: Record<string, unknown>) =>
         post<{ ok: boolean }>(`${base}/api/group/${code}/report`, body),
+    // the host's app restarted: still the host? (answers the group's state)
+    resume: (base: string, code: string, hostKey: string) =>
+        post<{ state: GroupState }>(`${base}/api/group/${code}/resume`, { hostKey }),
     // your own always-on room (one per person)
     room: (base: string, profile: string, key: string, name: string, remove?: boolean) =>
         post<{ code: string; name: string }>(`${base}/api/group/rooms`, {
