@@ -7,8 +7,14 @@ import styles from './sour-tv.module.css';
 
 import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { groupApi } from '/@/renderer/features/group-play/api/group-play-api';
-import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
-import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
+import {
+    type GroupChat,
+    useGroupPlayStore,
+} from '/@/renderer/features/group-play/store/group-play.store';
+import {
+    useHermesUrl,
+    useHermesVideoStore,
+} from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
 import { isIosApp, sourMedia } from '/@/renderer/features/sour/mobile/android';
@@ -174,6 +180,21 @@ const openAddMembers = () =>
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
+// end the party for everyone (statuses clear, the TV screen closes)
+const endParty = async () => {
+    const { code, hostKey, state } = useGroupPlayStore.getState();
+    if (!code || !hostKey) return;
+    const yes = await ask(
+        `End ${state?.tv?.event || 'the party'}?`,
+        'The music stops for everyone and friends stop seeing it on your profiles.',
+        'End party',
+    );
+    if (!yes) return;
+    await groupApi.end(useHermesVideoStore.getState().url, code, hostKey).catch(() => {});
+    useGroupPlayStore.getState().actions.leave();
+    useSourTv.setState({ open: false });
+};
+
 // the line being sung, big, with the next one under it (synced lyrics only)
 const TvLyrics = ({ song, time }: { song: QueueSong | undefined; time: number }) => {
     const { data } = useQuery(
@@ -208,6 +229,7 @@ export const SourTvScreen = () => {
     const showLyrics = useSourTv((s) => s.lyrics);
     const state = useGroupPlayStore((s) => s.state);
     const role = useGroupPlayStore((s) => s.role);
+    const clockOffset = useGroupPlayStore((s) => s.clockOffset);
     const song = usePlayerSong();
     const status = usePlayerStoreBase((s) => s.player.status);
     const time = useTimestampStoreBase((s) => s.timestamp);
@@ -260,6 +282,15 @@ export const SourTvScreen = () => {
         if (open && (!state?.tv || state.ended || role !== 'host'))
             useSourTv.setState({ open: false });
     }, [open, role, state]);
+    // the newest chat message pops up for 10 seconds (old messages don't, when the TV opens)
+    const lastChat = state?.chat?.[state.chat.length - 1];
+    const [chat, setChat] = useState<GroupChat | null>(null);
+    useEffect(() => {
+        if (!lastChat || Date.now() + clockOffset - lastChat.at > 12000) return undefined;
+        setChat(lastChat);
+        const t = window.setTimeout(() => setChat(null), 10000);
+        return () => window.clearTimeout(t);
+    }, [clockOffset, lastChat]);
     const here = profiles.filter((p) => state?.tv?.members.includes(p.id));
     if (!open || !state?.tv) return null;
     const upNext = state.queue.slice(state.index + 1, state.index + 4);
@@ -326,6 +357,11 @@ export const SourTvScreen = () => {
                     )}
                 </div>
             </main>
+            {chat && (
+                <div className={styles.chat} key={chat.id}>
+                    <b>{chat.by}</b> {chat.text}
+                </div>
+            )}
             <footer className={styles.bottom}>
                 <div className={styles.faces}>
                     {here.slice(0, 12).map((p) => (
@@ -371,6 +407,9 @@ export const SourTvScreen = () => {
                     </button>
                     <button onClick={openAddMembers} type="button">
                         <Icon icon="add" /> Add member
+                    </button>
+                    <button onClick={endParty} type="button">
+                        End party
                     </button>
                     <button onClick={() => useSourTv.setState({ open: false })} type="button">
                         <Icon icon="x" />

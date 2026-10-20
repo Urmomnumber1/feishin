@@ -209,7 +209,35 @@
 
 .actions {
     flex: 1;
+    flex-wrap: wrap;
     justify-content: flex-end;
+}
+
+/* the newest chat message, for a few seconds */
+.chat {
+    position: absolute;
+    right: 4vmin;
+    bottom: 16vmin;
+    z-index: 2;
+    max-width: min(60vw, 520px);
+    padding: 1.4vmin 2.2vmin;
+    font-size: clamp(14px, 2.8vmin, 26px);
+    background: rgb(255 255 255 / 14%);
+    backdrop-filter: blur(16px);
+    border-radius: 2.4vmin;
+    animation: chat-in 0.3s ease;
+}
+
+@keyframes chat-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 .controls button,
