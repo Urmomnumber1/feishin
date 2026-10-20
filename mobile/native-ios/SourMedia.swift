@@ -32,6 +32,7 @@ public class SourMediaPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "downloadUpdate", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "installUpdate", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setServer", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "keepAwake", returnType: CAPPluginReturnPromise),
     ]
 
     private let monitor = NWPathMonitor()
@@ -230,6 +231,13 @@ public class SourMediaPlugin: CAPPlugin, CAPBridgedPlugin {
     // Your Hermes Music address: the app then runs Sour Player from it (http on your network or
     // Tailscale), so iOS doesn't block the music server as "insecure" and the app updates with Hermes.
     // An empty address goes back to the welcome screen.
+    // Sour Player TV: the phone is mirrored to the TV, so it must not lock itself
+    @objc func keepAwake(_ call: CAPPluginCall) {
+        let on = call.getBool("on", false)
+        DispatchQueue.main.async { UIApplication.shared.isIdleTimerDisabled = on }
+        call.resolve()
+    }
+
     @objc func setServer(_ call: CAPPluginCall) {
         var text = call.getString("url", "").trimmingCharacters(in: .whitespaces)
         if text.isEmpty {

@@ -11,6 +11,7 @@ import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-p
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { ProfileAvatar } from '/@/renderer/features/sour/components/profile-bits';
+import { isIosApp, sourMedia } from '/@/renderer/features/sour/mobile/android';
 import { toLines } from '/@/renderer/features/sour/stage/sour-stage';
 import {
     useMyProfile,
@@ -224,7 +225,15 @@ export const SourTvScreen = () => {
     }, [open]);
     // the phone is on the TV: don't let it lock itself (asked again when the app comes back to the front)
     useEffect(() => {
-        if (!open || !('wakeLock' in navigator)) return undefined;
+        if (!open) return undefined;
+        // the iPhone app keeps itself awake natively (the browser way isn't there on every iOS)
+        if (isIosApp()) {
+            sourMedia('keepAwake', { on: true }).catch(() => {});
+            return () => {
+                sourMedia('keepAwake', { on: false }).catch(() => {});
+            };
+        }
+        if (!('wakeLock' in navigator)) return undefined;
         let lock: null | { release: () => Promise<void> } = null;
         const ask = () => {
             if (document.visibilityState !== 'visible') return;
