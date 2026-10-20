@@ -59,6 +59,15 @@
       },
       "versions": [
         {
+          "version": "0.1.1",
+          "buildVersion": "2",
+          "date": "2026-10-20",
+          "localizedDescription": "The TV picture shows the song, cover and lyrics. Needs Hermes Music 3.8.4.",
+          "downloadURL": "https://github.com/Urmomnumber1/feishin/releases/download/tv-ios-v0.1.1/Sour-Player-TV-0.1.1.ipa",
+          "size": 1510379,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.1.0",
           "buildVersion": "1",
           "date": "2026-10-20",
