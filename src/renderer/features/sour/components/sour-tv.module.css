@@ -364,3 +364,14 @@
 .person-state {
     opacity: 0.7;
 }
+
+/* while the TV screen is open, dialogs (End party?, Who is here?) and pop-ups go above it */
+/* stylelint-disable-next-line selector-class-pattern */
+:global(.sour-tv-open .mantine-Modal-root) {
+    --mb-z-index: 500 !important;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+:global(.sour-tv-open .mantine-Notifications-root) {
+    z-index: 600 !important;
+}

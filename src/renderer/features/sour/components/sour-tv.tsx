@@ -1,6 +1,6 @@
 import { closeAllModals, openModal } from '@mantine/modals';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { create } from 'zustand';
 
 import styles from './sour-tv.module.css';
@@ -318,6 +318,10 @@ export const SourTvScreen = () => {
             lock?.release().catch(() => {});
         };
     }, [open]);
+    useEffect(() => {
+        document.documentElement.classList.toggle('sour-tv-open', open);
+        return () => document.documentElement.classList.remove('sour-tv-open');
+    }, [open]);
     // the party ended (or this phone left it): the TV screen goes too
     useEffect(() => {
         if (open && (!state?.tv || state.ended || role !== 'host'))
@@ -326,12 +330,19 @@ export const SourTvScreen = () => {
     // the newest chat message pops up for 10 seconds (old messages don't, when the TV opens)
     const lastChat = state?.chat?.[state.chat.length - 1];
     const [chat, setChat] = useState<GroupChat | null>(null);
+    const lastChatId = lastChat?.id;
+    const lastChatRef = useRef(lastChat);
+    lastChatRef.current = lastChat;
     useEffect(() => {
-        if (!lastChat || Date.now() + clockOffset - lastChat.at > 12000) return undefined;
-        setChat(lastChat);
+        const msg = lastChatRef.current;
+        if (!msg || Date.now() + clockOffset - msg.at > 12000) return undefined;
+        setChat(msg);
         const t = window.setTimeout(() => setChat(null), 10000);
-        return () => window.clearTimeout(t);
-    }, [clockOffset, lastChat]);
+        return () => {
+            window.clearTimeout(t);
+            setChat(null);
+        };
+    }, [clockOffset, lastChatId]);
     const here = profiles.filter((p) => state?.tv?.members.includes(p.id));
     if (!open || !state?.tv) return null;
     const upNext = state.queue.slice(state.index + 1, state.index + 4);
