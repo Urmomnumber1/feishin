@@ -12,7 +12,7 @@ import { toast } from '/@/shared/components/toast/toast';
 // plays, and together they kept fixing each other's position. Switching from one to the other asks first.
 
 let asking = 0;
-const ask = (title: string, text: string, confirm: string) =>
+export const ask = (title: string, text: string, confirm: string) =>
     new Promise<boolean>((resolve) => {
         const modalId = `sour-switch-${++asking}`;
         let answered = false;

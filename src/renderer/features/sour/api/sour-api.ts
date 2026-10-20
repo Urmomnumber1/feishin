@@ -141,13 +141,14 @@ export interface SourProfile {
     position: number;
     positionAt: number;
     resume?: null | { at: number; device: string; position: number; song: GroupSong };
+    // Hermes Music's clock when it answered
+    serverNow?: number;
     speed?: number;
     stats?: ProfileStats;
     status: string;
     // at a Sour Player TV party: nobody can join or listen along
-    tv?: null | { event: string; host: string };
-    // Hermes Music's clock when it answered
-    serverNow?: number;
+    // code and hosting: only on your own profile
+    tv?: null | { code?: string; event: string; host: string; hosting?: boolean };
     visits?: { at: number; from: string; fromName: string }[];
     wall: WallNote[];
 }

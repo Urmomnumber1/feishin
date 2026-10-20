@@ -18,7 +18,11 @@ import {
     useSourProfiles,
     useSourStore,
 } from '/@/renderer/features/sour/store/sour.store';
-import { leaveListenAlongFirst } from '/@/renderer/features/sour/utils/switching';
+import {
+    ask,
+    leaveGroupFirst,
+    leaveListenAlongFirst,
+} from '/@/renderer/features/sour/utils/switching';
 import { usePlayerSong } from '/@/renderer/store';
 import { usePlayerStoreBase } from '/@/renderer/store/player.store';
 import { useTimestampStoreBase } from '/@/renderer/store/timestamp.store';
@@ -259,6 +263,7 @@ export const SourTvScreen = () => {
     const here = profiles.filter((p) => state?.tv?.members.includes(p.id));
     if (!open || !state?.tv) return null;
     const upNext = state.queue.slice(state.index + 1, state.index + 4);
+    const nowBy = state.queue[state.index]?.by;
     const duration = song?.duration ? song.duration / 1000 : 0;
     const player = usePlayerStoreBase.getState();
     return (
@@ -280,8 +285,15 @@ export const SourTvScreen = () => {
                     {cover ? <img alt="" src={cover} /> : <Icon icon="itemAlbum" size="5rem" />}
                 </div>
                 <div className={styles.info}>
-                    <div className={styles.title}>{song?.name || 'Add a song to start'}</div>
+                    <div className={styles.title}>{song?.name || 'Waiting for the first song'}</div>
+                    {!song && (
+                        <div className={styles.artist}>
+                            Press Group Play to add songs. People you add can queue songs from their
+                            phones too.
+                        </div>
+                    )}
                     <div className={styles.artist}>{song?.artistName || ''}</div>
+                    {!!song && !!nowBy && <div className={styles.by}>Added by {nowBy}</div>}
                     {!!song && (
                         <>
                             <div className={styles.bar}>
@@ -367,4 +379,40 @@ export const SourTvScreen = () => {
             </footer>
         </div>
     );
+};
+
+// Someone the host added to a Sour Player TV party: offer to join from their own phone, to add
+// songs and react (watch-only, so their phone doesn't play the music the TV already plays).
+// Asked once per party.
+const offered = new Set<string>();
+export const TvInvite = () => {
+    const url = useHermesUrl();
+    const me = useSourStore((s) => s.me);
+    const profile = useMyProfile().data;
+    const code = useGroupPlayStore((s) => s.code);
+    const tv = profile?.tv;
+    useEffect(() => {
+        if (!url || !me || !profile || !tv?.code || tv.hosting || code === tv.code) return;
+        if (offered.has(tv.code)) return;
+        offered.add(tv.code);
+        void (async () => {
+            const yes = await ask(
+                `You're at ${tv.event}`,
+                `${tv.host} added you to their Sour Player TV party. Join from this phone to add songs and send reactions? (The music stays on the TV.)`,
+                'Join',
+            );
+            if (!yes || !tv.code) return;
+            if (code && !(await leaveGroupFirst())) return;
+            try {
+                const res = await groupApi.join(url, tv.code, profile.name, me.id, true);
+                const { actions } = useGroupPlayStore.getState();
+                useGroupPlayStore.setState({ panelOpen: true, spectate: true });
+                actions.setSession({ code: tv.code, member: res.member, role: 'member' });
+                actions.setState(res.state);
+            } catch (error) {
+                toast.error({ message: (error as Error).message });
+            }
+        })();
+    }, [code, me, profile, tv, url]);
+    return null;
 };

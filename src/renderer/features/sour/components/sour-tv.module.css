@@ -120,6 +120,12 @@
     opacity: 0.8;
 }
 
+.by {
+    font-size: clamp(11px, 2vmin, 18px);
+    font-weight: 600;
+    color: var(--theme-colors-primary, #9be15d);
+}
+
 .bar {
     height: 6px;
     margin-top: 2vmin;
