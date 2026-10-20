@@ -178,6 +178,12 @@
     text-overflow: ellipsis;
 }
 
+.hint {
+    font-size: clamp(13px, 2.6vmin, 24px);
+    line-height: 1.35;
+    opacity: 0.75;
+}
+
 .dim {
     opacity: 0.6;
 }
@@ -191,7 +197,7 @@
 
 .faces {
     display: flex;
-    flex: 1;
+    flex: 0 1 auto;
     align-items: center;
     min-width: 0;
 }
@@ -216,15 +222,15 @@
 /* the newest chat message, for a few seconds */
 .chat {
     position: absolute;
+    top: 14vmin;
     right: 4vmin;
-    bottom: 16vmin;
     z-index: 2;
     max-width: min(60vw, 520px);
     padding: 1.4vmin 2.2vmin;
     font-size: clamp(14px, 2.8vmin, 26px);
     background: rgb(255 255 255 / 14%);
-    backdrop-filter: blur(16px);
     border-radius: 2.4vmin;
+    backdrop-filter: blur(16px);
     animation: chat-in 0.3s ease;
 }
 
@@ -246,12 +252,13 @@
     gap: 6px;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 14px;
-    font-size: 14px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
     font-weight: 600;
     color: white;
+    white-space: nowrap;
     cursor: pointer;
     background: rgb(255 255 255 / 12%);
     border: 0;

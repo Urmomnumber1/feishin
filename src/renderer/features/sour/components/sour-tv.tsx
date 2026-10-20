@@ -359,7 +359,7 @@ export const SourTvScreen = () => {
                 <div className={styles.info}>
                     <div className={styles.title}>{song?.name || 'Waiting for the first song'}</div>
                     {!song && (
-                        <div className={styles.artist}>
+                        <div className={styles.hint}>
                             Press Group Play to add songs. People you add can queue songs from their
                             phones too.
                         </div>
@@ -474,6 +474,8 @@ export const TvInvite = () => {
     useEffect(() => {
         if (!url || !me || !profile || !tv?.code || tv.hosting || code === tv.code) return;
         if (offered.has(tv.code)) return;
+        // another dialog is open (release notes, a sheet...): ask on the next profile check instead
+        if (document.querySelector('.mantine-Modal-content')) return;
         offered.add(tv.code);
         void (async () => {
             const yes = await ask(

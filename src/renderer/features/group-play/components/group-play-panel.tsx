@@ -535,13 +535,15 @@ export const GroupPlayPanel = () => {
                     <div className={styles.codeBox}>
                         <Text className={styles.eyebrow}>Code</Text>
                         <Text className={styles.code}>{code}</Text>
-                        <CopyButton value={invite}>
-                            {({ copied, copy }) => (
-                                <Button onClick={copy} size="compact-xs" variant="default">
-                                    {copied ? 'Copied!' : 'Copy invite'}
-                                </Button>
-                            )}
-                        </CopyButton>
+                        {!state?.tv && (
+                            <CopyButton value={invite}>
+                                {({ copied, copy }) => (
+                                    <Button onClick={copy} size="compact-xs" variant="default">
+                                        {copied ? 'Copied!' : 'Copy invite'}
+                                    </Button>
+                                )}
+                            </CopyButton>
+                        )}
                     </div>
                 </Group>
             </div>
