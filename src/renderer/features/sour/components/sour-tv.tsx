@@ -222,6 +222,26 @@ export const SourTvScreen = () => {
         const t = window.setInterval(() => setClock(new Date()), 15000);
         return () => window.clearInterval(t);
     }, [open]);
+    // the phone is on the TV: don't let it lock itself (asked again when the app comes back to the front)
+    useEffect(() => {
+        if (!open || !('wakeLock' in navigator)) return undefined;
+        let lock: null | { release: () => Promise<void> } = null;
+        const ask = () => {
+            if (document.visibilityState !== 'visible') return;
+            navigator.wakeLock
+                .request('screen')
+                .then((l) => {
+                    lock = l;
+                })
+                .catch(() => {});
+        };
+        ask();
+        document.addEventListener('visibilitychange', ask);
+        return () => {
+            document.removeEventListener('visibilitychange', ask);
+            lock?.release().catch(() => {});
+        };
+    }, [open]);
     // the party ended (or this phone left it): the TV screen goes too
     useEffect(() => {
         if (open && (!state?.tv || state.ended || role !== 'host'))
