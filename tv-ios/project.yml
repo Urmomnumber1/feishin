@@ -1,0 +1,58 @@
+# Sour Player TV for iPhone (its own app, separate from Sour Player). Made into an Xcode project with
+# XcodeGen in the cloud build (tv-ios.yml). The phone runs Hermes Music's /tv/ page (the controller and the
+# music); when Screen Mirroring is on, iOS gives the app the TV as its own screen and it shows the party
+# there (Hermes Music's /tv/?screen=CODE) instead of a copy of the phone.
+name: SourPlayerTV
+options:
+  bundleIdPrefix: com.anjalo
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  SourPlayerTV:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - Resources
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Sour TV
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UIViewControllerBasedStatusBarAppearance: false
+        UIBackgroundModes: [audio]
+        UISupportedInterfaceOrientations:
+          [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad:
+          [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSLocalNetworkUsageDescription: Sour Player TV connects to Hermes Music on your home network.
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Phone
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+            UIWindowSceneSessionRoleExternalDisplayNonInteractive:
+              - UISceneConfigurationName: TV
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).TVSceneDelegate
+            UIWindowSceneSessionRoleExternalDisplay:
+              - UISceneConfigurationName: TV (older iOS)
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).TVSceneDelegate
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.anjalo.sourplayertv
+        PRODUCT_NAME: SourPlayerTV
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGNING_ALLOWED: NO
