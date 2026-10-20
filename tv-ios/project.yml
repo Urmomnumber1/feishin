@@ -30,9 +30,11 @@ targets:
         UISupportedInterfaceOrientations~ipad:
           [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         NSLocalNetworkUsageDescription: Sour Player TV connects to Hermes Music on your home network.
+        # plain http to Hermes Music (an IP like 100.69.236.80:3340 or umbrel.local). Not NSAllowsLocalNetworking:
+        # with it, iOS ignores NSAllowsArbitraryLoads and blocks IP addresses.
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
-          NSAllowsLocalNetworking: true
+          NSAllowsArbitraryLoadsInWebContent: true
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
           UISceneConfigurations:
@@ -49,8 +51,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.anjalo.sourplayertv
         PRODUCT_NAME: SourPlayerTV
-        MARKETING_VERSION: "0.1.1"
-        CURRENT_PROJECT_VERSION: "2"
+        MARKETING_VERSION: "0.1.2"
+        CURRENT_PROJECT_VERSION: "3"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_VERSION: "5.0"
