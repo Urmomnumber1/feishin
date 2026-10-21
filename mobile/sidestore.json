@@ -59,6 +59,15 @@
       },
       "versions": [
         {
+          "version": "0.1.3",
+          "buildVersion": "4",
+          "date": "2026-10-20",
+          "localizedDescription": "The TV picture keeps changing songs (it froze on the first one). Needs Hermes Music 3.8.5.",
+          "downloadURL": "https://github.com/Urmomnumber1/feishin/releases/download/tv-ios-v0.1.3/Sour-Player-TV-0.1.3.ipa",
+          "size": 1511121,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.1.2",
           "buildVersion": "3",
           "date": "2026-10-20",
