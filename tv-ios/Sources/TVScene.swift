@@ -8,6 +8,7 @@ class TVSceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private var web: WKWebView?
     private var shown: String?
+    private var pulse: Timer?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
@@ -27,6 +28,11 @@ class TVSceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.web = web
         NotificationCenter.default.addObserver(self, selector: #selector(partyChanged), name: .sourPartyChanged, object: nil)
         partyChanged()
+        // iOS treats the TV's page like a background page (slow timers, a live connection that stalls):
+        // nudge it every second so the song, progress and lyrics keep moving
+        pulse = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.web?.evaluateJavaScript("window.tvPulse && window.tvPulse()", completionHandler: nil)
+        }
     }
 
     @objc private func partyChanged() {
@@ -48,6 +54,8 @@ class TVSceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidDisconnect(_ scene: UIScene) {
         NotificationCenter.default.removeObserver(self)
+        pulse?.invalidate()
+        pulse = nil
         web = nil
         window = nil
     }
