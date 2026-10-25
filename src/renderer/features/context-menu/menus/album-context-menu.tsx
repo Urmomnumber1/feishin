@@ -12,6 +12,10 @@ import { SetRatingAction } from '/@/renderer/features/context-menu/actions/set-r
 import { ShareAction } from '/@/renderer/features/context-menu/actions/share-action';
 import { ContextMenuPreview } from '/@/renderer/features/context-menu/components/context-menu-preview';
 import { AddCollectionToGroupAction } from '/@/renderer/features/group-play/components/add-to-group-action';
+import {
+    FindVideosAction,
+    PlayAsVideosAction,
+} from '/@/renderer/features/hermes-video/components/video-actions';
 import { ChangeCoverAction } from '/@/renderer/features/sour/components/cover-changer';
 import {
     AddAlbumToProfileAction,
@@ -40,6 +44,8 @@ export const AlbumContextMenu = ({ items, type }: AlbumContextMenuProps) => {
             <ContextMenu.Divider />
             <AddToPlaylistAction items={ids} itemType={LibraryItem.ALBUM} />
             <AddCollectionToGroupAction ids={ids} itemType={LibraryItem.ALBUM} />
+            <PlayAsVideosAction ids={ids} itemType={LibraryItem.ALBUM} />
+            <FindVideosAction ids={ids} itemType={LibraryItem.ALBUM} />
             <AddAlbumToProfileAction albums={items} />
             <PinAction item={items[0]} kind="album" />
             <ContextMenu.Divider />

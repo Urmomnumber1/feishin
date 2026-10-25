@@ -6,6 +6,7 @@ import styles from './home-plus.module.css';
 
 import { genresQueries } from '/@/renderer/features/genres/api/genres-api';
 import { type GroupSong } from '/@/renderer/features/group-play/store/group-play.store';
+import { VideoShelf } from '/@/renderer/features/hermes-video/components/music-video-button';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { songsQueries } from '/@/renderer/features/songs/api/songs-api';
 import { socialApi } from '/@/renderer/features/sour/api/social-api';
@@ -254,6 +255,7 @@ export const MoodTiles = () => {
                     </button>
                 ))}
             </div>
+            <VideoShelf />
         </section>
     );
 };

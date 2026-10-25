@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import styles from './hub.module.css';
 
 import { api } from '/@/renderer/api';
+import { VideosCard } from '/@/renderer/features/hermes-video/components/video-manager';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { searchQueries } from '/@/renderer/features/search/api/search-api';
 import { Card } from '/@/renderer/features/sour/components/hub-panels';
@@ -707,6 +708,7 @@ export const LibraryTools = () => {
                 <LyricsTapCard />
             </div>
             <div className={styles.list}>
+                <VideosCard />
                 <MoodCard />
                 <DuplicatesCard />
                 <ArchiveCard />

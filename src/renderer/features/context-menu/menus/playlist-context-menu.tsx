@@ -8,6 +8,10 @@ import { PlayAction } from '/@/renderer/features/context-menu/actions/play-actio
 import { ContextMenuPreview } from '/@/renderer/features/context-menu/components/context-menu-preview';
 import { AddCollectionToGroupAction } from '/@/renderer/features/group-play/components/add-to-group-action';
 import {
+    FindVideosAction,
+    PlayAsVideosAction,
+} from '/@/renderer/features/hermes-video/components/video-actions';
+import {
     HidePlaylistAction,
     PinAction,
     PinPlaylistToProfileAction,
@@ -44,6 +48,8 @@ export const PlaylistContextMenu = ({ items, type }: PlaylistContextMenuProps) =
             <ContextMenu.Divider />
             <AddToPlaylistAction items={ids} itemType={LibraryItem.PLAYLIST} />
             <AddCollectionToGroupAction ids={ids} itemType={LibraryItem.PLAYLIST} />
+            <PlayAsVideosAction ids={ids} itemType={LibraryItem.PLAYLIST} />
+            <FindVideosAction ids={ids} itemType={LibraryItem.PLAYLIST} />
             <PinAction item={items[0]} kind="playlist" />
             <PinPlaylistToProfileAction playlist={items[0]} />
             {items.length === 1 && <HidePlaylistAction playlist={items[0]} />}

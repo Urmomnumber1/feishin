@@ -31,6 +31,7 @@ import {
     usePlaylistFolderViewState,
     usePlaylistNavigationState,
 } from '/@/renderer/features/sidebar/components/playlist-folder-tree';
+import { usePlayContext } from '/@/renderer/features/sour/stage/play-context';
 import { useSourStore } from '/@/renderer/features/sour/store/sour.store';
 import { useDragDrop } from '/@/renderer/hooks/use-drag-drop';
 import { useDragMonitor } from '/@/renderer/hooks/use-drag-monitor';
@@ -45,6 +46,7 @@ import {
     useSidebarPlaylistMode,
     useSidebarPlaylistSorting,
 } from '/@/renderer/store';
+import { usePlayerStoreBase } from '/@/renderer/store/player.store';
 import { formatDurationString } from '/@/renderer/utils';
 import { Accordion } from '/@/shared/components/accordion/accordion';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
@@ -66,7 +68,7 @@ import {
     SortOrder,
 } from '/@/shared/types/domain-types';
 import { DragData, DragOperation, DragTarget } from '/@/shared/types/drag-and-drop';
-import { Play } from '/@/shared/types/types';
+import { Play, PlayerStatus } from '/@/shared/types/types';
 
 const MotionLink = motion.create(Link);
 
@@ -284,6 +286,26 @@ export const PlaylistRowButton = memo(
         });
 
         const isDimmed = isDragging || (isSmartPlaylist && isAddDragActive);
+        // the playlist the music is playing from: little bars instead of nothing (still when paused)
+        const playingThis = usePlayContext((s) => s.playlistId) === item.id;
+        const musicPlaying = usePlayerStoreBase((s) => s.player.status) === PlayerStatus.PLAYING;
+        const bars = playingThis && (
+            <span
+                aria-label={musicPlaying ? 'Playing now' : 'Paused'}
+                className={clsx(styles['now-playing'], {
+                    [styles['now-playing-paused']]: !musicPlaying,
+                })}
+                title={
+                    musicPlaying
+                        ? 'Playing from this playlist'
+                        : 'Paused - playing from this playlist'
+                }
+            >
+                <span />
+                <span />
+                <span />
+            </span>
+        );
 
         return (
             <MotionLink
@@ -323,6 +345,9 @@ export const PlaylistRowButton = memo(
                                 thumbHash={item.thumbHash}
                                 type="table"
                             />
+                            {!isHovered && bars && (
+                                <div className={styles['now-playing-corner']}>{bars}</div>
+                            )}
                             {isHovered && (
                                 <div className={imageColumnStyles.playButtonOverlay}>
                                     <PlayTooltip type={playButtonBehavior}>
@@ -352,11 +377,13 @@ export const PlaylistRowButton = memo(
                         >
                             {name}
                         </Text>
-                        {isHovered && (
+                        {isHovered ? (
                             <ItemRowPlayControls
                                 className={clsx(styles.controls, styles.controlsCompact)}
                                 onPlay={(playType) => handlePlay(to, playType)}
                             />
+                        ) : (
+                            bars
                         )}
                     </>
                 ) : (
@@ -419,11 +446,13 @@ export const PlaylistRowButton = memo(
                             </div>
                         </div>
 
-                        {isHovered && (
+                        {isHovered ? (
                             <ItemRowPlayControls
                                 className={styles.controls}
                                 onPlay={(playType) => handlePlay(to, playType)}
                             />
+                        ) : (
+                            bars
                         )}
                     </>
                 )}
