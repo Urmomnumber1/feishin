@@ -454,3 +454,8 @@
         color: #f87171;
     }
 }
+
+/* the shop's profile entrance plays over the card */
+.profile {
+    position: relative;
+}
