@@ -8,22 +8,24 @@ import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-vid
 // How the Sour Shop's items look. Hermes Music keeps who owns and wears what; this draws them.
 
 // ---------- avatar decorations ----------
-const EMOJI: Record<string, { at: 'around' | 'top' | 'top-right'; glyph: string; spin?: boolean }> =
-    {
-        crown: { at: 'top', glyph: '👑' },
-        flame: { at: 'around', glyph: '🔥' },
-        headphones: { at: 'top', glyph: '🎧' },
-        heart: { at: 'top-right', glyph: '💖' },
-        lemon: { at: 'top-right', glyph: '🍋' },
-        notes: { at: 'around', glyph: '🎵' },
-        pumpkin: { at: 'top', glyph: '🎃' },
-        raincloud: { at: 'top', glyph: '🌧️' },
-        'snow-globe': { at: 'top-right', glyph: '❄️' },
-        sparkles: { at: 'around', glyph: '✨' },
-        sunflower: { at: 'top-right', glyph: '🌻' },
-        sunglasses: { at: 'face', glyph: '🕶️' },
-        'tiny-cat': { at: 'top', glyph: '🐈' },
-    };
+const EMOJI: Record<
+    string,
+    { at: 'around' | 'face' | 'top' | 'top-right'; glyph: string; spin?: boolean }
+> = {
+    crown: { at: 'top', glyph: '👑' },
+    flame: { at: 'around', glyph: '🔥' },
+    headphones: { at: 'top', glyph: '🎧' },
+    heart: { at: 'top-right', glyph: '💖' },
+    lemon: { at: 'top-right', glyph: '🍋' },
+    notes: { at: 'around', glyph: '🎵' },
+    pumpkin: { at: 'top', glyph: '🎃' },
+    raincloud: { at: 'top', glyph: '🌧️' },
+    'snow-globe': { at: 'top-right', glyph: '❄️' },
+    sparkles: { at: 'around', glyph: '✨' },
+    sunflower: { at: 'top-right', glyph: '🌻' },
+    sunglasses: { at: 'face', glyph: '🕶️' },
+    'tiny-cat': { at: 'top', glyph: '🐈' },
+};
 
 export const ShopDecoration = ({ kind, size }: { kind?: null | string; size: number }) => {
     const url = useHermesUrl();
