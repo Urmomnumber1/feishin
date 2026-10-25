@@ -10,6 +10,7 @@ import {
     useGroupPlayStore,
 } from '/@/renderer/features/group-play/store/group-play.store';
 import { playsSince } from '/@/renderer/features/hermes-plays/store/play-count.store';
+import { openMusicVideo } from '/@/renderer/features/hermes-video/components/music-video-button';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { getSongById } from '/@/renderer/features/player/utils';
 import {
@@ -391,6 +392,7 @@ export const ListenAlong = () => {
     const playSong = usePlaySong();
     const lastSong = useRef<null | string>(null);
     const lastSeek = useRef(0);
+    const videoOpened = useRef(false);
     const catchUp = useRef(false);
     const tickRef = useRef<(() => Promise<void>) | null>(null);
     const profiles = useSourProfiles().data ?? [];
@@ -399,6 +401,7 @@ export const ListenAlong = () => {
     useEffect(() => {
         if (!url || !following) return undefined;
         lastSong.current = null;
+        videoOpened.current = false;
         const stop = (message: string) => {
             setStore({ listenAlong: null, listenAlongName: null });
             toast.info({ message });
@@ -424,6 +427,11 @@ export const ListenAlong = () => {
             const player = usePlayerStoreBase.getState();
             if (Math.abs((player.player.speed || 1) - speed) > 0.001) player.setSpeed(speed);
             followKaraoke(!!p.karaoke);
+            // they're watching the video: open it here too (once - you can switch back to the cover)
+            if (p.video && !videoOpened.current) {
+                videoOpened.current = true;
+                openMusicVideo();
+            }
             // Hermes Music's clock, not this computer's (a clock a few seconds off used to mean drifting)
             const offset = p.serverNow ? p.serverNow - Date.now() : 0;
             const elapsed = p.playing ? ((Date.now() + offset - p.positionAt) / 1000) * speed : 0;

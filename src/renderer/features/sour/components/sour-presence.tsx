@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { toGroupSong } from '/@/renderer/features/group-play/api/group-play-api';
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
 import { usePlayCountStore } from '/@/renderer/features/hermes-plays/store/play-count.store';
+import { useVideoView } from '/@/renderer/features/hermes-video/components/music-video-button';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { sourApi } from '/@/renderer/features/sour/api/sour-api';
 import { deviceId } from '/@/renderer/features/sour/components/social';
@@ -162,6 +163,8 @@ export const SourPresence = () => {
                     playing: player.player.status === PlayerStatus.PLAYING,
                     position: useTimestampStoreBase.getState().timestamp,
                     speed: player.player.speed || 1,
+                    // watching the video in the Stage (friends listening along see it too)
+                    video: useStage.getState().open && useVideoView.getState().view === 'video',
                 })
                 .catch((error: Error) => {
                     // Hermes Music was reset or this is a different one: sign in again (unless this

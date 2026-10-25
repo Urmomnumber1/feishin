@@ -149,6 +149,8 @@ export interface SourProfile {
     // at a Sour Player TV party: nobody can join or listen along
     // code and hosting: only on your own profile
     tv?: null | { code?: string; event: string; host: string; hosting?: boolean };
+    // watching the music video in the Stage (listen along opens it too)
+    video?: boolean;
     visits?: { at: number; from: string; fromName: string }[];
     wall: WallNote[];
 }
