@@ -208,11 +208,12 @@ const Layout = () => {
                 </Text>
                 <SegmentedControl
                     data={[
-                        { label: 'New (v0.8)', value: 'new' },
+                        { label: 'New (v0.10)', value: 'liquid' },
+                        { label: 'v2 (v0.9)', value: 'new' },
                         { label: 'Classic (v0.7)', value: 'classic' },
                     ]}
                     onChange={(v) => setLook({ ui: v as SourLook['ui'] })}
-                    value={look.ui ?? 'new'}
+                    value={look.ui ?? 'liquid'}
                 />
             </Stack>
             <Stack gap={4}>

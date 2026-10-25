@@ -123,6 +123,8 @@ export interface SourProfile {
     color: null | string;
     created: string;
     custom: ProfileCustom;
+    // avatar decoration: 'party-hat' for accounts made before Sour Player 0.10
+    decoration?: null | string;
     favorites: GroupSong[];
     // Gavin (orange name, the Skyrim font and the lightning visualizer)
     gavin?: boolean;

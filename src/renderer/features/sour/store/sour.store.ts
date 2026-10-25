@@ -71,7 +71,8 @@ export interface SourLook {
     stageVinyl: boolean;
     startupSound: boolean;
     // the whole app's look: the v0.8 redesign, or Classic (how it looked up to v0.7)
-    ui: 'classic' | 'new';
+    // liquid = the v0.10 look, new = v2 (v0.8-0.9), classic = v0.7
+    ui: 'classic' | 'liquid' | 'new';
     // a heads-up with the next song a few seconds before this one ends
     upNext: boolean;
     visualizer: VisualizerStyle;
@@ -121,7 +122,7 @@ export const DEFAULT_LOOK: SourLook = {
     stageScene: 'none',
     stageVinyl: false,
     startupSound: false,
-    ui: 'new',
+    ui: 'liquid',
     upNext: false,
     visualizer: 'bars',
 };
@@ -137,6 +138,8 @@ interface SourStore {
     block: (artist: BlockedArtist) => void;
     blocked: BlockedArtist[];
     crossfade: Record<string, number>;
+    // big updates already celebrated (the 0.10 confetti shows once)
+    celebrated: string[];
     greeted: string;
     // playlists hidden from this computer's sidebar (right-click a playlist > Hide)
     hiddenPlaylists?: { id: string; name: string }[];
@@ -173,6 +176,7 @@ export const useSourStore = createWithEqualityFn<SourStore>()(
                 ),
             blocked: [],
             crossfade: {},
+            celebrated: [],
             greeted: '',
             hiddenPlaylists: [],
             history: [],
