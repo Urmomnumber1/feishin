@@ -319,6 +319,37 @@ const KaraokeBacking = ({ song }: { song: QueueSong }) => {
 };
 
 // lyrics timing and source (what used to be in the separate lyrics view)
+// A lyrics timing fix per song, kept on Hermes Music for everyone (lyrics timed to another cut of the song,
+// like Paparazzi's): added to the lyrics' own offset wherever Sour Player shows synced lyrics
+const lyricOffsetKey = (url: string, song?: QueueSong) => [
+    'lyric-offset',
+    url,
+    song?.artistName,
+    song?.name,
+];
+export const useSharedLyricOffset = (song?: QueueSong) => {
+    const url = useHermesUrl();
+    return (
+        useQuery({
+            enabled: !!url && !!song?.name,
+            queryFn: async () => {
+                const q = new URLSearchParams({
+                    artist: song?.artistName || '',
+                    title: song?.name || '',
+                });
+                const res = await fetch(`${url}/api/lyrics/offset?${q}`);
+                const json = res.ok ? await res.json() : { ms: 0 };
+                return Number(json.ms) || 0;
+            },
+            queryKey: lyricOffsetKey(url, song),
+            retry: false,
+            staleTime: 5 * 60 * 1000,
+        }).data ?? 0
+    );
+};
+
+let offsetSave: ReturnType<typeof setTimeout> | undefined;
+
 export const LyricsTools = ({
     karaoke,
     offsetMs,
@@ -329,12 +360,34 @@ export const LyricsTools = ({
     song?: QueueSong;
 }) => {
     const queryClient = useQueryClient();
+    const url = useHermesUrl();
     if (!song?._serverId || !song.id) return null;
     const key = queryKeys.songs.lyrics(song._serverId, { songId: song.id });
-    const shift = (by: number) =>
-        queryClient.setQueryData<LyricsQueryResult>(key, (prev) =>
-            prev ? { ...prev, selectedOffsetMs: (prev.selectedOffsetMs ?? 0) + by } : prev,
-        );
+    // the nudge is saved on Hermes Music for everyone (one save per pause in clicking)
+    const shift = (by: number) => {
+        if (!url) {
+            queryClient.setQueryData<LyricsQueryResult>(key, (prev) =>
+                prev ? { ...prev, selectedOffsetMs: (prev.selectedOffsetMs ?? 0) + by } : prev,
+            );
+            return;
+        }
+        const k = lyricOffsetKey(url, song);
+        const ms = (queryClient.getQueryData<number>(k) ?? 0) + by;
+        queryClient.setQueryData<number>(k, ms);
+        clearTimeout(offsetSave);
+        offsetSave = setTimeout(() => {
+            fetch(`${url}/api/lyrics/offset`, {
+                body: JSON.stringify({ artist: song.artistName, ms, title: song.name }),
+                headers: { 'content-type': 'application/json' },
+                method: 'POST',
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error();
+                    toast.success({ message: 'Lyrics timing saved for everyone' });
+                })
+                .catch(() => toast.error({ message: "Couldn't save the lyrics timing" }));
+        }, 900);
+    };
     const find = () =>
         openLyricSearchModal({
             artist: song.artistName,
@@ -350,11 +403,11 @@ export const LyricsTools = ({
         <div className={styles.lyricTools}>
             <button
                 className={styles.textTool}
-                onClick={() => shift(-250)}
-                title="Lyrics too early? Show them later"
+                onClick={() => shift(-500)}
+                title="Lyrics too early? Show them later (saved for everyone)"
                 type="button"
             >
-                -0.25s
+                Early
             </button>
             <span className={styles.offset} title="Lyrics timing">
                 {offsetMs > 0 ? '+' : ''}
@@ -362,11 +415,11 @@ export const LyricsTools = ({
             </span>
             <button
                 className={styles.textTool}
-                onClick={() => shift(250)}
-                title="Lyrics too late? Show them sooner"
+                onClick={() => shift(500)}
+                title="Lyrics too late? Show them sooner (saved for everyone)"
                 type="button"
             >
-                +0.25s
+                Late
             </button>
             <button
                 className={styles.textTool}

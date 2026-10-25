@@ -8,6 +8,12 @@ import styles from './sour-stage.module.css';
 import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { ContextMenuController } from '/@/renderer/features/context-menu/context-menu-controller';
 import { useGroupPlayStore } from '/@/renderer/features/group-play/store/group-play.store';
+import {
+    SourVideo,
+    useVideoView,
+    useVideoWindow,
+} from '/@/renderer/features/hermes-video/components/music-video-button';
+import { useMusicVideo } from '/@/renderer/features/hermes-video/hooks/use-music-video';
 import { useHermesUrl } from '/@/renderer/features/hermes-video/store/hermes-video.store';
 import { lyricsQueries } from '/@/renderer/features/lyrics/api/lyrics-api';
 import { MobileFullscreenPlayerBottomControls } from '/@/renderer/features/player/components/mobile-fullscreen-player-bottom-controls';
@@ -37,6 +43,7 @@ import {
     type Line,
     LyricsTools,
     restoreKaraokeVolume,
+    useSharedLyricOffset,
 } from '/@/renderer/features/sour/stage/stage-lyrics';
 import {
     type SourLook,
@@ -200,6 +207,14 @@ const StageView = () => {
         ? `${hermes}/api/playlist-themes/${encodeURIComponent(themed.id)}/image?v=${themed.image}`
         : null;
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
+    // Cover or Video: the song's music video (from Hermes Music) in place of the cover
+    const view = useVideoView((s) => s.view);
+    const { data: stageVideo } = useMusicVideo(song?.artistName, song?.name);
+    const showVideo = view === 'video' && !!stageVideo && !!song;
+    // one video at a time: the small window closes while the Stage shows it
+    useEffect(() => {
+        if (showVideo) useVideoWindow.setState({ floating: false });
+    }, [showVideo]);
     const coverWrap = useRef<HTMLDivElement>(null);
     const lyricsBox = useRef<HTMLDivElement>(null);
     const playing = status === PlayerStatus.PLAYING;
@@ -240,7 +255,9 @@ const StageView = () => {
     }).data;
     const selected = data?.selected as null | undefined | { lyrics?: unknown };
     const { lines, synced } = useMemo(() => toLines(selected?.lyrics), [selected]);
-    const offset = data?.selectedOffsetMs ?? 0;
+    // the lyrics' own offset plus the fix saved for this song on Hermes Music
+    const sharedOffset = useSharedLyricOffset(song ?? undefined);
+    const offset = (data?.selectedOffsetMs ?? 0) + sharedOffset;
     const nowMs = timestamp * 1000 + offset;
     let current = -1;
     if (synced)
@@ -334,6 +351,7 @@ const StageView = () => {
         };
     });
     const speedId = SPEEDS.find((s) => Math.abs(s.speed - speed) < 0.01)?.id ?? 'normal';
+    const subtitle = synced && current >= 0 ? lines[current]?.text : undefined;
 
     return (
         <div
@@ -373,6 +391,16 @@ const StageView = () => {
                         <Icon icon="arrowDownS" />
                     </button>
                 )}
+                <SegmentedControl
+                    aria-label="Cover or video"
+                    data={[
+                        { label: 'Cover', value: 'cover' },
+                        { disabled: !stageVideo, label: 'Video', value: 'video' },
+                    ]}
+                    onChange={(v) => useVideoView.setState({ view: v as 'cover' | 'video' })}
+                    size="xs"
+                    value={showVideo ? 'video' : 'cover'}
+                />
                 <Select
                     aria-label="Scene"
                     data={SCENES.map((s) => ({ label: s.label, value: s.id }))}
@@ -458,7 +486,25 @@ const StageView = () => {
                 )}
             </div>
 
-            <div className={styles.main}>
+            {showVideo && stageVideo && song && (
+                <div className={styles['video-main']}>
+                    <div className={styles['video-box']}>
+                        <SourVideo
+                            artist={song.artistName}
+                            key={stageVideo.videoId}
+                            subtitle={subtitle}
+                            title={song.name}
+                            variant="stage"
+                            video={stageVideo}
+                        />
+                    </div>
+                    <div className={styles.titles}>
+                        <div className={styles.title}>{song.name}</div>
+                        <div className={styles.artist}>{song.artistName}</div>
+                    </div>
+                </div>
+            )}
+            <div className={styles.main} style={showVideo ? { display: 'none' } : undefined}>
                 <div className={styles.left}>
                     <div
                         className={styles.coverWrap}

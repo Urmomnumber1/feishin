@@ -1,10 +1,42 @@
+/* the player: the video on a glow of its own colours, with a glass strip of controls under it */
+.stage-player,
+.floating-player {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.glow {
+    position: absolute;
+    inset: -12% -6%;
+    z-index: 0;
+    pointer-events: none;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.55;
+    filter: blur(48px) saturate(1.6);
+}
+
+.floating-player .glow {
+    display: none;
+}
+
 .frame {
     position: relative;
+    z-index: 1;
     width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #000;
-    border-radius: var(--theme-radius-md, 8px);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 45%);
+}
+
+.floating-player .frame {
+    border-radius: 10px;
+    box-shadow: none;
 }
 
 .frame iframe {
@@ -15,21 +47,169 @@
     border: 0;
 }
 
+/* clicks stay with Sour Player (YouTube's own controls would fight the sync) */
+.shield {
+    position: absolute;
+    inset: 0;
+}
+
+/* the line being sung, as subtitles */
+.subtitle {
+    position: absolute;
+    right: 6%;
+    bottom: 7%;
+    left: 6%;
+    z-index: 2;
+    font-size: clamp(1rem, 2.2vw, 2rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: #fff;
+    text-align: center;
+    text-shadow:
+        0 2px 12px rgb(0 0 0 / 85%),
+        0 0 2px rgb(0 0 0 / 90%);
+    pointer-events: none;
+}
+
+.badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: rgb(0 0 0 / 55%);
+    border-radius: 999px;
+}
+
+.bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    background: rgb(0 0 0 / 35%);
+    border-radius: 999px;
+    backdrop-filter: blur(14px);
+}
+
+.chip,
+.chip-on {
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    background: rgb(255 255 255 / 12%);
+    border: 0;
+    border-radius: 999px;
+}
+
+.chip:hover {
+    background: rgb(255 255 255 / 22%);
+}
+
+.chip-on {
+    color: #111;
+    background: var(--theme-colors-primary, #f4d03f);
+}
+
+.timing {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+}
+
+/* the small window in the corner */
 .floating {
     position: fixed;
     right: 16px;
-    bottom: 104px;
+    bottom: 110px;
     z-index: 900;
-    width: 340px;
+    width: 360px;
     padding: 6px;
     background: var(--theme-colors-surface, #222);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+}
+
+.floating-tools {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    display: flex;
+    gap: 4px;
+    padding: 2px;
+    background: rgb(0 0 0 / 50%);
+    border-radius: 8px;
+}
+
+/* the video picker */
+.pick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.pick,
+.pick-on {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 8px;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 12px;
+}
+
+.pick:hover {
+    background: var(--theme-colors-surface, rgb(255 255 255 / 6%));
+}
+
+.pick-on {
+    border-color: var(--theme-colors-primary, #f4d03f);
+}
+
+.pick img,
+.pick-on img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Watch and the Home shelf */
+.row-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.row {
+    display: grid;
+    grid-auto-columns: minmax(200px, 240px);
+    grid-auto-flow: column;
+    gap: 12px;
+    padding-bottom: 6px;
+    overflow-x: auto;
 }
 
 .wall {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
 }
 
@@ -44,16 +224,20 @@
     cursor: pointer;
     background: transparent;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    transition:
+        background 0.15s,
+        transform 0.15s;
 }
 
 .wall-item:hover {
     background: var(--theme-colors-surface, rgb(255 255 255 / 6%));
+    transform: translateY(-2px);
 }
 
 .wall-item img {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 8px;
 }

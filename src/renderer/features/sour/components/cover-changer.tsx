@@ -69,9 +69,14 @@ const CoverChanger = ({ album }: { album: Album }) => {
     useEffect(search, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const apply = (body: { image?: string; url?: string }) => {
-        if (!files.length) return toast.error({ message: "Couldn't find this album's files" });
         setBusy(true);
-        post<{ done: number }>(`${url}/api/library/cover`, { files, ...body })
+        // the album and artist too: Hermes Music finds the files by name when the paths don't match its folder
+        post<{ done: number }>(`${url}/api/library/cover`, {
+            album: album.name,
+            artist: album.albumArtistName,
+            files,
+            ...body,
+        })
             .then((r) => {
                 toast.success({
                     message: `New cover on ${r.done} song${r.done === 1 ? '' : 's'}. Navidrome shows it after its next scan.`,

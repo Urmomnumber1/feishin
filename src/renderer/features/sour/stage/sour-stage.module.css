@@ -95,6 +95,23 @@
     padding: 0 5vw;
 }
 
+/* Video view: the music video big in the middle, the song under it */
+.video-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 0 4vw;
+}
+
+.video-box {
+    width: min(100%, calc((100dvh - 330px) * 16 / 9), 1500px);
+}
+
 .left {
     display: flex;
     flex-direction: column;

@@ -371,7 +371,12 @@ const TagsAndCoverCard = () => {
                             onClick={() =>
                                 hermes<{ done: number; failed: unknown[] }>(
                                     `${url}/api/library/tags`,
-                                    { files, tags },
+                                    {
+                                        album: tags.album,
+                                        artist: tags.album_artist || tags.artist,
+                                        files,
+                                        tags,
+                                    },
                                 )
                                     .then((r) =>
                                         toast.success({
@@ -407,6 +412,8 @@ const TagsAndCoverCard = () => {
                                     key={c.url}
                                     onClick={() =>
                                         hermes<{ done: number }>(`${url}/api/library/cover`, {
+                                            album: tags.album,
+                                            artist: tags.album_artist || tags.artist,
                                             files,
                                             url: c.url,
                                         })
