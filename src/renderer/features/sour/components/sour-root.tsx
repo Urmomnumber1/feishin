@@ -16,6 +16,7 @@ import {
 } from '/@/renderer/features/sour/components/social-watchers';
 import { SourSafe } from '/@/renderer/features/sour/components/sour-safe';
 import { TvInvite } from '/@/renderer/features/sour/components/sour-tv';
+import { UiTen } from '/@/renderer/features/sour/components/ui10';
 import { LiquidTint, TenthUpdate } from '/@/renderer/features/sour/components/v10';
 import { applyAppIcon } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, holidayById } from '/@/renderer/features/sour/skins/holidays';
@@ -164,6 +165,9 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="listen along extras">
             <AlongWatcher />
+        </SourSafe>
+        <SourSafe name="v0.10 look">
+            <UiTen />
         </SourSafe>
         <SourSafe name="customize">
             <CustomizeApply />
