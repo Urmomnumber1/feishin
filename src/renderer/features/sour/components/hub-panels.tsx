@@ -140,7 +140,7 @@ export const FeedPanel = () => {
                                     <b>{a.byName ?? 'Someone'}</b> {a.text}
                                 </Text>
                                 <span className={styles.muted}>{timeAgo(a.at)}</span>
-                                <span className={styles.muted}>
+                                <span className={styles.muted} style={{ marginLeft: 8 }}>
                                     {FEED_REACTS.map((e) => {
                                         const n = (a as { reactions?: Record<string, string[]> })
                                             .reactions?.[e]?.length;

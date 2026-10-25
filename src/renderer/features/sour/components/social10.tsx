@@ -681,10 +681,10 @@ export const DailyGuessCard = () => {
                             {SNIPPETS[Math.min(tries, SNIPPETS.length - 1)]} second
                             {tries ? 's' : ''}. Six tries, points for getting it.
                         </Text>
+                        <Button onClick={listen} size="xs" variant="default" w="fit-content">
+                            ▶ Listen
+                        </Button>
                         <Group gap="xs" wrap="nowrap">
-                            <Button onClick={listen} size="xs" variant="default">
-                                ▶ Listen
-                            </Button>
                             <TextInput
                                 onChange={(e) => setGuess(e.currentTarget.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && guess.trim() && send()}
