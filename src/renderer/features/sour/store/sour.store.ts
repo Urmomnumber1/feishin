@@ -72,7 +72,7 @@ export interface SourLook {
     simple: boolean;
     socialToasts: boolean;
     splash: boolean;
-    stageScene: 'drive' | 'none' | 'rain' | 'snow' | 'stars';
+    stageScene: 'concert' | 'drive' | 'none' | 'rain' | 'snow' | 'stars';
     stageVinyl: boolean;
     startupSound: boolean;
     // the whole app's look: the v0.8 redesign, or Classic (how it looked up to v0.7)
