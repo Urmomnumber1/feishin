@@ -1,3 +1,5 @@
+import type { V10Style } from '/@/renderer/features/sour/visualizer/v10-scenes';
+
 import { useQuery } from '@tanstack/react-query';
 import { persist } from 'zustand/middleware';
 import { createWithEqualityFn } from 'zustand/traditional';
@@ -76,6 +78,8 @@ export interface SourLook {
     // a heads-up with the next song a few seconds before this one ends
     upNext: boolean;
     visualizer: VisualizerStyle;
+    // Mix your own: two v0.10 visualizers drawn on top of each other
+    vizMix: [V10Style, V10Style];
 }
 
 export type VisualizerStyle =
@@ -83,10 +87,12 @@ export type VisualizerStyle =
     | 'glow'
     | 'halo'
     | 'lightning'
+    | 'mix'
     | 'orbit'
     | 'pulp'
     | 'river'
-    | 'soul';
+    | 'soul'
+    | V10Style;
 
 export const DEFAULT_LOOK: SourLook = {
     albumAccent: false,
@@ -125,6 +131,7 @@ export const DEFAULT_LOOK: SourLook = {
     ui: 'liquid',
     upNext: false,
     visualizer: 'bars',
+    vizMix: ['aurora', 'constellations'],
 };
 
 interface BlockedArtist {
@@ -137,9 +144,9 @@ interface BlockedArtist {
 interface SourStore {
     block: (artist: BlockedArtist) => void;
     blocked: BlockedArtist[];
-    crossfade: Record<string, number>;
     // big updates already celebrated (the 0.10 confetti shows once)
     celebrated: string[];
+    crossfade: Record<string, number>;
     greeted: string;
     // playlists hidden from this computer's sidebar (right-click a playlist > Hide)
     hiddenPlaylists?: { id: string; name: string }[];
@@ -175,8 +182,8 @@ export const useSourStore = createWithEqualityFn<SourStore>()(
                         : { blocked: [...state.blocked, artist] },
                 ),
             blocked: [],
-            crossfade: {},
             celebrated: [],
+            crossfade: {},
             greeted: '',
             hiddenPlaylists: [],
             history: [],

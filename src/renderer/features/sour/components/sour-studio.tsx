@@ -18,11 +18,13 @@ import {
     SourVisualizer,
     VISUALIZER_STYLES,
 } from '/@/renderer/features/sour/visualizer/sour-visualizer';
+import { V10_STYLES, type V10Style } from '/@/renderer/features/sour/visualizer/v10-scenes';
 import { useCustomThemes } from '/@/renderer/store/custom-themes.store';
 import { useSettingsStore } from '/@/renderer/store/settings.store';
 import { THEME_DATA } from '/@/renderer/themes/use-app-theme';
 import { fontOptions } from '/@/renderer/types/fonts';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
+import { Group } from '/@/shared/components/group/group';
 import { SegmentedControl } from '/@/shared/components/segmented-control/segmented-control';
 import { Select } from '/@/shared/components/select/select';
 import { Slider } from '/@/shared/components/slider/slider';
@@ -163,6 +165,7 @@ const Visualizers = () => {
     const barStyle = useSourStore((s) => s.look.barStyle) ?? 'bars';
     const setLook = useSourStore((s) => s.setLook);
     const perks = useMyProfile().data?.perks ?? [];
+    const mix = useSourStore((s) => s.look.vizMix) ?? ['aurora', 'constellations'];
     return (
         <Stack gap="sm">
             <LookSwitch
@@ -190,6 +193,24 @@ const Visualizers = () => {
                     </button>
                 ))}
             </div>
+            {current === 'mix' && (
+                <Group gap="xs" grow>
+                    {[0, 1].map((i) => (
+                        <Select
+                            data={V10_STYLES.map((v) => ({ label: v.label, value: v.id }))}
+                            key={i}
+                            label={i ? 'On top' : 'Underneath'}
+                            onChange={(v) => {
+                                if (!v) return;
+                                const next = [...mix] as typeof mix;
+                                next[i] = v as V10Style;
+                                setLook({ vizMix: next });
+                            }}
+                            value={mix[i]}
+                        />
+                    ))}
+                </Group>
+            )}
             <Text isMuted size="sm">
                 The big one lives in the Sour Stage (full screen now playing).
             </Text>
