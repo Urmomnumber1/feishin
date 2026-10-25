@@ -229,7 +229,11 @@ export const AlongWatcher = () => {
     const playSongs = usePlaySongs();
     const mine = useAlongLog(me && riders.length ? me.id : null).data;
     const theirs = useAlongLog(following).data;
-    const seen = useRef(Date.now());
+    // only messages from after the app opened
+    const seen = useRef(0);
+    useEffect(() => {
+        seen.current = Date.now();
+    }, []);
     const lastSong = useRef<null | string>(null);
 
     useEffect(() => {
