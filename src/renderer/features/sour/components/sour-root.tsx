@@ -4,6 +4,7 @@ import {
     BlindWatcher,
     CountdownOverlay,
 } from '/@/renderer/features/group-play/components/group-room';
+import { AlongWatcher } from '/@/renderer/features/sour/components/along-extras';
 import { ExtraShortcuts, Splash } from '/@/renderer/features/sour/components/app-extras';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { KeepPlaying, UpNextHeadsUp } from '/@/renderer/features/sour/components/keep-playing';
@@ -159,6 +160,9 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="holiday layer">
             <HolidayLayer />
+        </SourSafe>
+        <SourSafe name="listen along extras">
+            <AlongWatcher />
         </SourSafe>
         <SourSafe name="liquid tint">
             <LiquidTint />

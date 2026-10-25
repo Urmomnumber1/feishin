@@ -142,6 +142,10 @@ interface BlockedArtist {
 // This computer's Sour Player state: the profile key (what lets it change the profile), blocked
 // artists, private song notes, pinned sidebar items, saved groups and look settings.
 interface SourStore {
+    // songs heard while listening along (newest first)
+    alongHistory: { at: number; friend: string; song: GroupSong }[];
+    // when the friend you listen along with stops, follow someone else who is listening
+    alongKeepGoing: boolean;
     block: (artist: BlockedArtist) => void;
     blocked: BlockedArtist[];
     // big updates already celebrated (the 0.10 confetti shows once)
@@ -177,6 +181,8 @@ export const useSimpleMode = () => useSourStore((state) => !!state.look.simple);
 export const useSourStore = createWithEqualityFn<SourStore>()(
     persist(
         (set) => ({
+            alongHistory: [],
+            alongKeepGoing: false,
             block: (artist) =>
                 set((state) =>
                     state.blocked.some((b) => b.name.toLowerCase() === artist.name.toLowerCase())
