@@ -106,10 +106,13 @@
     justify-content: center;
     min-height: 0;
     padding: 0 4vw;
+    overflow: hidden;
 }
 
 .video-box {
-    width: min(100%, calc((100dvh - 330px) * 16 / 9), 1500px);
+    /* as big as fits between the toolbar and the visualizer, with room for the controls and the title
+       (the Stage leaves 90px for the player bar, 60px for its toolbar and about 160px for the visualizer) */
+    width: min(100%, calc((100dvh - 440px) * 16 / 9), 1600px);
 }
 
 .left {
