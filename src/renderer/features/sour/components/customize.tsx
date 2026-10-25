@@ -25,8 +25,9 @@ export interface Custom10 {
     dock: boolean;
     gallery: boolean;
     headingFont: string;
-    icons: 'bold' | 'regular' | 'thin';
+    icons: 'bold' | 'colour' | 'regular' | 'thin';
     lyricsFont: string;
+    moodCrossfade: boolean;
     morph: boolean;
     parallax: boolean;
     poster: boolean;
@@ -38,6 +39,7 @@ export interface Custom10 {
     text: string;
     themeOn: boolean;
     timeOfDay: boolean;
+    widget: boolean;
 }
 
 export const DEFAULT_CUSTOM: Custom10 = {
@@ -49,6 +51,7 @@ export const DEFAULT_CUSTOM: Custom10 = {
     headingFont: 'default',
     icons: 'regular',
     lyricsFont: 'default',
+    moodCrossfade: false,
     morph: true,
     parallax: true,
     poster: true,
@@ -60,6 +63,7 @@ export const DEFAULT_CUSTOM: Custom10 = {
     text: '#f2f2f2',
     themeOn: false,
     timeOfDay: true,
+    widget: false,
 };
 
 const STAGE_BG = 'sour-stage-background';
@@ -243,6 +247,8 @@ export const Customize = () => {
                         ['poster', 'Poster album pages'],
                         ['gallery', 'Gallery library'],
                         ['timeOfDay', 'Light follows the time of day'],
+                        ['moodCrossfade', 'Crossfade follows the mood'],
+                        ['widget', 'Mini player as a desktop widget'],
                     ] as const
                 ).map(([k, label]) => (
                     <Switch
@@ -285,6 +291,7 @@ export const Customize = () => {
                         { label: 'Thin', value: 'thin' },
                         { label: 'Regular', value: 'regular' },
                         { label: 'Bold', value: 'bold' },
+                        { label: 'Colour', value: 'colour' },
                     ]}
                     onChange={(v) => setCustom({ icons: v as Custom10['icons'] })}
                     value={c.icons}
