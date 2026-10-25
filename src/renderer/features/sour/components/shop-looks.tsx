@@ -21,7 +21,7 @@ const EMOJI: Record<string, { at: 'around' | 'top' | 'top-right'; glyph: string;
         'snow-globe': { at: 'top-right', glyph: '❄️' },
         sparkles: { at: 'around', glyph: '✨' },
         sunflower: { at: 'top-right', glyph: '🌻' },
-        sunglasses: { at: 'top', glyph: '🕶️' },
+        sunglasses: { at: 'face', glyph: '🕶️' },
         'tiny-cat': { at: 'top', glyph: '🐈' },
     };
 
@@ -122,6 +122,22 @@ export const ShopDecoration = ({ kind, size }: { kind?: null | string; size: num
                         {e.glyph}
                     </span>
                 ))}
+            </span>
+        );
+    }
+    if (e.at === 'face') {
+        return (
+            <span
+                aria-hidden
+                className={clsx(styles.deco, styles.emoji)}
+                style={{
+                    fontSize: size * 0.55,
+                    left: '50%',
+                    top: size * 0.18,
+                    transform: 'translateX(-50%)',
+                }}
+            >
+                {e.glyph}
             </span>
         );
     }
