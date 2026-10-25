@@ -49,12 +49,25 @@
 
 /* ---------- player bar: a glass strip floating above the bottom edge ---------- */
 .sour-v8:not(.sour-ios) #player-bar {
-    padding: var(--v8-gap);
+    padding: 6px var(--v8-gap);
     background: transparent !important;
 }
 
+/* the song, artist and album fit inside the floating bar (the album line was cut off at the bottom) */
+.sour-v8:not(.sour-ios) [class*='left-controls-module-metadata-stack'] {
+    gap: 1px;
+}
+
+.sour-v8:not(.sour-ios) [class*='left-controls-module-image-wrapper'] {
+    padding-block: 4px;
+}
+
+
 .sour-v8:not(.sour-ios) #player-bar > div {
+    /* ultrawide screens: the bar stays together in the middle instead of spreading to both edges */
     width: auto;
+    max-width: 2000px;
+    margin-inline: auto;
     overflow: hidden;
     background: color-mix(in srgb, var(--theme-colors-surface) 70%, transparent);
     border: 1px solid var(--v8-line);
@@ -183,4 +196,12 @@
 .sour-v8:not(.sour-ios) ::-webkit-scrollbar-thumb {
     background: color-mix(in srgb, var(--theme-colors-foreground) 18%, transparent);
     border-radius: 8px;
+}
+
+/* ultrawide screens: pages use more of the width (they stopped at 1800px, leaving wide empty sides) */
+@media (width >= 2560px) {
+    .sour-v8:not(.sour-ios) [class*='library-container-module-container'],
+    .sour-v8:not(.sour-ios) [class*='library-header-bar-module-header-container'] {
+        max-width: 2400px;
+    }
 }

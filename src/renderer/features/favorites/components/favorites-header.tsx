@@ -137,7 +137,8 @@ export const FavoritesHeader = ({ itemType }: FavoritesHeaderProps) => {
                             {itemCount}
                         </LibraryHeaderBar.Badge>
                     </LibraryHeaderBar>
-                    <Group>
+                    {/* one line: wrapping made the header taller than its bar and cut the title off */}
+                    <Group gap="xs" wrap="nowrap">
                         <FavoritesThemeButton />
                         <ListSearchInput />
                     </Group>
