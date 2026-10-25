@@ -148,6 +148,8 @@ interface SourStore {
     celebrated: string[];
     crossfade: Record<string, number>;
     greeted: string;
+    // Group Play quiet mode: no soundboard or join sounds
+    groupQuiet: boolean;
     // playlists hidden from this computer's sidebar (right-click a playlist > Hide)
     hiddenPlaylists?: { id: string; name: string }[];
     history: HistoryEntry[];
@@ -185,6 +187,7 @@ export const useSourStore = createWithEqualityFn<SourStore>()(
             celebrated: [],
             crossfade: {},
             greeted: '',
+            groupQuiet: false,
             hiddenPlaylists: [],
             history: [],
             holidayRestore: null,
