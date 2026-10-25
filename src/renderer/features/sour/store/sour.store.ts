@@ -1,3 +1,4 @@
+import type { Custom10 } from '/@/renderer/features/sour/components/customize';
 import type { V10Style } from '/@/renderer/features/sour/visualizer/v10-scenes';
 
 import { useQuery } from '@tanstack/react-query';
@@ -44,6 +45,8 @@ export interface SourLook {
     barVisualizer: boolean;
     corners: 'normal' | 'round' | 'sharp';
     cursor: boolean;
+    // Sour Studio > Customize (0.10)
+    custom10?: Partial<Custom10>;
     dailyTheme: boolean;
     density: number;
     fadeCovers: boolean;

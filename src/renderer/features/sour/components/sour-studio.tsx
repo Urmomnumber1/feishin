@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import styles from './sour-studio.module.css';
 
+import { Customize } from '/@/renderer/features/sour/components/customize';
 import { fontFamily, SOUR_FONTS } from '/@/renderer/features/sour/fonts';
 import { drawAppIcon, ICON_PACKS } from '/@/renderer/features/sour/skins/app-icon';
 import { currentHoliday, HOLIDAY_LIST } from '/@/renderer/features/sour/skins/holidays';
@@ -461,6 +462,7 @@ const Studio = () => (
             <Tabs.Tab value="layout">Layout</Tabs.Tab>
             <Tabs.Tab value="fonts">Fonts</Tabs.Tab>
             <Tabs.Tab value="icon">Icon</Tabs.Tab>
+            <Tabs.Tab value="customize">Customize</Tabs.Tab>
             <Tabs.Tab value="extras">Extras</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel pt="md" value="skins">
@@ -480,6 +482,9 @@ const Studio = () => (
         </Tabs.Panel>
         <Tabs.Panel pt="md" value="icon">
             <Icons />
+        </Tabs.Panel>
+        <Tabs.Panel pt="md" value="customize">
+            <Customize />
         </Tabs.Panel>
         <Tabs.Panel pt="md" value="extras">
             <Extras />

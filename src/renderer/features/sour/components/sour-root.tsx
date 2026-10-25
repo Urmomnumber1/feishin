@@ -6,6 +6,7 @@ import {
 } from '/@/renderer/features/group-play/components/group-room';
 import { AlongWatcher } from '/@/renderer/features/sour/components/along-extras';
 import { ExtraShortcuts, Splash } from '/@/renderer/features/sour/components/app-extras';
+import { CustomizeApply } from '/@/renderer/features/sour/components/customize';
 import { HolidayLayer } from '/@/renderer/features/sour/components/holiday-layer';
 import { KeepPlaying, UpNextHeadsUp } from '/@/renderer/features/sour/components/keep-playing';
 import { MiniPlayer } from '/@/renderer/features/sour/components/mini-player';
@@ -163,6 +164,9 @@ export const SourRoot = () => (
         </SourSafe>
         <SourSafe name="listen along extras">
             <AlongWatcher />
+        </SourSafe>
+        <SourSafe name="customize">
+            <CustomizeApply />
         </SourSafe>
         <SourSafe name="liquid tint">
             <LiquidTint />
