@@ -406,8 +406,10 @@ export const openVersionPicker = (
             <PickerBody
                 mode={mode}
                 onPicked={(v) => {
-                    if (mode === 'start') closeModal(VERSION_PICKER);
+                    // (0.16) the pick first, then the window: closing it calls onClose, which used to count
+                    // as "cancelled" before the pick had landed (the song then never started)
                     onPicked?.(v);
+                    if (mode === 'start') closeModal(VERSION_PICKER);
                 }}
                 song={song}
             />
